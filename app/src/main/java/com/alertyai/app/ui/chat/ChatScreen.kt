@@ -17,6 +17,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.SmartToy
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -28,6 +29,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.foundation.clickable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -95,7 +98,7 @@ fun ChatScreen() {
                 contentPadding = PaddingValues(vertical = 20.dp)
             ) {
                 items(state.messages, key = { it.id }) { msg ->
-                    MessageBubble(msg)
+                    MessageBubble(msg, onReply = { vm.setReplyingTo(it) })
                 }
                 if (state.isLoading) {
                     item { TypingIndicator() }
@@ -134,6 +137,24 @@ fun ChatScreen() {
                 containerColor = MaterialTheme.colorScheme.surface
             ) {
                 Column(Modifier.padding(16.dp)) {
+                    AnimatedVisibility(visible = state.replyingTo != null) {
+                        state.replyingTo?.let { replyMsg ->
+                            Row(
+                                Modifier.fillMaxWidth().padding(bottom = 12.dp, start = 8.dp, end = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Column(Modifier.weight(1f)) {
+                                    Text("REPLYING TO ${if (replyMsg.role == MessageRole.USER) "YOURSELF" else "AI ASSISTANT"}",
+                                        style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                                    Text(replyMsg.content, maxLines = 1, overflow = TextOverflow.Ellipsis, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                }
+                                IconButton(onClick = { vm.setReplyingTo(null) }, modifier = Modifier.size(24.dp)) {
+                                    Icon(Icons.Default.Close, "Cancel Reply", modifier = Modifier.size(16.dp))
+                                }
+                            }
+                        }
+                    }
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -153,7 +174,9 @@ fun ChatScreen() {
                                     unfocusedContainerColor = Color.Transparent,
                                     focusedContainerColor = Color.Transparent,
                                     unfocusedIndicatorColor = Color.Transparent,
-                                    focusedIndicatorColor = Color.Transparent
+                                    focusedIndicatorColor = Color.Transparent,
+                                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                                 ),
                                 maxLines = 4,
                                 textStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
@@ -196,7 +219,7 @@ fun ChatScreen() {
 }
 
 @Composable
-private fun MessageBubble(msg: ChatMessage) {
+private fun MessageBubble(msg: ChatMessage, onReply: (ChatMessage) -> Unit) {
     val isUser = msg.role == MessageRole.USER
     val timeFmt = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
 
@@ -267,12 +290,20 @@ private fun MessageBubble(msg: ChatMessage) {
             }
 
             Spacer(Modifier.height(4.dp))
-            Text(
-                timeFmt.format(Date(msg.timestamp)),
-                fontSize = 10.sp, 
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
-            )
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(
+                    timeFmt.format(Date(msg.timestamp)),
+                    fontSize = 10.sp, 
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                )
+                Text("REPLY", 
+                    fontSize = 10.sp, 
+                    fontWeight = FontWeight.Black, 
+                    color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f), 
+                    modifier = Modifier.clickable { onReply(msg) }.padding(4.dp)
+                )
+            }
         }
     }
 }

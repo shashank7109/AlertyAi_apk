@@ -140,4 +140,40 @@ class OrgRepository @Inject constructor() {
             emptyList()
         }
     }
+
+    suspend fun assignTask(context: Context, orgId: String, req: com.alertyai.app.network.AssignTaskRequest): Result<String> = withContext(Dispatchers.IO) {
+        val token = TokenManager.getToken(context) ?: return@withContext Result.failure(Exception("Not logged in"))
+        try {
+            val response = api.assignTask("Bearer $token", orgId, req)
+            if (response.isSuccessful) {
+                Result.success(response.body()?.message ?: "Task assigned successfully")
+            } else {
+                Result.failure(Exception(response.errorBody()?.string() ?: "Failed to assign task"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getMyAssignedTasks(context: Context, orgId: String): List<com.alertyai.app.network.TeamTask> = withContext(Dispatchers.IO) {
+        val token = TokenManager.getToken(context) ?: return@withContext emptyList()
+        try {
+            val response = api.getMyAssignedTasks("Bearer $token", orgId)
+            if (response.isSuccessful) response.body()?.tasks ?: emptyList()
+            else emptyList()
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun getTasksAssignedByMe(context: Context, orgId: String): List<com.alertyai.app.network.TeamTask> = withContext(Dispatchers.IO) {
+        val token = TokenManager.getToken(context) ?: return@withContext emptyList()
+        try {
+            val response = api.getTasksAssignedByMe("Bearer $token", orgId)
+            if (response.isSuccessful) response.body()?.tasks ?: emptyList()
+            else emptyList()
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
 }

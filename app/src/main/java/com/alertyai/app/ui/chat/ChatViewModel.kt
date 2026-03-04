@@ -29,7 +29,8 @@ data class ChatUiState(
         )
     ),
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val replyingTo: ChatMessage? = null
 )
 
 class ChatViewModel : ViewModel() {
@@ -37,16 +38,26 @@ class ChatViewModel : ViewModel() {
     private val _state = MutableStateFlow(ChatUiState())
     val state: StateFlow<ChatUiState> = _state
 
+    fun setReplyingTo(msg: ChatMessage?) {
+        _state.value = _state.value.copy(replyingTo = msg)
+    }
+
     fun sendMessage(context: Context, text: String) {
         if (text.isBlank()) return
         val token = TokenManager.getToken(context) ?: return
 
+        val replyTo = _state.value.replyingTo
+        val finalContent = if (replyTo != null) {
+            "> ${replyTo.content.take(80).replace("\n", " ")}...\n\n$text"
+        } else text
+
         // Add user message instantly
-        val userMsg = ChatMessage(role = MessageRole.USER, content = text.trim())
+        val userMsg = ChatMessage(role = MessageRole.USER, content = finalContent)
         _state.value = _state.value.copy(
             messages = _state.value.messages + userMsg,
             isLoading = true,
-            error = null
+            error = null,
+            replyingTo = null
         )
 
         viewModelScope.launch {

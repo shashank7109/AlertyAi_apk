@@ -139,4 +139,24 @@ interface ApiService {
         @Header("Authorization") bearer: String,
         @Path("org_id") orgId: String
     ): Response<MentionSuggestionsResponse>
+
+    // ── Task Assignment ────────────────────────────────────────────────────────
+    @POST("api/orgs/{org_id}/assign-task")
+    suspend fun assignTask(
+        @Header("Authorization") bearer: String,
+        @Path("org_id") orgId: String,
+        @Body body: AssignTaskRequest
+    ): Response<AssignTaskResponse>
+
+    @GET("api/orgs/{org_id}/my-tasks")
+    suspend fun getMyAssignedTasks(
+        @Header("Authorization") bearer: String,
+        @Path("org_id") orgId: String
+    ): Response<TeamTasksResponse>
+
+    @GET("api/orgs/{org_id}/assigned-by-me")
+    suspend fun getTasksAssignedByMe(
+        @Header("Authorization") bearer: String,
+        @Path("org_id") orgId: String
+    ): Response<TeamTasksResponse>
 }

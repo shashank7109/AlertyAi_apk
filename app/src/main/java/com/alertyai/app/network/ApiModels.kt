@@ -117,3 +117,36 @@ data class MentionMember(
     @SerializedName("display_name") val displayName: String,
     @SerializedName("profile_picture") val profilePicture: String? = null
 )
+
+// ── Task Assignment ────────────────────────────────────────────────────────────
+data class AssignTaskRequest(
+    val title: String,
+    val description: String = "",
+    val priority: String = "normal",
+    @SerializedName("due_date") val dueDate: String? = null,
+    @SerializedName("assignee_email") val assigneeEmail: String
+)
+
+data class AssignTaskResponse(
+    val success: Boolean,
+    @SerializedName("task_id") val taskId: String? = null,
+    val message: String? = null
+)
+
+data class TeamTask(
+    val id: String = "",
+    @SerializedName("org_id") val orgId: String = "",
+    val title: String = "",
+    val description: String? = "",
+    val priority: String = "normal",
+    val status: String = "pending",
+    @SerializedName("assignee_email") val assigneeEmail: String = "",
+    @SerializedName("assigned_by_email") val assignedByEmail: String = "",
+    @SerializedName("due_date") val dueDate: String? = null,
+    @SerializedName("created_at") val createdAt: String = ""
+)
+
+data class TeamTasksResponse(
+    val success: Boolean,
+    val tasks: List<TeamTask> = emptyList()
+)
