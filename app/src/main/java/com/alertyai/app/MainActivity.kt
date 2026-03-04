@@ -1,10 +1,15 @@
 package com.alertyai.app
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.*
+import androidx.core.content.ContextCompat
 import com.alertyai.app.navigation.AlertyNavGraph
 import com.alertyai.app.ui.auth.LoginScreen
 import com.alertyai.app.ui.theme.AlertyAITheme
@@ -14,24 +19,49 @@ import dagger.hilt.android.AndroidEntryPoint
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { /* Handle result */ }
+
+    private fun checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                requestPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        checkNotificationPermission()
         setContent {
             var isDark by remember { mutableStateOf(false) }
-            // Auth gate: show LoginScreen if no JWT stored
-            var isLoggedIn by remember { mutableStateOf(TokenManager.isLoggedIn(this)) }
+            // Auth gate: reactively observe login state
+            val isLoggedIn by TokenManager.isLoggedInState.collectAsState(initial = TokenManager.isLoggedIn(this))
 
             AlertyAITheme(darkTheme = isDark) {
                 if (isLoggedIn) {
                     AlertyNavGraph(
                         isDark = isDark,
-                        onToggleTheme = { isDark = !isDark }
+                        onToggleTheme = { isDark = !isDark },
+                        onLogout = { /* TokenManager.isLoggedInState already handles the switch */ }
                     )
                 } else {
-                    LoginScreen(onLoginSuccess = { isLoggedIn = true })
+                    LoginScreen(onLoginSuccess = { TokenManager.isLoggedIn(this) })
                 }
             }
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        // When the app comes back to the foreground, check if the token has expired.
+        // If expired, clear it so the auth gate triggers the login screen immediately,
+        // rather than letting the user see 401 errors first.
+        if (TokenManager.isTokenExpired(this)) {
+            TokenManager.clearToken(this)
+            // isLoggedInState will flip to false → LoginScreen is shown automatically
         }
     }
 }

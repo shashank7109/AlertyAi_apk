@@ -26,6 +26,15 @@ data class UserInfo(
     val email: String? = null,
     val name: String? = null,
     @SerializedName("full_name") val fullName: String? = null,
+    val username: String? = null,
+    @SerializedName("mobile_number") val mobileNumber: String? = null,
+    @SerializedName("profile_picture") val profilePicture: String? = null
+)
+
+data class UserUpdateRequest(
+    val name: String? = null,
+    val username: String? = null,
+    @SerializedName("mobile_number") val mobileNumber: String? = null,
     @SerializedName("profile_picture") val profilePicture: String? = null
 )
 
@@ -60,4 +69,51 @@ data class AiTaskResponse(
     val message: String? = null,
     val transcript: String? = null,
     @SerializedName("task_data") val taskData: Map<String, Any>? = null
+) {
+    /** Pull subtasks from the task map (backend returns List<String> under "subtasks") */
+    @Suppress("UNCHECKED_CAST")
+    fun getSubtasks(): List<String> {
+        val src = task ?: taskData ?: return emptyList()
+        return (src["subtasks"] as? List<*>)?.filterIsInstance<String>() ?: emptyList()
+    }
+
+    fun getDescription(): String {
+        val src = task ?: taskData ?: return ""
+        return (src["description"] as? String)
+            ?: (src["note"] as? String)
+            ?: ""
+    }
+}
+
+// ── Organizations & Teams ───────────────────────────────────────────────────
+data class OrgListResponse(
+    val success: Boolean,
+    val organizations: List<com.alertyai.app.data.model.Organization> = emptyList()
+)
+
+data class TeamListResponse(
+    val success: Boolean,
+    val teams: List<com.alertyai.app.data.model.Team> = emptyList()
+)
+
+data class ChatHistoryResponse(
+    val success: Boolean,
+    val messages: List<com.alertyai.app.data.model.TeamChatMessage> = emptyList()
+)
+
+data class OrgMembersResponse(
+    val success: Boolean,
+    val members: List<com.alertyai.app.data.model.OrgMember> = emptyList()
+)
+
+data class MentionSuggestionsResponse(
+    val success: Boolean,
+    val members: List<MentionMember> = emptyList()
+)
+
+data class MentionMember(
+    @SerializedName("user_id") val userId: String,
+    val username: String,
+    @SerializedName("display_name") val displayName: String,
+    @SerializedName("profile_picture") val profilePicture: String? = null
 )

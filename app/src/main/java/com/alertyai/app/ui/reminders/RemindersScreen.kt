@@ -1,18 +1,26 @@
 package com.alertyai.app.ui.reminders
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.alertyai.app.data.model.Reminder
 import com.alertyai.app.data.model.RepeatInterval
+import com.alertyai.app.ui.components.*
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -25,34 +33,62 @@ fun RemindersScreen(vm: RemindersViewModel = hiltViewModel()) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Reminders", style = MaterialTheme.typography.headlineMedium) },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = MaterialTheme.colorScheme.background)
+                title = {
+                    Column {
+                        Text(
+                            "NOTIFICATION CENTER",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            "RECALL PROTOCOLS",
+                            style = MaterialTheme.typography.titleLarge,
+                            fontWeight = FontWeight.Black
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick        = { showSheet = true },
-                containerColor = MaterialTheme.colorScheme.primary,
-                contentColor   = Color.White,
-                shape          = MaterialTheme.shapes.extraLarge
-            ) { Icon(Icons.Default.Add, "Add reminder") }
+            ClayButton(
+                onClick = { showSheet = true },
+                modifier = Modifier.size(64.dp),
+                shape = CircleShape,
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
+                Icon(Icons.Default.Add, "Add reminder", tint = Color.White, modifier = Modifier.size(32.dp))
+            }
         }
     ) { padding ->
         if (reminders.isEmpty()) {
             Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("🔔", style = MaterialTheme.typography.headlineLarge)
-                    Spacer(Modifier.height(12.dp))
-                    Text("No reminders", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text("Tap + to schedule one", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Surface(
+                        modifier = Modifier.size(80.dp).clip(CircleShape),
+                        color = MaterialTheme.colorScheme.primary.copy(alpha = 0.05f)
+                    ) {
+                        Box(contentAlignment = Alignment.Center) {
+                            Icon(Icons.Default.NotificationsNone, null, 
+                                tint = MaterialTheme.colorScheme.primary.copy(alpha = 0.4f), 
+                                modifier = Modifier.size(40.dp))
+                        }
+                    }
+                    Spacer(Modifier.height(24.dp))
+                    Text("NO RECALLS ACTIVE", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(Modifier.height(8.dp))
+                    Text("INITIATE NEW PROTOCOL VIA +", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                 }
             }
         } else {
             LazyColumn(
-                Modifier.padding(padding).padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(vertical = 12.dp)
+                Modifier.padding(padding).padding(horizontal = 24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(vertical = 20.dp)
             ) {
+                item {
+                    Text("ACTIVE PROTOCOLS", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                }
                 items(reminders, key = { it.id }) { reminder ->
                     ReminderItem(
                         reminder = reminder,
@@ -78,31 +114,55 @@ fun RemindersScreen(vm: RemindersViewModel = hiltViewModel()) {
 @Composable
 fun ReminderItem(reminder: Reminder, onDone: () -> Unit, onDelete: () -> Unit) {
     val fmt = SimpleDateFormat("d MMM, hh:mm a", Locale.getDefault())
-    Card(
-        shape  = MaterialTheme.shapes.large,
-        colors = CardDefaults.cardColors(
-            containerColor = if (reminder.isDone) MaterialTheme.colorScheme.surfaceVariant
-                             else MaterialTheme.colorScheme.surface
-        ),
+    ClayCard(
+        shape = RoundedCornerShape(20.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
-        Row(Modifier.padding(14.dp), verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            IconButton(onClick = onDone, modifier = Modifier.size(28.dp)) {
-                Icon(
-                    if (reminder.isDone) Icons.Default.CheckCircle else Icons.Default.Notifications,
-                    contentDescription = "Done",
-                    tint = if (reminder.isDone) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-            Column(Modifier.weight(1f)) {
-                Text(reminder.title, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
-                Text(fmt.format(Date(reminder.triggerAt)), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.primary)
-                if (reminder.isRepeating) {
-                    Text("Repeats: ${reminder.repeatInterval.name.lowercase()}", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Row(
+            Modifier.padding(16.dp), 
+            verticalAlignment = Alignment.CenterVertically, 
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Surface(
+                onClick = onDone,
+                modifier = Modifier.size(32.dp).clip(CircleShape),
+                color = if (reminder.isDone) Color(0xFF22C55E).copy(alpha = 0.2f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.05f)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        if (reminder.isDone) Icons.Default.CheckCircle else Icons.Default.Notifications,
+                        null,
+                        modifier = Modifier.size(18.dp),
+                        tint = if (reminder.isDone) Color(0xFF15803D) else MaterialTheme.colorScheme.primary
+                    )
                 }
             }
-            IconButton(onClick = onDelete, modifier = Modifier.size(28.dp)) {
-                Icon(Icons.Default.Close, "Delete", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            
+            Column(Modifier.weight(1f)) {
+                Text(
+                    reminder.title, 
+                    style = MaterialTheme.typography.bodyLarge, 
+                    fontWeight = FontWeight.Black,
+                    color = if (reminder.isDone) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
+                )
+                Text(
+                    fmt.format(Date(reminder.triggerAt)).uppercase(), 
+                    style = MaterialTheme.typography.labelSmall, 
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                if (reminder.isRepeating) {
+                    Text(
+                        "REPEAT: ${reminder.repeatInterval.name.uppercase()}", 
+                        style = MaterialTheme.typography.labelSmall, 
+                        fontWeight = FontWeight.Black,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                    )
+                }
+            }
+            
+            IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
+                Icon(Icons.Default.DeleteOutline, "Delete", tint = MaterialTheme.colorScheme.error.copy(alpha = 0.6f))
             }
         }
     }
@@ -114,35 +174,84 @@ fun AddReminderSheet(onDismiss: () -> Unit, onAdd: (String, String, Long, Repeat
     var title  by remember { mutableStateOf("") }
     var body   by remember { mutableStateOf("") }
     var repeat by remember { mutableStateOf(RepeatInterval.NONE) }
-    // Default to 1 hour from now
     val defaultTime = System.currentTimeMillis() + 3_600_000L
     var triggerAt by remember { mutableStateOf(defaultTime) }
 
-    ModalBottomSheet(onDismissRequest = onDismiss) {
+    ModalBottomSheet(onDismissRequest = onDismiss, containerColor = MaterialTheme.colorScheme.surface) {
         Column(
-            Modifier.padding(horizontal = 24.dp).padding(bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            Modifier.padding(horizontal = 24.dp).padding(bottom = 40.dp),
+            verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
-            Text("New Reminder", style = MaterialTheme.typography.titleLarge)
-            OutlinedTextField(value = title, onValueChange = { title = it }, label = { Text("Title") }, modifier = Modifier.fillMaxWidth(), singleLine = true, shape = MaterialTheme.shapes.large)
-            OutlinedTextField(value = body, onValueChange = { body = it }, label = { Text("Note (optional)") }, modifier = Modifier.fillMaxWidth(), shape = MaterialTheme.shapes.large)
+            Column {
+                Text("NEW PROTOCOL", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.primary)
+                Text("INITIATE RECALL", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Black)
+            }
 
-            Text("Repeat", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                RepeatInterval.values().forEach { r ->
-                    FilterChip(selected = repeat == r, onClick = { repeat = r }, label = { Text(r.name.lowercase().replaceFirstChar { it.uppercase() }) })
+            ClayCard(shape = RoundedCornerShape(16.dp)) {
+                TextField(
+                    value = title, 
+                    onValueChange = { title = it }, 
+                    placeholder = { Text("PROTOCOL TITLE") }, 
+                    modifier = Modifier.fillMaxWidth(), 
+                    singleLine = true,
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent
+                    ),
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Black)
+                )
+            }
+
+            ClayCard(shape = RoundedCornerShape(16.dp)) {
+                TextField(
+                    value = body, 
+                    onValueChange = { body = it }, 
+                    placeholder = { Text("DETAILED NOTES (OPTIONAL)") }, 
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = TextFieldDefaults.colors(
+                        unfocusedContainerColor = Color.Transparent,
+                        focusedContainerColor = Color.Transparent,
+                        unfocusedIndicatorColor = Color.Transparent,
+                        focusedIndicatorColor = Color.Transparent
+                    ),
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                )
+            }
+
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text("REPEAT ARCHITECTURE", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    RepeatInterval.values().forEach { r ->
+                        Surface(
+                            onClick = { repeat = r },
+                            shape = RoundedCornerShape(12.dp),
+                            color = if (repeat == r) MaterialTheme.colorScheme.primary else Color.Transparent,
+                            border = if (repeat == r) null else BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+                            modifier = Modifier.height(36.dp)
+                        ) {
+                            Box(Modifier.padding(horizontal = 12.dp), contentAlignment = Alignment.Center) {
+                                Text(
+                                    r.name.uppercase(), 
+                                    fontSize = 10.sp, 
+                                    fontWeight = FontWeight.Black,
+                                    color = if (repeat == r) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                            }
+                        }
+                    }
                 }
             }
 
-            Button(
+            ClayButton(
                 onClick  = { onAdd(title, body, triggerAt, repeat) },
                 enabled  = title.isNotBlank(),
-                modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape    = MaterialTheme.shapes.extraLarge
-            ) { Text("Schedule Reminder") }
+                modifier = Modifier.fillMaxWidth().height(64.dp),
+                containerColor = MaterialTheme.colorScheme.primary
+            ) { 
+                Text("DEPLOY REMINDER", fontWeight = FontWeight.Black, style = MaterialTheme.typography.titleSmall) 
+            }
         }
     }
 }
-
-// Suppress missing import warning - Color comes from material3 defaults
-private val Color = androidx.compose.ui.graphics.Color

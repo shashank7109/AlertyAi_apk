@@ -531,6 +531,85 @@ public final class TaskDao_Impl implements TaskDao {
     }, $completion);
   }
 
+  @Override
+  public Object getAllTasksList(final Continuation<? super List<Task>> $completion) {
+    final String _sql = "SELECT * FROM tasks WHERE alarmEnabled = 1 AND dueDate IS NOT NULL AND dueTime IS NOT NULL AND isDone = 0";
+    final RoomSQLiteQuery _statement = RoomSQLiteQuery.acquire(_sql, 0);
+    final CancellationSignal _cancellationSignal = DBUtil.createCancellationSignal();
+    return CoroutinesRoom.execute(__db, false, _cancellationSignal, new Callable<List<Task>>() {
+      @Override
+      @NonNull
+      public List<Task> call() throws Exception {
+        final Cursor _cursor = DBUtil.query(__db, _statement, false, null);
+        try {
+          final int _cursorIndexOfId = CursorUtil.getColumnIndexOrThrow(_cursor, "id");
+          final int _cursorIndexOfTitle = CursorUtil.getColumnIndexOrThrow(_cursor, "title");
+          final int _cursorIndexOfNote = CursorUtil.getColumnIndexOrThrow(_cursor, "note");
+          final int _cursorIndexOfPriority = CursorUtil.getColumnIndexOrThrow(_cursor, "priority");
+          final int _cursorIndexOfIsDone = CursorUtil.getColumnIndexOrThrow(_cursor, "isDone");
+          final int _cursorIndexOfDueDate = CursorUtil.getColumnIndexOrThrow(_cursor, "dueDate");
+          final int _cursorIndexOfDueTime = CursorUtil.getColumnIndexOrThrow(_cursor, "dueTime");
+          final int _cursorIndexOfAlarmEnabled = CursorUtil.getColumnIndexOrThrow(_cursor, "alarmEnabled");
+          final int _cursorIndexOfRemindMinsBefore = CursorUtil.getColumnIndexOrThrow(_cursor, "remindMinsBefore");
+          final int _cursorIndexOfLocation = CursorUtil.getColumnIndexOrThrow(_cursor, "location");
+          final int _cursorIndexOfSubtasksJson = CursorUtil.getColumnIndexOrThrow(_cursor, "subtasksJson");
+          final int _cursorIndexOfChecklistJson = CursorUtil.getColumnIndexOrThrow(_cursor, "checklistJson");
+          final int _cursorIndexOfCreatedAt = CursorUtil.getColumnIndexOrThrow(_cursor, "createdAt");
+          final List<Task> _result = new ArrayList<Task>(_cursor.getCount());
+          while (_cursor.moveToNext()) {
+            final Task _item;
+            final int _tmpId;
+            _tmpId = _cursor.getInt(_cursorIndexOfId);
+            final String _tmpTitle;
+            _tmpTitle = _cursor.getString(_cursorIndexOfTitle);
+            final String _tmpNote;
+            _tmpNote = _cursor.getString(_cursorIndexOfNote);
+            final Priority _tmpPriority;
+            final String _tmp;
+            _tmp = _cursor.getString(_cursorIndexOfPriority);
+            _tmpPriority = __converters.toPriority(_tmp);
+            final boolean _tmpIsDone;
+            final int _tmp_1;
+            _tmp_1 = _cursor.getInt(_cursorIndexOfIsDone);
+            _tmpIsDone = _tmp_1 != 0;
+            final Long _tmpDueDate;
+            if (_cursor.isNull(_cursorIndexOfDueDate)) {
+              _tmpDueDate = null;
+            } else {
+              _tmpDueDate = _cursor.getLong(_cursorIndexOfDueDate);
+            }
+            final Long _tmpDueTime;
+            if (_cursor.isNull(_cursorIndexOfDueTime)) {
+              _tmpDueTime = null;
+            } else {
+              _tmpDueTime = _cursor.getLong(_cursorIndexOfDueTime);
+            }
+            final boolean _tmpAlarmEnabled;
+            final int _tmp_2;
+            _tmp_2 = _cursor.getInt(_cursorIndexOfAlarmEnabled);
+            _tmpAlarmEnabled = _tmp_2 != 0;
+            final int _tmpRemindMinsBefore;
+            _tmpRemindMinsBefore = _cursor.getInt(_cursorIndexOfRemindMinsBefore);
+            final String _tmpLocation;
+            _tmpLocation = _cursor.getString(_cursorIndexOfLocation);
+            final String _tmpSubtasksJson;
+            _tmpSubtasksJson = _cursor.getString(_cursorIndexOfSubtasksJson);
+            final String _tmpChecklistJson;
+            _tmpChecklistJson = _cursor.getString(_cursorIndexOfChecklistJson);
+            final long _tmpCreatedAt;
+            _tmpCreatedAt = _cursor.getLong(_cursorIndexOfCreatedAt);
+            _item = new Task(_tmpId,_tmpTitle,_tmpNote,_tmpPriority,_tmpIsDone,_tmpDueDate,_tmpDueTime,_tmpAlarmEnabled,_tmpRemindMinsBefore,_tmpLocation,_tmpSubtasksJson,_tmpChecklistJson,_tmpCreatedAt);
+            _result.add(_item);
+          }
+          return _result;
+        } finally {
+          _cursor.close();
+          _statement.release();
+        }
+      }
+    }, $completion);
+  }
+
   @NonNull
   public static List<Class<?>> getRequiredConverters() {
     return Collections.emptyList();

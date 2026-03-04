@@ -3,6 +3,8 @@ package com.alertyai.app.ui.chat
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -15,6 +17,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.SmartToy
+import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -28,14 +31,15 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.alertyai.app.ui.components.*
 import java.text.SimpleDateFormat
 import java.util.*
 
 private val quickActions = listOf(
-    "📅" to "Create weekly plan",
-    "✅" to "Show my tasks",
-    "🛒" to "Remind me to buy groceries tomorrow",
-    "👥" to "Team updates"
+    "📅" to "Weekly Plan",
+    "✅" to "My Tasks",
+    "🛒" to "Groceries",
+    "👥" to "Team Sync"
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,7 +52,6 @@ fun ChatScreen() {
     val keyboard = LocalSoftwareKeyboardController.current
     var input by remember { mutableStateOf("") }
 
-    // Scroll to bottom when new message arrives
     LaunchedEffect(state.messages.size) {
         if (state.messages.isNotEmpty()) {
             listState.animateScrollToItem(state.messages.size - 1)
@@ -59,37 +62,37 @@ fun ChatScreen() {
         topBar = {
             TopAppBar(
                 title = {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Box(
-                            modifier = Modifier
-                                .size(38.dp)
-                                .clip(CircleShape)
-                                .background(MaterialTheme.colorScheme.primary),
-                            contentAlignment = Alignment.Center
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Surface(
+                            modifier = Modifier.size(40.dp).clip(RoundedCornerShape(12.dp)),
+                            color = MaterialTheme.colorScheme.primary
                         ) {
-                            Icon(Icons.Default.SmartToy, null, tint = Color.White, modifier = Modifier.size(22.dp))
+                            Box(contentAlignment = Alignment.Center) {
+                                Icon(Icons.Default.SmartToy, null, tint = Color.White, modifier = Modifier.size(24.dp))
+                            }
                         }
                         Column {
-                            Text("AI Assistant", fontWeight = FontWeight.SemiBold, fontSize = 16.sp)
-                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                            Text("AI ASSISTANT", fontWeight = FontWeight.Black, fontSize = 14.sp, letterSpacing = 1.sp)
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 Box(Modifier.size(6.dp).clip(CircleShape).background(Color(0xFF22C55E)))
-                                Text("Online", fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("SYSTEM ONLINE", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
-                }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         }
     ) { padding ->
         Column(
             modifier = Modifier.fillMaxSize().padding(padding)
         ) {
-            // ── Messages List ─────────────────────────────────────────────────
+            // Messages List
             LazyColumn(
                 state = listState,
-                modifier = Modifier.weight(1f).padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                contentPadding = PaddingValues(vertical = 12.dp)
+                modifier = Modifier.weight(1f).padding(horizontal = 20.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                contentPadding = PaddingValues(vertical = 20.dp)
             ) {
                 items(state.messages, key = { it.id }) { msg ->
                     MessageBubble(msg)
@@ -99,65 +102,94 @@ fun ChatScreen() {
                 }
             }
 
-            // ── Quick Actions ─────────────────────────────────────────────────
+            // Quick Actions (Minimalist Chips)
             LazyRow(
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 6.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
                 items(quickActions) { (emoji, text) ->
-                    FilterChip(
-                        selected = false,
+                    Surface(
                         onClick = { input = text },
-                        label = { Text("$emoji $text", fontSize = 12.sp) }
-                    )
+                        shape = RoundedCornerShape(12.dp),
+                        color = MaterialTheme.colorScheme.surface,
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)),
+                        modifier = Modifier.height(36.dp)
+                    ) {
+                        Row(
+                            Modifier.padding(horizontal = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(emoji, fontSize = 14.sp)
+                            Text(text.uppercase(), fontSize = 10.sp, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.primary)
+                        }
+                    }
                 }
             }
 
-            Divider()
-
-            // ── Input Bar ─────────────────────────────────────────────────────
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 8.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            // Input Bar
+            ClayCard(
+                shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
+                modifier = Modifier.fillMaxWidth(),
+                containerColor = MaterialTheme.colorScheme.surface
             ) {
-                OutlinedTextField(
-                    value = input,
-                    onValueChange = { input = it },
-                    placeholder = { Text("Type your message…") },
-                    modifier = Modifier.weight(1f),
-                    shape = RoundedCornerShape(24.dp),
-                    maxLines = 4,
-                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
-                    keyboardActions = KeyboardActions(onSend = {
-                        if (input.isNotBlank()) {
-                            vm.sendMessage(context, input)
-                            input = ""
-                            keyboard?.hide()
+                Column(Modifier.padding(16.dp)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Surface(
+                            modifier = Modifier.weight(1f).heightIn(min = 52.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.03f),
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.05f))
+                        ) {
+                            TextField(
+                                value = input,
+                                onValueChange = { input = it },
+                                placeholder = { Text("INITIATE COMMAND…", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold) },
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = TextFieldDefaults.colors(
+                                    unfocusedContainerColor = Color.Transparent,
+                                    focusedContainerColor = Color.Transparent,
+                                    unfocusedIndicatorColor = Color.Transparent,
+                                    focusedIndicatorColor = Color.Transparent
+                                ),
+                                maxLines = 4,
+                                textStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
+                                keyboardActions = KeyboardActions(onSend = {
+                                    if (input.isNotBlank()) {
+                                        vm.sendMessage(context, input)
+                                        input = ""
+                                        keyboard?.hide()
+                                    }
+                                })
+                            )
                         }
-                    })
-                )
-                FloatingActionButton(
-                    onClick = {
-                        if (input.isNotBlank() && !state.isLoading) {
-                            vm.sendMessage(context, input)
-                            input = ""
-                            keyboard?.hide()
+                        
+                        ClayButton(
+                            onClick = {
+                                if (input.isNotBlank() && !state.isLoading) {
+                                    vm.sendMessage(context, input)
+                                    input = ""
+                                    keyboard?.hide()
+                                }
+                            },
+                            modifier = Modifier.size(52.dp),
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            shape = RoundedCornerShape(16.dp)
+                        ) {
+                            Icon(Icons.Default.Send, "Send", tint = Color.White, modifier = Modifier.size(22.dp))
                         }
-                    },
-                    modifier = Modifier.size(48.dp),
-                    containerColor = MaterialTheme.colorScheme.primary
-                ) {
-                    Icon(Icons.Default.Send, "Send", tint = Color.White, modifier = Modifier.size(20.dp))
-                }
-            }
+                    }
 
-            state.error?.let {
-                Text("⚠️ $it", color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                    style = MaterialTheme.typography.bodySmall)
+                    state.error?.let {
+                        Text(it.uppercase(), color = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.padding(top = 8.dp),
+                            style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black)
+                    }
+                }
             }
         }
     }
@@ -173,65 +205,90 @@ private fun MessageBubble(msg: ChatMessage) {
         horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start
     ) {
         if (!isUser) {
-            Box(
-                modifier = Modifier.size(32.dp).clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.primary),
-                contentAlignment = Alignment.Center
-            ) { Text("🤖", fontSize = 14.sp) }
-            Spacer(Modifier.width(8.dp))
-        }
-        Column(horizontalAlignment = if (isUser) Alignment.End else Alignment.Start) {
             Surface(
+                modifier = Modifier.size(32.dp).clip(RoundedCornerShape(8.dp)),
+                color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(Icons.Default.SmartToy, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
+                }
+            }
+            Spacer(Modifier.width(12.dp))
+        }
+        
+        Column(
+            horizontalAlignment = if (isUser) Alignment.End else Alignment.Start,
+            modifier = Modifier.weight(1f, fill = false)
+        ) {
+            ClayCard(
                 shape = RoundedCornerShape(
                     topStart = 16.dp, topEnd = 16.dp,
                     bottomStart = if (isUser) 16.dp else 4.dp,
                     bottomEnd = if (isUser) 4.dp else 16.dp
                 ),
-                color = if (isUser) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.surfaceVariant,
-                shadowElevation = 1.dp
+                containerColor = if (isUser) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.surface
             ) {
-                Text(
-                    msg.content,
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-                    color = if (isUser) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
-                    lineHeight = 20.sp
-                )
-            }
+                Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
+                    Text(
+                        msg.content,
+                        color = if (isUser) Color.White else MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = if (isUser) FontWeight.Medium else FontWeight.Normal,
+                        lineHeight = 22.sp
+                    )
 
-            // ── Task created chip ─────────────────────────────────────────
-            if (msg.taskCreated && msg.taskTitle != null) {
-                Spacer(Modifier.height(4.dp))
-                Surface(
-                    shape = RoundedCornerShape(8.dp),
-                    color = Color(0xFFDCFCE7)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        Text("✅", fontSize = 12.sp)
-                        Text("Task created: \"${msg.taskTitle}\"",
-                            fontSize = 12.sp, fontWeight = FontWeight.Medium,
-                            color = Color(0xFF15803D))
+                    if (msg.taskCreated && msg.taskTitle != null) {
+                        Spacer(Modifier.height(12.dp))
+                        Surface(
+                            shape = RoundedCornerShape(8.dp),
+                            color = if (isUser) Color.White.copy(alpha = 0.2f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
+                            modifier = Modifier.border(
+                                1.dp, 
+                                if (isUser) Color.White.copy(alpha = 0.3f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                RoundedCornerShape(8.dp)
+                            )
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Icon(Icons.Default.CheckCircle, null, 
+                                    tint = if (isUser) Color.White else Color(0xFF15803D), 
+                                    modifier = Modifier.size(14.dp))
+                                Text("TASK DEPLOYED: \"${msg.taskTitle.uppercase()}\"",
+                                    fontSize = 10.sp, fontWeight = FontWeight.Black,
+                                    color = if (isUser) Color.White else Color(0xFF15803D))
+                            }
+                        }
                     }
                 }
             }
 
-            Spacer(Modifier.height(2.dp))
-            Text(timeFmt.format(Date(msg.timestamp)),
-                fontSize = 10.sp, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
+            Spacer(Modifier.height(4.dp))
+            Text(
+                timeFmt.format(Date(msg.timestamp)),
+                fontSize = 10.sp, 
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+            )
         }
     }
 }
 
 @Composable
 private fun TypingIndicator() {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-        Box(Modifier.size(32.dp).clip(CircleShape).background(MaterialTheme.colorScheme.primary),
-            contentAlignment = Alignment.Center) { Text("🤖", fontSize = 14.sp) }
-        Surface(shape = RoundedCornerShape(16.dp), color = MaterialTheme.colorScheme.surfaceVariant) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        Surface(
+            modifier = Modifier.size(32.dp).clip(RoundedCornerShape(8.dp)),
+            color = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(Icons.Default.SmartToy, null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(16.dp))
+            }
+        }
+        ClayCard(shape = RoundedCornerShape(16.dp, 16.dp, 16.dp, 4.dp)) {
             Row(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                 horizontalArrangement = Arrangement.spacedBy(4.dp),
@@ -239,11 +296,11 @@ private fun TypingIndicator() {
             ) {
                 repeat(3) { i ->
                     Box(
-                        Modifier.size(8.dp).clip(CircleShape)
+                        Modifier.size(6.dp).clip(CircleShape)
                             .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.6f))
                     )
                 }
-                Text(" thinking…", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(" THINKING…", fontSize = 10.sp, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }

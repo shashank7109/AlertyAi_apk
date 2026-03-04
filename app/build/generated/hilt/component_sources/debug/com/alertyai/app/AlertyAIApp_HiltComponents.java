@@ -3,6 +3,9 @@ package com.alertyai.app;
 import com.alertyai.app.di.DatabaseModule;
 import com.alertyai.app.ui.reminders.RemindersViewModel_HiltModules;
 import com.alertyai.app.ui.tasks.TasksViewModel_HiltModules;
+import com.alertyai.app.ui.teams.OrgMembersViewModel_HiltModules;
+import com.alertyai.app.ui.teams.TeamChatViewModel_HiltModules;
+import com.alertyai.app.ui.teams.TeamsViewModel_HiltModules;
 import dagger.Binds;
 import dagger.Component;
 import dagger.Module;
@@ -158,8 +161,11 @@ public final class AlertyAIApp_HiltComponents {
           ViewModelCBuilderModule.class,
           HiltWrapper_ActivityRetainedComponentManager_LifecycleModule.class,
           HiltWrapper_SavedStateHandleModule.class,
+          OrgMembersViewModel_HiltModules.KeyModule.class,
           RemindersViewModel_HiltModules.KeyModule.class,
-          TasksViewModel_HiltModules.KeyModule.class
+          TasksViewModel_HiltModules.KeyModule.class,
+          TeamChatViewModel_HiltModules.KeyModule.class,
+          TeamsViewModel_HiltModules.KeyModule.class
       }
   )
   @ActivityRetainedScoped
@@ -196,8 +202,11 @@ public final class AlertyAIApp_HiltComponents {
   @Subcomponent(
       modules = {
           HiltWrapper_HiltViewModelFactory_ViewModelModule.class,
+          OrgMembersViewModel_HiltModules.BindsModule.class,
           RemindersViewModel_HiltModules.BindsModule.class,
-          TasksViewModel_HiltModules.BindsModule.class
+          TasksViewModel_HiltModules.BindsModule.class,
+          TeamChatViewModel_HiltModules.BindsModule.class,
+          TeamsViewModel_HiltModules.BindsModule.class
       }
   )
   @ViewModelScoped

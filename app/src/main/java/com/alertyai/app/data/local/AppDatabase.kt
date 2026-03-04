@@ -1,6 +1,8 @@
 package com.alertyai.app.data.local
 
+import android.content.Context
 import androidx.room.Database
+import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
@@ -23,6 +25,19 @@ abstract class AppDatabase : RoomDatabase() {
 
     companion object {
         const val DATABASE_NAME = "alertyai_db"
+
+        @Volatile private var INSTANCE: AppDatabase? = null
+
+        /** Provides a singleton instance for use outside Hilt (e.g. AlarmReceiver on boot). */
+        fun getInstance(context: Context): AppDatabase {
+            return INSTANCE ?: synchronized(this) {
+                INSTANCE ?: Room.databaseBuilder(
+                    context.applicationContext,
+                    AppDatabase::class.java,
+                    DATABASE_NAME
+                ).addMigrations(MIGRATION_1_2).build().also { INSTANCE = it }
+            }
+        }
 
         /** Migration from v1 → v2: add new task columns */
         val MIGRATION_1_2 = object : Migration(1, 2) {

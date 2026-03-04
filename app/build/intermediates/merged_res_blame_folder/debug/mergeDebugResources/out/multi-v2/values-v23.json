@@ -1,10 +1,10 @@
 {
     "logs": [
         {
-            "outputFile": "com.alertyai.app-mergeDebugResources-70:/values-v23/values-v23.xml",
+            "outputFile": "com.alertyai.app-mergeDebugResources-72:/values-v23/values-v23.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\binda\\.gradle\\caches\\9.0.0\\transforms\\d7382bdd3903f11518d62eaf581ee137\\transformed\\work-runtime-2.9.1\\res\\values-v23\\values-v23.xml",
+                    "source": "C:\\Users\\binda\\.gradle\\caches\\9.0.0\\transforms\\3e496c1c77440b9a7c1590ced08d708c\\transformed\\work-runtime-2.9.1\\res\\values-v23\\values-v23.xml",
                     "from": {
                         "startLines": "2,3",
                         "startColumns": "4,4",
@@ -14,7 +14,7 @@
                     }
                 },
                 {
-                    "source": "C:\\Users\\binda\\.gradle\\caches\\9.0.0\\transforms\\64313afb35737aec287c2ecab398ee09\\transformed\\appcompat-1.6.1\\res\\values-v23\\values-v23.xml",
+                    "source": "C:\\Users\\binda\\.gradle\\caches\\9.0.0\\transforms\\9721ad226f67d76da6af3ff28c4d37db\\transformed\\appcompat-1.6.1\\res\\values-v23\\values-v23.xml",
                     "from": {
                         "startLines": "2,3,4,5,6,20,34,35,36,39,43,44,45,46",
                         "startColumns": "4,4,4,4,4,4,4,4,4,4,4,4,4,4",

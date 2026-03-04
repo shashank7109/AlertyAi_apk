@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel;
 import com.alertyai.app.data.local.AppDatabase;
 import com.alertyai.app.data.local.ReminderDao;
 import com.alertyai.app.data.local.TaskDao;
+import com.alertyai.app.data.repository.OrgRepository;
 import com.alertyai.app.data.repository.ReminderRepository;
 import com.alertyai.app.data.repository.TaskRepository;
 import com.alertyai.app.di.DatabaseModule_ProvideDatabaseFactory;
@@ -18,6 +19,12 @@ import com.alertyai.app.ui.reminders.RemindersViewModel;
 import com.alertyai.app.ui.reminders.RemindersViewModel_HiltModules;
 import com.alertyai.app.ui.tasks.TasksViewModel;
 import com.alertyai.app.ui.tasks.TasksViewModel_HiltModules;
+import com.alertyai.app.ui.teams.OrgMembersViewModel;
+import com.alertyai.app.ui.teams.OrgMembersViewModel_HiltModules;
+import com.alertyai.app.ui.teams.TeamChatViewModel;
+import com.alertyai.app.ui.teams.TeamChatViewModel_HiltModules;
+import com.alertyai.app.ui.teams.TeamsViewModel;
+import com.alertyai.app.ui.teams.TeamsViewModel_HiltModules;
 import dagger.hilt.android.ActivityRetainedLifecycle;
 import dagger.hilt.android.ViewModelLifecycle;
 import dagger.hilt.android.internal.builders.ActivityComponentBuilder;
@@ -378,7 +385,7 @@ public final class DaggerAlertyAIApp_HiltComponents_SingletonC {
 
     @Override
     public Map<Class<?>, Boolean> getViewModelKeys() {
-      return LazyClassKeyMap.<Boolean>of(MapBuilder.<String, Boolean>newMapBuilder(2).put(LazyClassKeyProvider.com_alertyai_app_ui_reminders_RemindersViewModel, RemindersViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_alertyai_app_ui_tasks_TasksViewModel, TasksViewModel_HiltModules.KeyModule.provide()).build());
+      return LazyClassKeyMap.<Boolean>of(MapBuilder.<String, Boolean>newMapBuilder(5).put(LazyClassKeyProvider.com_alertyai_app_ui_teams_OrgMembersViewModel, OrgMembersViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_alertyai_app_ui_reminders_RemindersViewModel, RemindersViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_alertyai_app_ui_tasks_TasksViewModel, TasksViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_alertyai_app_ui_teams_TeamChatViewModel, TeamChatViewModel_HiltModules.KeyModule.provide()).put(LazyClassKeyProvider.com_alertyai_app_ui_teams_TeamsViewModel, TeamsViewModel_HiltModules.KeyModule.provide()).build());
     }
 
     @Override
@@ -398,15 +405,30 @@ public final class DaggerAlertyAIApp_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_alertyai_app_ui_tasks_TasksViewModel = "com.alertyai.app.ui.tasks.TasksViewModel";
+      static String com_alertyai_app_ui_teams_OrgMembersViewModel = "com.alertyai.app.ui.teams.OrgMembersViewModel";
+
+      static String com_alertyai_app_ui_teams_TeamChatViewModel = "com.alertyai.app.ui.teams.TeamChatViewModel";
+
+      static String com_alertyai_app_ui_teams_TeamsViewModel = "com.alertyai.app.ui.teams.TeamsViewModel";
 
       static String com_alertyai_app_ui_reminders_RemindersViewModel = "com.alertyai.app.ui.reminders.RemindersViewModel";
 
+      static String com_alertyai_app_ui_tasks_TasksViewModel = "com.alertyai.app.ui.tasks.TasksViewModel";
+
       @KeepFieldType
-      TasksViewModel com_alertyai_app_ui_tasks_TasksViewModel2;
+      OrgMembersViewModel com_alertyai_app_ui_teams_OrgMembersViewModel2;
+
+      @KeepFieldType
+      TeamChatViewModel com_alertyai_app_ui_teams_TeamChatViewModel2;
+
+      @KeepFieldType
+      TeamsViewModel com_alertyai_app_ui_teams_TeamsViewModel2;
 
       @KeepFieldType
       RemindersViewModel com_alertyai_app_ui_reminders_RemindersViewModel2;
+
+      @KeepFieldType
+      TasksViewModel com_alertyai_app_ui_tasks_TasksViewModel2;
     }
   }
 
@@ -417,9 +439,15 @@ public final class DaggerAlertyAIApp_HiltComponents_SingletonC {
 
     private final ViewModelCImpl viewModelCImpl = this;
 
+    private Provider<OrgMembersViewModel> orgMembersViewModelProvider;
+
     private Provider<RemindersViewModel> remindersViewModelProvider;
 
     private Provider<TasksViewModel> tasksViewModelProvider;
+
+    private Provider<TeamChatViewModel> teamChatViewModelProvider;
+
+    private Provider<TeamsViewModel> teamsViewModelProvider;
 
     private ViewModelCImpl(SingletonCImpl singletonCImpl,
         ActivityRetainedCImpl activityRetainedCImpl, SavedStateHandle savedStateHandleParam,
@@ -434,13 +462,16 @@ public final class DaggerAlertyAIApp_HiltComponents_SingletonC {
     @SuppressWarnings("unchecked")
     private void initialize(final SavedStateHandle savedStateHandleParam,
         final ViewModelLifecycle viewModelLifecycleParam) {
-      this.remindersViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
-      this.tasksViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
+      this.orgMembersViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 0);
+      this.remindersViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 1);
+      this.tasksViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 2);
+      this.teamChatViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 3);
+      this.teamsViewModelProvider = new SwitchingProvider<>(singletonCImpl, activityRetainedCImpl, viewModelCImpl, 4);
     }
 
     @Override
     public Map<Class<?>, javax.inject.Provider<ViewModel>> getHiltViewModelMap() {
-      return LazyClassKeyMap.<javax.inject.Provider<ViewModel>>of(MapBuilder.<String, javax.inject.Provider<ViewModel>>newMapBuilder(2).put(LazyClassKeyProvider.com_alertyai_app_ui_reminders_RemindersViewModel, ((Provider) remindersViewModelProvider)).put(LazyClassKeyProvider.com_alertyai_app_ui_tasks_TasksViewModel, ((Provider) tasksViewModelProvider)).build());
+      return LazyClassKeyMap.<javax.inject.Provider<ViewModel>>of(MapBuilder.<String, javax.inject.Provider<ViewModel>>newMapBuilder(5).put(LazyClassKeyProvider.com_alertyai_app_ui_teams_OrgMembersViewModel, ((Provider) orgMembersViewModelProvider)).put(LazyClassKeyProvider.com_alertyai_app_ui_reminders_RemindersViewModel, ((Provider) remindersViewModelProvider)).put(LazyClassKeyProvider.com_alertyai_app_ui_tasks_TasksViewModel, ((Provider) tasksViewModelProvider)).put(LazyClassKeyProvider.com_alertyai_app_ui_teams_TeamChatViewModel, ((Provider) teamChatViewModelProvider)).put(LazyClassKeyProvider.com_alertyai_app_ui_teams_TeamsViewModel, ((Provider) teamsViewModelProvider)).build());
     }
 
     @Override
@@ -450,12 +481,27 @@ public final class DaggerAlertyAIApp_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
+      static String com_alertyai_app_ui_teams_TeamChatViewModel = "com.alertyai.app.ui.teams.TeamChatViewModel";
+
+      static String com_alertyai_app_ui_teams_TeamsViewModel = "com.alertyai.app.ui.teams.TeamsViewModel";
+
       static String com_alertyai_app_ui_tasks_TasksViewModel = "com.alertyai.app.ui.tasks.TasksViewModel";
+
+      static String com_alertyai_app_ui_teams_OrgMembersViewModel = "com.alertyai.app.ui.teams.OrgMembersViewModel";
 
       static String com_alertyai_app_ui_reminders_RemindersViewModel = "com.alertyai.app.ui.reminders.RemindersViewModel";
 
       @KeepFieldType
+      TeamChatViewModel com_alertyai_app_ui_teams_TeamChatViewModel2;
+
+      @KeepFieldType
+      TeamsViewModel com_alertyai_app_ui_teams_TeamsViewModel2;
+
+      @KeepFieldType
       TasksViewModel com_alertyai_app_ui_tasks_TasksViewModel2;
+
+      @KeepFieldType
+      OrgMembersViewModel com_alertyai_app_ui_teams_OrgMembersViewModel2;
 
       @KeepFieldType
       RemindersViewModel com_alertyai_app_ui_reminders_RemindersViewModel2;
@@ -482,11 +528,20 @@ public final class DaggerAlertyAIApp_HiltComponents_SingletonC {
       @Override
       public T get() {
         switch (id) {
-          case 0: // com.alertyai.app.ui.reminders.RemindersViewModel 
+          case 0: // com.alertyai.app.ui.teams.OrgMembersViewModel 
+          return (T) new OrgMembersViewModel(singletonCImpl.orgRepositoryProvider.get());
+
+          case 1: // com.alertyai.app.ui.reminders.RemindersViewModel 
           return (T) new RemindersViewModel(singletonCImpl.reminderRepositoryProvider.get());
 
-          case 1: // com.alertyai.app.ui.tasks.TasksViewModel 
+          case 2: // com.alertyai.app.ui.tasks.TasksViewModel 
           return (T) new TasksViewModel(singletonCImpl.taskRepositoryProvider.get());
+
+          case 3: // com.alertyai.app.ui.teams.TeamChatViewModel 
+          return (T) new TeamChatViewModel(singletonCImpl.orgRepositoryProvider.get());
+
+          case 4: // com.alertyai.app.ui.teams.TeamsViewModel 
+          return (T) new TeamsViewModel(singletonCImpl.orgRepositoryProvider.get());
 
           default: throw new AssertionError(id);
         }
@@ -568,6 +623,8 @@ public final class DaggerAlertyAIApp_HiltComponents_SingletonC {
 
     private final SingletonCImpl singletonCImpl = this;
 
+    private Provider<OrgRepository> orgRepositoryProvider;
+
     private Provider<AppDatabase> provideDatabaseProvider;
 
     private Provider<ReminderRepository> reminderRepositoryProvider;
@@ -590,9 +647,10 @@ public final class DaggerAlertyAIApp_HiltComponents_SingletonC {
 
     @SuppressWarnings("unchecked")
     private void initialize(final ApplicationContextModule applicationContextModuleParam) {
-      this.provideDatabaseProvider = DoubleCheck.provider(new SwitchingProvider<AppDatabase>(singletonCImpl, 1));
-      this.reminderRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<ReminderRepository>(singletonCImpl, 0));
-      this.taskRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<TaskRepository>(singletonCImpl, 2));
+      this.orgRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<OrgRepository>(singletonCImpl, 0));
+      this.provideDatabaseProvider = DoubleCheck.provider(new SwitchingProvider<AppDatabase>(singletonCImpl, 2));
+      this.reminderRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<ReminderRepository>(singletonCImpl, 1));
+      this.taskRepositoryProvider = DoubleCheck.provider(new SwitchingProvider<TaskRepository>(singletonCImpl, 3));
     }
 
     @Override
@@ -628,13 +686,16 @@ public final class DaggerAlertyAIApp_HiltComponents_SingletonC {
       @Override
       public T get() {
         switch (id) {
-          case 0: // com.alertyai.app.data.repository.ReminderRepository 
+          case 0: // com.alertyai.app.data.repository.OrgRepository 
+          return (T) new OrgRepository();
+
+          case 1: // com.alertyai.app.data.repository.ReminderRepository 
           return (T) new ReminderRepository(singletonCImpl.reminderDao());
 
-          case 1: // com.alertyai.app.data.local.AppDatabase 
+          case 2: // com.alertyai.app.data.local.AppDatabase 
           return (T) DatabaseModule_ProvideDatabaseFactory.provideDatabase(ApplicationContextModule_ProvideContextFactory.provideContext(singletonCImpl.applicationContextModule));
 
-          case 2: // com.alertyai.app.data.repository.TaskRepository 
+          case 3: // com.alertyai.app.data.repository.TaskRepository 
           return (T) new TaskRepository(singletonCImpl.taskDao());
 
           default: throw new AssertionError(id);

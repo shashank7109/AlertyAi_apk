@@ -2,7 +2,9 @@ package com.alertyai.app.ui.auth
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Email
@@ -20,9 +22,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.alertyai.app.ui.components.*
 
 @Composable
 fun LoginScreen(onLoginSuccess: () -> Unit) {
@@ -34,116 +38,169 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
     var password by remember { mutableStateOf("") }
     var showPw by remember { mutableStateOf(false) }
 
-    // Navigate away once logged in
     LaunchedEffect(state.isLoggedIn) {
         if (state.isLoggedIn) onLoginSuccess()
     }
 
-    Scaffold { padding ->
+    Scaffold(containerColor = MaterialTheme.colorScheme.background) { padding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = 28.dp),
+                .padding(horizontal = 32.dp),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // ── Branding ─────────────────────────────────────────────────────
-            Text("AlertyAI", fontSize = 34.sp, fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary)
-            Text("Sign in to your account", style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
+            // Branding Area
+            Text(
+                "COMMAND HQ",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.Black,
+                letterSpacing = 2.sp,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.padding(bottom = 8.dp)
+            )
+            
+            Text(
+                "ALERTY AI",
+                fontSize = 42.sp,
+                fontWeight = FontWeight.Black,
+                color = MaterialTheme.colorScheme.onSurface,
+                letterSpacing = (-1).sp
+            )
+            
+            Text(
+                "ESTABLISH SECURE LINK",
+                fontSize = 10.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                modifier = Modifier.padding(top = 4.dp)
+            )
 
-            Spacer(Modifier.height(36.dp))
+            Spacer(Modifier.height(56.dp))
 
-            // ── Google Sign-In Button ─────────────────────────────────────────
-            OutlinedButton(
+            // Google Sign-In Button (Clay Styled)
+            ClayCard(
+                shape = RoundedCornerShape(20.dp),
                 onClick = { vm.signInWithGoogle(context) },
-                enabled = !state.isLoading,
-                modifier = Modifier.fillMaxWidth().height(52.dp),
-                border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                colors = ButtonDefaults.outlinedButtonColors(
-                    contentColor = MaterialTheme.colorScheme.onSurface
-                )
+                modifier = Modifier.fillMaxWidth().height(64.dp)
             ) {
-                if (state.isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.size(20.dp), strokeWidth = 2.dp)
-                } else {
-                    Text("🇬 ", fontSize = 20.sp)
-                    Spacer(Modifier.width(8.dp))
-                    Text("Continue with Google", fontWeight = FontWeight.Medium)
+                Row(
+                    Modifier.fillMaxSize(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    if (state.isLoading) {
+                        CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                    } else {
+                        // Custom Google G Icon Placeholder or Text
+                        Text("G", fontWeight = FontWeight.Black, fontSize = 24.sp, color = MaterialTheme.colorScheme.primary)
+                        Spacer(Modifier.width(16.dp))
+                        Text("IDENTIFY WITH GOOGLE", fontWeight = FontWeight.Black, style = MaterialTheme.typography.labelMedium)
+                    }
                 }
             }
 
-            // ── Divider OR ────────────────────────────────────────────────────
+            // Divider
             Row(
-                modifier = Modifier.fillMaxWidth().padding(vertical = 20.dp),
+                modifier = Modifier.fillMaxWidth().padding(vertical = 32.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                HorizontalDivider(modifier = Modifier.weight(1f))
-                Text("  OR  ", style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
-                HorizontalDivider(modifier = Modifier.weight(1f))
+                HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+                Text(
+                    " OR ",
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontWeight = FontWeight.Black,
+                    modifier = Modifier.padding(horizontal = 16.dp)
+                )
+                HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
             }
 
-            // ── Email ─────────────────────────────────────────────────────────
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email") },
-                leadingIcon = { Icon(Icons.Default.Email, null) },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
+            // Inputs Group
+            Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
+                ClayCard(shape = RoundedCornerShape(16.dp)) {
+                    TextField(
+                        value = email,
+                        onValueChange = { email = it },
+                        placeholder = { Text("PERSONNEL EMAIL") },
+                        modifier = Modifier.fillMaxWidth(),
+                        leadingIcon = { Icon(Icons.Default.Email, null, tint = MaterialTheme.colorScheme.primary) },
+                        colors = TextFieldDefaults.colors(
+                            unfocusedContainerColor = Color.Transparent,
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent
+                        ),
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Black)
+                    )
+                }
 
-            Spacer(Modifier.height(12.dp))
-
-            // ── Password ──────────────────────────────────────────────────────
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password") },
-                leadingIcon = { Icon(Icons.Default.Lock, null) },
-                trailingIcon = {
-                    IconButton(onClick = { showPw = !showPw }) {
-                        Icon(if (showPw) Icons.Default.VisibilityOff else Icons.Default.Visibility, null)
-                    }
-                },
-                visualTransformation = if (showPw) VisualTransformation.None else PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            // ── Error Banner ──────────────────────────────────────────────────
-            state.error?.let { err ->
-                Spacer(Modifier.height(8.dp))
-                Text(err, color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall)
-            }
-
-            Spacer(Modifier.height(20.dp))
-
-            // ── Email Login Button ────────────────────────────────────────────
-            Button(
-                onClick = { vm.login(context, email, password) },
-                enabled = !state.isLoading && email.isNotBlank() && password.isNotBlank(),
-                modifier = Modifier.fillMaxWidth().height(52.dp)
-            ) {
-                if (state.isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.size(20.dp),
-                        color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
-                } else {
-                    Text("Sign In with Email", fontWeight = FontWeight.SemiBold)
+                ClayCard(shape = RoundedCornerShape(16.dp)) {
+                    TextField(
+                        value = password,
+                        onValueChange = { password = it },
+                        placeholder = { Text("SECURE ACCESS KEY") },
+                        modifier = Modifier.fillMaxWidth(),
+                        leadingIcon = { Icon(Icons.Default.Lock, null, tint = MaterialTheme.colorScheme.primary) },
+                        trailingIcon = {
+                            IconButton(onClick = { showPw = !showPw }) {
+                                Icon(if (showPw) Icons.Default.VisibilityOff else Icons.Default.Visibility, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        },
+                        colors = TextFieldDefaults.colors(
+                            unfocusedContainerColor = Color.Transparent,
+                            focusedContainerColor = Color.Transparent,
+                            unfocusedIndicatorColor = Color.Transparent,
+                            focusedIndicatorColor = Color.Transparent
+                        ),
+                        singleLine = true,
+                        visualTransformation = if (showPw) VisualTransformation.None else PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Black)
+                    )
                 }
             }
 
-            Spacer(Modifier.height(16.dp))
+            // Error Display
+            state.error?.let { err ->
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    err.uppercase(), 
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.labelSmall,
+                    fontWeight = FontWeight.Black,
+                    textAlign = TextAlign.Center
+                )
+            }
 
-            Text("Use the same account as the AlertyAI web app.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Spacer(Modifier.height(32.dp))
+
+            // Main Login Button
+            ClayButton(
+                onClick = { vm.login(context, email, password) },
+                enabled = !state.isLoading && email.isNotBlank() && password.isNotBlank(),
+                modifier = Modifier.fillMaxWidth().height(64.dp),
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
+                if (state.isLoading) {
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
+                } else {
+                    Text("AUTHORIZE CONNECTION", fontWeight = FontWeight.Black, style = MaterialTheme.typography.titleSmall)
+                }
+            }
+
+            Spacer(Modifier.height(32.dp))
+
+            Text(
+                "CROSS-PLATFORM SYNC ACTIVE",
+                style = MaterialTheme.typography.labelSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                fontWeight = FontWeight.Black,
+                letterSpacing = 1.sp
+            )
         }
     }
 }

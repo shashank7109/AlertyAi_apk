@@ -1,8 +1,8 @@
 package com.alertyai.app.ui.tasks
 
-import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -26,6 +26,8 @@ import com.alertyai.app.data.model.CheckItem
 import com.alertyai.app.data.model.Priority
 import com.alertyai.app.data.model.Task
 import com.alertyai.app.network.TokenManager
+import com.alertyai.app.ui.components.ClayCard
+import com.alertyai.app.ui.components.ClayButton
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.delay
@@ -43,14 +45,13 @@ fun TasksScreen() {
     val isLoggedIn = remember { TokenManager.isLoggedIn(context) }
 
     var showAddSheet by remember { mutableStateOf(false) }
+    var editingTask by remember { mutableStateOf<Task?>(null) }
     var filter by remember { mutableStateOf("all") }
 
-    // Sync backend tasks (created via Chat/AI) into local Room DB on screen open
     LaunchedEffect(Unit) {
         vm.syncFromBackend(context)
     }
 
-    // Auto-clear AI status messages after 4 seconds
     LaunchedEffect(aiState.aiSuccess, aiState.aiError) {
         if (aiState.aiSuccess != null || aiState.aiError != null) {
             delay(4000)
@@ -76,87 +77,129 @@ fun TasksScreen() {
     }
 
     Scaffold(
+        containerColor = MaterialTheme.colorScheme.background,
         topBar = {
-            TopAppBar(title = { Text("Tasks", fontWeight = FontWeight.SemiBold) })
+            Column(Modifier.padding(horizontal = 20.dp, vertical = 24.dp)) {
+                Text(
+                    "MISSION CONTROL", 
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                Spacer(Modifier.height(8.dp))
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        "ACTIVE TASKS",
+                        style = MaterialTheme.typography.headlineMedium,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = (-1).sp
+                    )
+                    IconButton(onClick = { showAddSheet = true }) {
+                        Icon(Icons.Default.Add, "Add Task", tint = MaterialTheme.colorScheme.primary)
+                    }
+                }
+            }
         },
         floatingActionButton = {
-            FloatingActionButton(
+            ClayButton(
                 onClick = { showAddSheet = true },
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
-                Icon(Icons.Default.Add, "Add Task", tint = Color.White)
+                Icon(Icons.Default.Add, null, tint = Color.White)
+                Spacer(Modifier.width(8.dp))
+                Text("NEW TASK", fontWeight = FontWeight.Black, style = MaterialTheme.typography.labelSmall)
             }
         }
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
 
-            // ── AI Status Banner ──────────────────────────────────────────────
+            // AI Status Banner
             AnimatedVisibility(visible = aiState.aiSuccess != null || aiState.aiError != null || aiState.isAiLoading) {
-                Surface(color = when {
-                    aiState.isAiLoading -> MaterialTheme.colorScheme.secondaryContainer
-                    aiState.aiError != null -> MaterialTheme.colorScheme.errorContainer
-                    else -> Color(0xFFDCFCE7)
-                }) {
+                Surface(
+                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 8.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    color = when {
+                        aiState.isAiLoading -> MaterialTheme.colorScheme.secondaryContainer
+                        aiState.aiError != null -> MaterialTheme.colorScheme.errorContainer
+                        else -> Color(0xFFDCFCE7).copy(alpha = 0.5f)
+                    }
+                ) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(12.dp),
+                        modifier = Modifier.fillMaxWidth().padding(14.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         if (aiState.isAiLoading) {
                             CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-                            Text("AI is processing…", style = MaterialTheme.typography.bodySmall)
+                            Text("NEURAL PROCESSING...", style = MaterialTheme.typography.labelSmall)
                         } else {
-                            Text(aiState.aiSuccess ?: aiState.aiError ?: "",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = if (aiState.aiError != null) MaterialTheme.colorScheme.onErrorContainer
+                            Text((aiState.aiSuccess ?: aiState.aiError ?: "").uppercase(),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = if (aiState.aiError != null) MaterialTheme.colorScheme.error
                                         else Color(0xFF166534))
                         }
                     }
                 }
             }
 
-            // ── Filter Chips ──────────────────────────────────────────────────
+            // Filter Chips 
             Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp)
             ) {
-                listOf("all" to "All", "today" to "Today", "upcoming" to "Upcoming").forEach { (key, label) ->
-                    FilterChip(
-                        selected = filter == key,
+                listOf("all" to "ALL", "today" to "TODAY", "upcoming" to "INCOMING").forEach { (key, label) ->
+                    val isActive = filter == key
+                    ClayCard(
                         onClick = { filter = key },
-                        label = { Text(label, fontSize = 12.sp) }
-                    )
+                        containerColor = if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                        elevation = if (isActive) 0.dp else 2.dp,
+                        shape = RoundedCornerShape(12.dp)
+                    ) {
+                        Text(
+                            label, 
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (isActive) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                        )
+                    }
                 }
             }
 
-            // ── Task List ─────────────────────────────────────────────────────
+            // Task List 
             if (filteredTasks.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("📋", fontSize = 48.sp)
-                        Spacer(Modifier.height(8.dp))
-                        Text("No tasks", style = MaterialTheme.typography.bodyLarge,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Text(
-                            if (filter == "today") "No tasks due today" else "Tap + to add one",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Surface(
+                            shape = CircleShape,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.05f),
+                            modifier = Modifier.size(64.dp)
+                        ) {
+                            Box(contentAlignment = Alignment.Center) {
+                                Text("0", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Black)
+                            }
+                        }
+                        Spacer(Modifier.height(16.dp))
+                        Text("QUIET SECTOR", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
+                        Text("NO ACTIVE SIGNALS", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             } else {
                 LazyColumn(
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    contentPadding = PaddingValues(horizontal = 20.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(filteredTasks, key = { it.id }) { task ->
                         TaskItem(
                             task = task,
-                            onToggle = { vm.toggleDone(task) },
-                            onDelete = { vm.deleteTask(task) }
+                            onToggle = { vm.toggleDone(context, task) },
+                            onDelete = { vm.deleteTask(context, task) },
+                            onEdit   = { editingTask = task }
                         )
                     }
-                    item { Spacer(Modifier.height(80.dp)) }
+                    item { Spacer(Modifier.height(100.dp)) }
                 }
             }
         }
@@ -167,7 +210,8 @@ fun TasksScreen() {
             isLoggedIn = isLoggedIn,
             isAiLoading = aiState.isAiLoading,
             onDismiss = { showAddSheet = false },
-            onAddTask = { task -> vm.addFullTask(task) },
+            onAddTask = { task -> vm.addFullTask(context, task) },
+            onUpdateTask = { task -> vm.updateTask(context, task) },
             onAddFromText = { text ->
                 vm.createTaskFromText(context, text)
                 showAddSheet = false
@@ -182,11 +226,27 @@ fun TasksScreen() {
             }
         )
     }
+
+    editingTask?.let { task ->
+        AddTaskSheet(
+            isLoggedIn = isLoggedIn,
+            isAiLoading = false,
+            onDismiss = { editingTask = null },
+            onAddTask = { },
+            onUpdateTask = { updated ->
+                vm.updateTask(context, updated)
+                editingTask = null
+            },
+            onAddFromText = { },
+            onImageSelected = { },
+            onVoiceFile = { },
+            existingTask = task
+        )
+    }
 }
 
-// ── Task Item card — also used by HomeScreen ──────────────────────────────────
 @Composable
-internal fun TaskItem(task: Task, onToggle: () -> Unit, onDelete: () -> Unit) {
+fun TaskItem(task: Task, onToggle: () -> Unit, onDelete: () -> Unit, onEdit: () -> Unit = {}) {
     val priorityColor = when (task.priority) {
         Priority.HIGH   -> Color(0xFFEF4444)
         Priority.NORMAL -> Color(0xFFF97316)
@@ -198,88 +258,88 @@ internal fun TaskItem(task: Task, onToggle: () -> Unit, onDelete: () -> Unit) {
         try { gson.fromJson<List<CheckItem>>(task.checklistJson, object : TypeToken<List<CheckItem>>() {}.type) ?: emptyList() }
         catch (_: Exception) { emptyList() }
     }
-    val subtasks = remember(task.subtasksJson) {
-        try { gson.fromJson<List<String>>(task.subtasksJson, object : TypeToken<List<String>>() {}.type) ?: emptyList() }
-        catch (_: Exception) { emptyList() }
-    }
     val dateFormat = remember { SimpleDateFormat("d MMM", Locale.getDefault()) }
     val timeFormat = remember { SimpleDateFormat("h:mm a", Locale.getDefault()) }
 
-    Card(
+    ClayCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 1.dp)
+        containerColor = if (task.isDone) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f) 
+                        else MaterialTheme.colorScheme.surface,
+        elevation = if (task.isDone) 2.dp else 8.dp
     ) {
-        Column(modifier = Modifier.fillMaxWidth().padding(12.dp)) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
+        Row(
+            modifier = Modifier.fillMaxWidth().padding(4.dp),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Box(
+                modifier = Modifier
+                    .padding(top = 4.dp)
+                    .size(24.dp)
+                    .clip(CircleShape)
+                    .background(if (task.isDone) Color(0xFF10B981) else priorityColor.copy(alpha = 0.1f))
+                    .clickable { onToggle() },
+                contentAlignment = Alignment.Center
             ) {
-                Box(Modifier.size(10.dp).clip(CircleShape).background(priorityColor))
-                Checkbox(checked = task.isDone, onCheckedChange = { onToggle() })
-                Column(Modifier.weight(1f)) {
+                if (task.isDone) {
+                    Icon(Icons.Default.Check, null, modifier = Modifier.size(16.dp), tint = Color.White)
+                } else {
+                    Box(Modifier.size(8.dp).clip(CircleShape).background(priorityColor))
+                }
+            }
+
+            Column(Modifier.weight(1f)) {
+                Text(
+                    task.title.uppercase(),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Black,
+                    textDecoration = if (task.isDone) TextDecoration.LineThrough else null,
+                    color = if (task.isDone) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
+                            else MaterialTheme.colorScheme.onSurface
+                )
+                
+                if (task.note.isNotBlank()) {
                     Text(
-                        task.title,
-                        fontWeight = FontWeight.Medium,
-                        textDecoration = if (task.isDone) TextDecoration.LineThrough else null,
-                        color = if (task.isDone) MaterialTheme.colorScheme.onSurfaceVariant
-                                else MaterialTheme.colorScheme.onSurface
+                        task.note, 
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(top = 4.dp)
                     )
-                    if (task.note.isNotBlank()) {
-                        Text(task.note, style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
-                    }
-                    // Date / time / alarm row
-                    if (task.dueDate != null || task.dueTime != null) {
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(top = 2.dp)
-                        ) {
-                            task.dueDate?.let {
-                                Icon(Icons.Default.CalendarToday, null, modifier = Modifier.size(11.dp),
-                                    tint = MaterialTheme.colorScheme.primary)
-                                Text(dateFormat.format(Date(it)), fontSize = 11.sp,
-                                    color = MaterialTheme.colorScheme.primary)
-                            }
-                            task.dueTime?.let {
-                                Icon(Icons.Default.AccessTime, null, modifier = Modifier.size(11.dp),
-                                    tint = MaterialTheme.colorScheme.primary)
-                                Text(timeFormat.format(Date(it)), fontSize = 11.sp,
-                                    color = MaterialTheme.colorScheme.primary)
-                            }
-                            if (task.alarmEnabled) {
-                                Icon(Icons.Default.Alarm, null, modifier = Modifier.size(11.dp),
-                                    tint = MaterialTheme.colorScheme.tertiary)
-                            }
+                }
+
+                if (task.dueDate != null || task.dueTime != null || checklist.isNotEmpty()) {
+                    Row(
+                        modifier = Modifier.padding(top = 10.dp),
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        task.dueDate?.let {
+                            Indicator(Icons.Default.CalendarToday, dateFormat.format(Date(it)))
                         }
-                    }
-                    // Location
-                    if (task.location.isNotBlank()) {
-                        Row(horizontalArrangement = Arrangement.spacedBy(4.dp), verticalAlignment = Alignment.CenterVertically) {
-                            Icon(Icons.Default.LocationOn, null, modifier = Modifier.size(11.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                            Text(task.location, fontSize = 11.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        task.dueTime?.let {
+                            Indicator(Icons.Default.AccessTime, timeFormat.format(Date(it)))
                         }
-                    }
-                    // Checklist progress
-                    if (checklist.isNotEmpty()) {
-                        val done = checklist.count { it.done }
-                        Text("☑ $done/${checklist.size} done", fontSize = 11.sp,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
-                    // Subtask count
-                    if (subtasks.isNotEmpty()) {
-                        Text("⤷ ${subtasks.size} subtask${if (subtasks.size > 1) "s" else ""}",
-                            fontSize = 11.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        if (checklist.isNotEmpty()) {
+                            val done = checklist.count { it.done }
+                            Indicator(Icons.Default.FactCheck, "$done/${checklist.size}")
+                        }
                     }
                 }
-                IconButton(onClick = onDelete) {
-                    Icon(Icons.Default.Delete, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
+
+            Column(horizontalAlignment = Alignment.End) {
+                IconButton(onClick = onEdit, modifier = Modifier.size(32.dp)) {
+                    Icon(Icons.Default.MoreVert, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun Indicator(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String) {
+    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+        Icon(icon, null, modifier = Modifier.size(10.dp), tint = MaterialTheme.colorScheme.primary)
+        Text(text.uppercase(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
     }
 }

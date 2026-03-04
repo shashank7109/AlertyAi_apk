@@ -7,19 +7,42 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import android.util.Log
 import androidx.core.app.NotificationCompat
 import com.alertyai.app.MainActivity
+import com.alertyai.app.data.local.AppDatabase
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 class AlarmReceiver : BroadcastReceiver() {
 
     companion object {
         const val CHANNEL_ID   = "alertyai_reminders"
+        const val CHANNEL_NAME = "AlertyAI Reminders"
         const val EXTRA_TITLE  = "extra_title"
         const val EXTRA_BODY   = "extra_body"
         const val EXTRA_ID     = "extra_id"
     }
 
     override fun onReceive(context: Context, intent: Intent) {
+        // On device boot — re-schedule all alarms from Room DB
+        if (intent.action == Intent.ACTION_BOOT_COMPLETED) {
+            val pendingResult = goAsync()
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val db = AppDatabase.getInstance(context)
+                    val tasks = db.taskDao().getAllTasksList()
+                    tasks.forEach { AlarmScheduler.schedule(context, it) }
+                    Log.i("AlarmReceiver", "📲 Re-scheduled ${tasks.size} alarms after boot")
+                } finally {
+                    pendingResult.finish()
+                }
+            }
+            return
+        }
+
+        // Actual alarm fired — show notification
         val title = intent.getStringExtra(EXTRA_TITLE) ?: "Reminder"
         val body  = intent.getStringExtra(EXTRA_BODY)  ?: ""
         val id    = intent.getIntExtra(EXTRA_ID, 0)
@@ -28,7 +51,9 @@ class AlarmReceiver : BroadcastReceiver() {
 
         val tapIntent = PendingIntent.getActivity(
             context, id,
-            Intent(context, MainActivity::class.java),
+            Intent(context, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
@@ -36,8 +61,11 @@ class AlarmReceiver : BroadcastReceiver() {
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(title)
             .setContentText(body)
+            .setStyle(NotificationCompat.BigTextStyle().bigText(body))
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setAutoCancel(true)
+            .setVibrate(longArrayOf(0, 300, 200, 300))
             .setContentIntent(tapIntent)
             .build()
 
@@ -48,9 +76,13 @@ class AlarmReceiver : BroadcastReceiver() {
     private fun createChannel(context: Context) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
-                CHANNEL_ID, "AlertyAI Reminders",
+                CHANNEL_ID, CHANNEL_NAME,
                 NotificationManager.IMPORTANCE_HIGH
-            ).apply { description = "Scheduled task and reminder alerts" }
+            ).apply {
+                description = "Scheduled task and reminder alerts"
+                enableVibration(true)
+                vibrationPattern = longArrayOf(0, 300, 200, 300)
+            }
             val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             nm.createNotificationChannel(channel)
         }

@@ -1,7 +1,7 @@
 package com.alertyai.app.ui.auth
 
 import android.content.Context
-import android.os.CancellationSignal
+import androidx.credentials.ClearCredentialStateRequest
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -26,20 +26,14 @@ object GoogleSignInHelper {
     /**
      * Sign in with Google and return the Google ID Token as a Result.
      *
-     * Common errors:
-     *  - NoCredentialException  → no Google account on device, or app not registered in Play Console
-     *  - Cancellation           → user dismissed the picker
-     *
-     * @param context The Activity context (not Application context — needed for the picker UI)
+     * @param context The Activity context (not Application context)
      */
     suspend fun getIdToken(context: Context): Result<String> {
         return try {
             val credentialManager = CredentialManager.create(context)
 
-            // First try: only previously authorized accounts (faster UX)
-            // Falls back to all accounts if none are found
             val googleIdOption = GetGoogleIdOption.Builder()
-                .setFilterByAuthorizedAccounts(false)  // show all accounts on device
+                .setFilterByAuthorizedAccounts(false)
                 .setServerClientId(WEB_CLIENT_ID)
                 .setAutoSelectEnabled(false)
                 .build()
@@ -61,27 +55,25 @@ object GoogleSignInHelper {
             }
 
         } catch (e: NoCredentialException) {
-            // Most common on emulators — no Google account signed in
-            Result.failure(
-                Exception(
-                    "No Google account found on this device.\n\n" +
-                    "Please go to Settings → Accounts → Add account → Google, " +
-                    "then try again."
-                )
-            )
+            Result.failure(Exception("No Google account found. Add one in Android Settings."))
         } catch (e: GetCredentialCancellationException) {
-            Result.failure(Exception("Google sign-in was cancelled."))
+            Result.failure(Exception("Login cancelled."))
         } catch (e: GetCredentialException) {
-            Result.failure(
-                Exception(
-                    "Google sign-in failed. Make sure:\n" +
-                    "• A Google account is added to this device\n" +
-                    "• Google Play Services is up to date\n\n" +
-                    "Error: ${e.localizedMessage}"
-                )
-            )
+            Result.failure(Exception("Login failed: ${e.localizedMessage}"))
         } catch (e: GoogleIdTokenParsingException) {
-            Result.failure(Exception("Could not read Google credentials: ${e.localizedMessage}"))
+            Result.failure(Exception("Token parse error: ${e.localizedMessage}"))
+        }
+    }
+
+    /**
+     * Clears the credential state (signs out of Google session on device).
+     */
+    suspend fun signOut(context: Context) {
+        try {
+            val credentialManager = CredentialManager.create(context)
+            credentialManager.clearCredentialState(ClearCredentialStateRequest())
+        } catch (e: Exception) {
+            // Log or ignore
         }
     }
 }

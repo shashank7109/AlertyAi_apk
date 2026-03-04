@@ -9,6 +9,7 @@ import com.alertyai.app.data.model.Task
 import com.alertyai.app.data.repository.TaskRepository
 import com.alertyai.app.network.RetrofitClient
 import com.alertyai.app.network.TokenManager
+import com.alertyai.app.util.AlarmScheduler
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
@@ -48,17 +49,43 @@ class TasksViewModel @Inject constructor(
         }
     }
 
-    /** Save a fully-configured Task (from AddTaskSheet with date/alarm/subtasks/checklist). */
-    fun addFullTask(task: Task) {
-        viewModelScope.launch { repository.addTask(task) }
+    /** Save a fully-configured Task and schedule its alarm if enabled. */
+    fun addFullTask(context: Context, task: Task) {
+        viewModelScope.launch {
+            val inserted = repository.addTask(task)
+            // If the task got a generated ID, we need to fetch it to schedule alarm properly
+            if (task.alarmEnabled && task.dueDate != null && task.dueTime != null) {
+                // Use a copy with the inserted id if auto-generated
+                val taskWithId = if (task.id == 0) task.copy(id = inserted.toInt()) else task
+                AlarmScheduler.schedule(context, taskWithId)
+            }
+        }
     }
 
-    fun toggleDone(task: Task) {
-        viewModelScope.launch { repository.toggleDone(task) }
+    /** Update an existing task and re-schedule its alarm. */
+    fun updateTask(context: Context, task: Task) {
+        viewModelScope.launch {
+            repository.updateTask(task)
+            AlarmScheduler.cancel(context, task) // cancel old alarm
+            if (task.alarmEnabled && task.dueDate != null && task.dueTime != null) {
+                AlarmScheduler.schedule(context, task)
+            }
+        }
     }
 
-    fun deleteTask(task: Task) {
-        viewModelScope.launch { repository.deleteTask(task) }
+    fun toggleDone(context: Context, task: Task) {
+        viewModelScope.launch {
+            repository.toggleDone(task)
+            // When a task is completed, cancel its alarm
+            if (!task.isDone) AlarmScheduler.cancel(context, task)
+        }
+    }
+
+    fun deleteTask(context: Context, task: Task) {
+        viewModelScope.launch {
+            AlarmScheduler.cancel(context, task)
+            repository.deleteTask(task)
+        }
     }
 
     // ── AI: Create from text ───────────────────────────────────────────────────
@@ -73,10 +100,17 @@ class TasksViewModel @Inject constructor(
             try {
                 val resp = RetrofitClient.api.createTaskFromText("Bearer $token", text)
                 if (resp.isSuccessful) {
-                    val taskTitle = (resp.body()?.task?.get("title") as? String) ?: text
-                    repository.addTask(Task(title = taskTitle, note = "Created by AI"))
+                    val body = resp.body()
+                    val taskTitle = (body?.task?.get("title") as? String) ?: text
+                    val subtasksJson = com.google.gson.Gson().toJson(body?.getSubtasks())
+                    val note = body?.getDescription().orEmpty().ifBlank { "Created by AI" }
+                    repository.addTask(Task(title = taskTitle, note = note, subtasksJson = subtasksJson))
                     _aiState.value = _aiState.value.copy(isAiLoading = false,
                         aiSuccess = "✅ Task created: \"$taskTitle\"")
+                } else if (resp.code() == 401) {
+                    TokenManager.clearToken(context)
+                    _aiState.value = _aiState.value.copy(isAiLoading = false,
+                        aiError = "Session expired. Please log in again.")
                 } else {
                     _aiState.value = _aiState.value.copy(isAiLoading = false,
                         aiError = "AI failed (${resp.code()})")
@@ -110,10 +144,17 @@ class TasksViewModel @Inject constructor(
                     "Bearer $token", imagePart, langBody, extractBody
                 )
                 if (resp.isSuccessful) {
-                    val taskTitle = (resp.body()?.task?.get("title") as? String) ?: "Task from image"
-                    repository.addTask(Task(title = taskTitle, note = "Created from image OCR"))
+                    val body = resp.body()
+                    val taskTitle = (body?.task?.get("title") as? String) ?: "Task from image"
+                    val subtasksJson = com.google.gson.Gson().toJson(body?.getSubtasks())
+                    val note = body?.getDescription().orEmpty().ifBlank { "Created from image OCR" }
+                    repository.addTask(Task(title = taskTitle, note = note, subtasksJson = subtasksJson))
                     _aiState.value = _aiState.value.copy(isAiLoading = false,
                         aiSuccess = "📷 Task created: \"$taskTitle\"")
+                } else if (resp.code() == 401) {
+                    TokenManager.clearToken(context)
+                    _aiState.value = _aiState.value.copy(isAiLoading = false,
+                        aiError = "Session expired. Please log in again.")
                 } else {
                     _aiState.value = _aiState.value.copy(isAiLoading = false,
                         aiError = "Image OCR failed (${resp.code()})")
@@ -153,6 +194,10 @@ class TasksViewModel @Inject constructor(
                     ))
                     _aiState.value = _aiState.value.copy(isAiLoading = false,
                         aiSuccess = "🎤 Task created: \"$taskTitle\"")
+                } else if (resp.code() == 401) {
+                    TokenManager.clearToken(context)
+                    _aiState.value = _aiState.value.copy(isAiLoading = false,
+                        aiError = "Session expired. Please log in again.")
                 } else {
                     _aiState.value = _aiState.value.copy(isAiLoading = false,
                         aiError = "Voice STT failed (${resp.code()})")
@@ -196,6 +241,8 @@ class TasksViewModel @Inject constructor(
                             )
                         }
                     }
+                } else if (resp.code() == 401) {
+                    TokenManager.clearToken(context)
                 }
             } catch (_: Exception) {
                 /* Silent — offline is fine, local DB still shows */
