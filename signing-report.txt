@@ -1,0 +1,29 @@
+
+> Task :app:signingReport
+Variant: debug
+Config: debug
+Store: C:\Users\binda\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AB:AC:50:EA:7C:9C:C2:26:15:21:97:CF:4D:88:53:0F
+SHA1: A9:87:36:E9:EB:87:12:69:DB:D5:8D:A9:59:51:F6:68:9D:E5:A0:98
+SHA-256: 3E:84:97:89:D7:98:93:4B:95:7D:CC:2A:69:4F:22:08:10:72:C5:A2:A7:16:AE:9A:DF:BA:ED:03:72:10:68:EA
+Valid until: Friday, 25 February, 2056
+----------
+Variant: release
+Config: null
+Store: null
+Alias: null
+----------
+Variant: debugAndroidTest
+Config: debug
+Store: C:\Users\binda\.android\debug.keystore
+Alias: AndroidDebugKey
+MD5: AB:AC:50:EA:7C:9C:C2:26:15:21:97:CF:4D:88:53:0F
+SHA1: A9:87:36:E9:EB:87:12:69:DB:D5:8D:A9:59:51:F6:68:9D:E5:A0:98
+SHA-256: 3E:84:97:89:D7:98:93:4B:95:7D:CC:2A:69:4F:22:08:10:72:C5:A2:A7:16:AE:9A:DF:BA:ED:03:72:10:68:EA
+Valid until: Friday, 25 February, 2056
+----------
+
+BUILD SUCCESSFUL in 1s
+1 actionable task: 1 executed
+Consider enabling configuration cache to speed up this build: https://docs.gradle.org/9.0.0/userguide/configuration_cache_enabling.html
