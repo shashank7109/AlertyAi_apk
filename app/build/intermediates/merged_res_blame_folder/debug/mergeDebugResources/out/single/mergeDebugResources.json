@@ -1,22 +1,42 @@
 [
     {
-        "merged": "com.alertyai.app-debug-74:/mipmap-anydpi-v26_ic_launcher.xml.flat",
-        "source": "com.alertyai.app-main-76:/mipmap-anydpi-v26/ic_launcher.xml"
+        "merged": "C:\\Users\\binda\\.gradle\\daemon\\9.0.0\\com.alertyai.app-debug-74:\\mipmap-anydpi-v26_ic_launcher.xml.flat",
+        "source": "C:\\Users\\binda\\.gradle\\daemon\\9.0.0\\com.alertyai.app-main-76:\\mipmap-anydpi-v26\\ic_launcher.xml"
     },
     {
-        "merged": "com.alertyai.app-debug-74:/drawable_ic_launcher_foreground.xml.flat",
-        "source": "com.alertyai.app-main-76:/drawable/ic_launcher_foreground.xml"
+        "merged": "C:\\Users\\binda\\.gradle\\daemon\\9.0.0\\com.alertyai.app-debug-74:\\drawable_ic_launcher_foreground.xml.flat",
+        "source": "C:\\Users\\binda\\.gradle\\daemon\\9.0.0\\com.alertyai.app-main-76:\\drawable\\ic_launcher_foreground.xml"
     },
     {
-        "merged": "com.alertyai.app-debug-74:/drawable_ic_launcher_background.xml.flat",
-        "source": "com.alertyai.app-main-76:/drawable/ic_launcher_background.xml"
+        "merged": "com.alertyai.app-debug-74:/drawable_logo_icon.xml.flat",
+        "source": "com.alertyai.app-main-76:/drawable/logo_icon.xml"
     },
     {
-        "merged": "com.alertyai.app-debug-74:/mipmap-anydpi-v26_ic_launcher_round.xml.flat",
-        "source": "com.alertyai.app-main-76:/mipmap-anydpi-v26/ic_launcher_round.xml"
+        "merged": "C:\\Users\\binda\\.gradle\\daemon\\9.0.0\\com.alertyai.app-debug-74:\\mipmap-anydpi-v26_ic_launcher_round.xml.flat",
+        "source": "C:\\Users\\binda\\.gradle\\daemon\\9.0.0\\com.alertyai.app-main-76:\\mipmap-anydpi-v26\\ic_launcher_round.xml"
     },
     {
-        "merged": "com.alertyai.app-debug-74:/xml_network_security_config.xml.flat",
-        "source": "com.alertyai.app-main-76:/xml/network_security_config.xml"
+        "merged": "C:\\Users\\binda\\.gradle\\daemon\\9.0.0\\com.alertyai.app-debug-74:\\drawable_ic_launcher_background.xml.flat",
+        "source": "C:\\Users\\binda\\.gradle\\daemon\\9.0.0\\com.alertyai.app-main-76:\\drawable\\ic_launcher_background.xml"
+    },
+    {
+        "merged": "C:\\Users\\binda\\.gradle\\daemon\\9.0.0\\com.alertyai.app-debug-74:\\mipmap-xxhdpi_ic_launcher_round.png.flat",
+        "source": "C:\\Users\\binda\\.gradle\\daemon\\9.0.0\\com.alertyai.app-main-76:\\mipmap-xxhdpi\\ic_launcher_round.png"
+    },
+    {
+        "merged": "C:\\Users\\binda\\.gradle\\daemon\\9.0.0\\com.alertyai.app-debug-74:\\drawable_logo.png.flat",
+        "source": "C:\\Users\\binda\\.gradle\\daemon\\9.0.0\\com.alertyai.app-main-76:\\drawable\\logo.png"
+    },
+    {
+        "merged": "C:\\Users\\binda\\.gradle\\daemon\\9.0.0\\com.alertyai.app-debug-74:\\drawable_logo_icon.xml.flat",
+        "source": "C:\\Users\\binda\\.gradle\\daemon\\9.0.0\\com.alertyai.app-main-76:\\drawable\\logo_icon.xml"
+    },
+    {
+        "merged": "C:\\Users\\binda\\.gradle\\daemon\\9.0.0\\com.alertyai.app-debug-74:\\mipmap-xxhdpi_ic_launcher.png.flat",
+        "source": "C:\\Users\\binda\\.gradle\\daemon\\9.0.0\\com.alertyai.app-main-76:\\mipmap-xxhdpi\\ic_launcher.png"
+    },
+    {
+        "merged": "C:\\Users\\binda\\.gradle\\daemon\\9.0.0\\com.alertyai.app-debug-74:\\xml_network_security_config.xml.flat",
+        "source": "C:\\Users\\binda\\.gradle\\daemon\\9.0.0\\com.alertyai.app-main-76:\\xml\\network_security_config.xml"
     }
 ]

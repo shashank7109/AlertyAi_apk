@@ -1,0 +1,342 @@
+Initialized native services in: C:\Users\binda\.gradle\native
+Initialized jansi services in: C:\Users\binda\.gradle\native
+The client will now receive all logging from the daemon (pid: 26680). The daemon log file: C:\Users\binda\.gradle\daemon\9.0.0\daemon-26680.out.log
+Starting 76th build in daemon [uptime: 1 hrs 19 mins 22.566 secs, performance: 99%, GC rate: 0.00/s, heap usage: 0% of 2 GiB]
+Using 16 worker leases.
+Now considering [D:\Smaran\alertyai_android] as hierarchies to watch
+Watching the file system is configured to be enabled if available
+File system watching is active
+Starting Build
+Resolved plugin [id: 'org.gradle.toolchains.foojay-resolver-convention', version: '0.8.0']
+Settings evaluated using settings file 'D:\Smaran\alertyai_android\settings.gradle.kts'.
+Using local directory build cache for the root build (location = C:\Users\binda\.gradle\caches\build-cache-1, remove unused entries = after 7 days).
+Projects loaded. Root project using build file 'D:\Smaran\alertyai_android\build.gradle.kts'.
+Included projects: [root project 'AlertyAI', project ':app']
+
+> Configure project :
+Evaluating root project 'AlertyAI' using build file 'D:\Smaran\alertyai_android\build.gradle.kts'.
+Resolved plugin [id: 'com.android.application', version: '8.5.2', apply: false]
+Resolved plugin [id: 'org.jetbrains.kotlin.android', version: '2.0.21', apply: false]
+Resolved plugin [id: 'org.jetbrains.kotlin.plugin.compose', version: '2.0.21', apply: false]
+Resolved plugin [id: 'com.google.dagger.hilt.android', version: '2.51.1', apply: false]
+Resolved plugin [id: 'com.google.devtools.ksp', version: '2.0.21-1.0.25', apply: false]
+
+> Configure project :app
+Evaluating project ':app' using build file 'D:\Smaran\alertyai_android\app\build.gradle.kts'.
+Resolved plugin [id: 'com.android.application', version: '8.5.2']
+Resolved plugin [id: 'org.jetbrains.kotlin.android', version: '2.0.21']
+Resolved plugin [id: 'org.jetbrains.kotlin.plugin.compose', version: '2.0.21']
+Resolved plugin [id: 'com.google.dagger.hilt.android', version: '2.51.1']
+Resolved plugin [id: 'com.google.devtools.ksp', version: '2.0.21-1.0.25']
+Using default execution profile
+Using Kotlin Gradle Plugin gradle85 variant
+Parsed shrinker version: 8.5.35
+Detected Android Gradle Plugin compose compiler configuration
+Detected Android Gradle Plugin compose compiler configuration
+Detected Android Gradle Plugin compose compiler configuration
+Detected Android Gradle Plugin compose compiler configuration
+Detected Android Gradle Plugin compose compiler configuration
+All projects evaluated.
+Task name matched 'assembleDebug'
+Selected primary task 'assembleDebug' from project :
+Tasks to be executed: [task ':app:preBuild', task ':app:preDebugBuild', task ':app:mergeDebugNativeDebugMetadata', task ':app:checkKotlinGradlePluginConfigurationErrors', task ':app:checkDebugAarMetadata', task ':app:generateDebugResValues', task ':app:mapDebugSourceSetPaths', task ':app:generateDebugResources', task ':app:mergeDebugResources', task ':app:packageDebugResources', task ':app:parseDebugLocalResources', task ':app:createDebugCompatibleScreenManifests', task ':app:extractDeepLinksDebug', task ':app:processDebugMainManifest', task ':app:processDebugManifest', task ':app:processDebugManifestForPackage', task ':app:processDebugResources', task ':app:kspDebugKotlin', task ':app:compileDebugKotlin', task ':app:javaPreCompileDebug', task ':app:compileDebugJavaWithJavac', task ':app:mergeDebugShaders', task ':app:compileDebugShaders', task ':app:generateDebugAssets', task ':app:mergeDebugAssets', task ':app:compressDebugAssets', task ':app:desugarDebugFileDependencies', task ':app:hiltAggregateDepsDebug', task ':app:hiltJavaCompileDebug', task ':app:transformDebugClassesWithAsm', task ':app:dexBuilderDebug', task ':app:mergeDebugGlobalSynthetics', task ':app:processDebugJavaRes', task ':app:mergeDebugJavaResource', task ':app:checkDebugDuplicateClasses', task ':app:mergeDebugStartupProfile', task ':app:mergeExtDexDebug', task ':app:mergeLibDexDebug', task ':app:mergeProjectDexDebug', task ':app:mergeDebugJniLibFolders', task ':app:mergeDebugNativeLibs', task ':app:stripDebugDebugSymbols', task ':app:validateSigningDebug', task ':app:writeDebugAppMetadata', task ':app:writeDebugSigningConfigVersions', task ':app:packageDebug', task ':app:createDebugApkListingFileRedirect', task ':app:assembleDebug']
+Tasks that were excluded: []
+Resolve mutations for :app:preBuild (Thread[#6508,Execution worker,5,main]) started.
+:app:preBuild (Thread[#6508,Execution worker,5,main]) started.
+
+> Task :app:preBuild UP-TO-DATE
+Skipping task ':app:preBuild' as it has no actions.
+Resolve mutations for :app:preDebugBuild (Thread[#6508,Execution worker,5,main]) started.
+:app:preDebugBuild (Thread[#6508,Execution worker,5,main]) started.
+
+> Task :app:preDebugBuild UP-TO-DATE
+Skipping task ':app:preDebugBuild' as it has no actions.
+Resolve mutations for :app:mergeDebugNativeDebugMetadata (Thread[#6508,Execution worker,5,main]) started.
+:app:mergeDebugNativeDebugMetadata (Thread[#6515,Execution worker Thread 8,5,main]) started.
+
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+Skipping task ':app:mergeDebugNativeDebugMetadata' as it has no source files and no previous output files.
+Resolve mutations for :app:checkKotlinGradlePluginConfigurationErrors (Thread[#6515,Execution worker Thread 8,5,main]) started.
+:app:checkKotlinGradlePluginConfigurationErrors (Thread[#6515,Execution worker Thread 8,5,main]) started.
+
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+Skipping task ':app:checkKotlinGradlePluginConfigurationErrors' as task onlyIf 'errorDiagnostics are present' is false.
+Resolve mutations for :app:checkDebugAarMetadata (Thread[#6515,Execution worker Thread 8,5,main]) started.
+:app:checkDebugAarMetadata (Thread[#6515,Execution worker Thread 8,5,main]) started.
+
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+Caching disabled for task ':app:checkDebugAarMetadata' because:
+  Caching has been disabled for the task
+Skipping task ':app:checkDebugAarMetadata' as it is up-to-date.
+Resolve mutations for :app:generateDebugResValues (Thread[#6515,Execution worker Thread 8,5,main]) started.
+:app:generateDebugResValues (Thread[#6515,Execution worker Thread 8,5,main]) started.
+
+> Task :app:generateDebugResValues UP-TO-DATE
+Build cache key for task ':app:generateDebugResValues' is d128992bc436929aaaa93b1a878ddadc
+Skipping task ':app:generateDebugResValues' as it is up-to-date.
+Resolve mutations for :app:mapDebugSourceSetPaths (Thread[#6515,Execution worker Thread 8,5,main]) started.
+:app:mapDebugSourceSetPaths (Thread[#6515,Execution worker Thread 8,5,main]) started.
+
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+Caching disabled for task ':app:mapDebugSourceSetPaths' because:
+  Caching has been disabled for the task
+Skipping task ':app:mapDebugSourceSetPaths' as it is up-to-date.
+Resolve mutations for :app:generateDebugResources (Thread[#6515,Execution worker Thread 8,5,main]) started.
+:app:generateDebugResources (Thread[#6515,Execution worker Thread 8,5,main]) started.
+
+> Task :app:generateDebugResources UP-TO-DATE
+Build cache key for task ':app:generateDebugResources' is 9ea767756e833394c234bd3c4f540ade
+Skipping task ':app:generateDebugResources' as it is up-to-date.
+Resolve mutations for :app:mergeDebugResources (Thread[#6515,Execution worker Thread 8,5,main]) started.
+:app:mergeDebugResources (Thread[#6515,Execution worker Thread 8,5,main]) started.
+
+> Task :app:mergeDebugResources UP-TO-DATE
+Build cache key for task ':app:mergeDebugResources' is 26276998dd052e4a68a3d134245addae
+Skipping task ':app:mergeDebugResources' as it is up-to-date.
+Resolve mutations for :app:packageDebugResources (Thread[#6515,Execution worker Thread 8,5,main]) started.
+:app:packageDebugResources (Thread[#6515,Execution worker Thread 8,5,main]) started.
+
+> Task :app:packageDebugResources UP-TO-DATE
+Build cache key for task ':app:packageDebugResources' is b29ba8164bf1f5197b340c65bda4308b
+Skipping task ':app:packageDebugResources' as it is up-to-date.
+Resolve mutations for :app:parseDebugLocalResources (Thread[#6520,Execution worker Thread 13,5,main]) started.
+:app:parseDebugLocalResources (Thread[#6520,Execution worker Thread 13,5,main]) started.
+
+> Task :app:parseDebugLocalResources UP-TO-DATE
+Build cache key for task ':app:parseDebugLocalResources' is e08f0497abe221aeef0032ded5b3cfda
+Skipping task ':app:parseDebugLocalResources' as it is up-to-date.
+Resolve mutations for :app:createDebugCompatibleScreenManifests (Thread[#6520,Execution worker Thread 13,5,main]) started.
+:app:createDebugCompatibleScreenManifests (Thread[#6520,Execution worker Thread 13,5,main]) started.
+
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+Caching disabled for task ':app:createDebugCompatibleScreenManifests' because:
+  Caching has been disabled for the task
+Skipping task ':app:createDebugCompatibleScreenManifests' as it is up-to-date.
+Resolve mutations for :app:extractDeepLinksDebug (Thread[#6520,Execution worker Thread 13,5,main]) started.
+:app:extractDeepLinksDebug (Thread[#6520,Execution worker Thread 13,5,main]) started.
+
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+Build cache key for task ':app:extractDeepLinksDebug' is ea80dd3fc4002076c4d4381a1bb8ebbf
+Skipping task ':app:extractDeepLinksDebug' as it is up-to-date.
+Resolve mutations for :app:processDebugMainManifest (Thread[#6520,Execution worker Thread 13,5,main]) started.
+:app:processDebugMainManifest (Thread[#6520,Execution worker Thread 13,5,main]) started.
+
+> Task :app:processDebugMainManifest UP-TO-DATE
+Build cache key for task ':app:processDebugMainManifest' is 8c933fb74c431643161db15d0b7228a9
+Skipping task ':app:processDebugMainManifest' as it is up-to-date.
+Resolve mutations for :app:processDebugManifest (Thread[#6520,Execution worker Thread 13,5,main]) started.
+:app:processDebugManifest (Thread[#6520,Execution worker Thread 13,5,main]) started.
+
+> Task :app:processDebugManifest UP-TO-DATE
+Build cache key for task ':app:processDebugManifest' is bd7b98be044c35cd51e1131197cc1ff0
+Skipping task ':app:processDebugManifest' as it is up-to-date.
+Resolve mutations for :app:processDebugManifestForPackage (Thread[#6520,Execution worker Thread 13,5,main]) started.
+:app:processDebugManifestForPackage (Thread[#6520,Execution worker Thread 13,5,main]) started.
+
+> Task :app:processDebugManifestForPackage UP-TO-DATE
+Custom actions are attached to task ':app:processDebugManifestForPackage'.
+Build cache key for task ':app:processDebugManifestForPackage' is 5d10e380fa6d14b8f6c5317c5850dc28
+Skipping task ':app:processDebugManifestForPackage' as it is up-to-date.
+Resolve mutations for :app:processDebugResources (Thread[#6520,Execution worker Thread 13,5,main]) started.
+:app:processDebugResources (Thread[#6520,Execution worker Thread 13,5,main]) started.
+
+> Task :app:processDebugResources UP-TO-DATE
+Build cache key for task ':app:processDebugResources' is 0588cd9f2bcf885724878125e874fc61
+Skipping task ':app:processDebugResources' as it is up-to-date.
+Resolve mutations for :app:kspDebugKotlin (Thread[#6520,Execution worker Thread 13,5,main]) started.
+:app:kspDebugKotlin (Thread[#6520,Execution worker Thread 13,5,main]) started.
+
+> Task :app:kspDebugKotlin UP-TO-DATE
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\java', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\main\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\java', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\java', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\main\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\java', not found
+Build cache key for task ':app:kspDebugKotlin' is 477ebd1e85e4a6ea698d1c242e6f4192
+Skipping task ':app:kspDebugKotlin' as it is up-to-date.
+Resolve mutations for :app:compileDebugKotlin (Thread[#6520,Execution worker Thread 13,5,main]) started.
+:app:compileDebugKotlin (Thread[#6520,Execution worker Thread 13,5,main]) started.
+Resolve mutations for :app:javaPreCompileDebug (Thread[#6507,included builds,5,main]) started.
+:app:javaPreCompileDebug (Thread[#6507,included builds,5,main]) started.
+
+> Task :app:javaPreCompileDebug UP-TO-DATE
+Build cache key for task ':app:javaPreCompileDebug' is e1c0c2751e296f88b5de04f212788701
+Skipping task ':app:javaPreCompileDebug' as it is up-to-date.
+Resolve mutations for :app:mergeDebugShaders (Thread[#6507,included builds,5,main]) started.
+:app:mergeDebugShaders (Thread[#6510,Execution worker Thread 3,5,main]) started.
+
+> Task :app:mergeDebugShaders UP-TO-DATE
+Caching disabled for task ':app:mergeDebugShaders' because:
+  Simple merging task
+Skipping task ':app:mergeDebugShaders' as it is up-to-date.
+Resolve mutations for :app:compileDebugShaders (Thread[#6510,Execution worker Thread 3,5,main]) started.
+:app:compileDebugShaders (Thread[#6510,Execution worker Thread 3,5,main]) started.
+
+> Task :app:compileDebugShaders NO-SOURCE
+Skipping task ':app:compileDebugShaders' as it has no source files and no previous output files.
+Resolve mutations for :app:generateDebugAssets (Thread[#6510,Execution worker Thread 3,5,main]) started.
+:app:generateDebugAssets (Thread[#6510,Execution worker Thread 3,5,main]) started.
+
+> Task :app:generateDebugAssets UP-TO-DATE
+Skipping task ':app:generateDebugAssets' as it has no actions.
+Resolve mutations for :app:mergeDebugAssets (Thread[#6510,Execution worker Thread 3,5,main]) started.
+:app:mergeDebugAssets (Thread[#6510,Execution worker Thread 3,5,main]) started.
+
+> Task :app:mergeDebugAssets UP-TO-DATE
+Caching disabled for task ':app:mergeDebugAssets' because:
+  Simple merging task
+Skipping task ':app:mergeDebugAssets' as it is up-to-date.
+Resolve mutations for :app:compressDebugAssets (Thread[#6510,Execution worker Thread 3,5,main]) started.
+:app:compressDebugAssets (Thread[#6510,Execution worker Thread 3,5,main]) started.
+
+> Task :app:compressDebugAssets UP-TO-DATE
+Build cache key for task ':app:compressDebugAssets' is bd25779a38d9b8f2605f7c128e33a857
+Skipping task ':app:compressDebugAssets' as it is up-to-date.
+Resolve mutations for :app:desugarDebugFileDependencies (Thread[#6510,Execution worker Thread 3,5,main]) started.
+:app:desugarDebugFileDependencies (Thread[#6510,Execution worker Thread 3,5,main]) started.
+
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+Build cache key for task ':app:desugarDebugFileDependencies' is a02ff515f73723ac1f8751700169cc8f
+Skipping task ':app:desugarDebugFileDependencies' as it is up-to-date.
+Resolve mutations for :app:checkDebugDuplicateClasses (Thread[#6510,Execution worker Thread 3,5,main]) started.
+:app:checkDebugDuplicateClasses (Thread[#6510,Execution worker Thread 3,5,main]) started.
+
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+Caching disabled for task ':app:checkDebugDuplicateClasses' because:
+  Caching has been disabled for the task
+Skipping task ':app:checkDebugDuplicateClasses' as it is up-to-date.
+Resolve mutations for :app:mergeDebugStartupProfile (Thread[#6510,Execution worker Thread 3,5,main]) started.
+:app:mergeDebugStartupProfile (Thread[#6510,Execution worker Thread 3,5,main]) started.
+
+> Task :app:mergeDebugStartupProfile UP-TO-DATE
+Caching disabled for task ':app:mergeDebugStartupProfile' because:
+  Simple merging task
+Skipping task ':app:mergeDebugStartupProfile' as it is up-to-date.
+Resolve mutations for :app:mergeExtDexDebug (Thread[#6510,Execution worker Thread 3,5,main]) started.
+:app:mergeExtDexDebug (Thread[#6510,Execution worker Thread 3,5,main]) started.
+
+> Task :app:mergeExtDexDebug UP-TO-DATE
+Build cache key for task ':app:mergeExtDexDebug' is 3f222c36adae61a4e99b23eb0cd7c91f
+Skipping task ':app:mergeExtDexDebug' as it is up-to-date.
+Resolve mutations for :app:mergeLibDexDebug (Thread[#6510,Execution worker Thread 3,5,main]) started.
+:app:mergeLibDexDebug (Thread[#6510,Execution worker Thread 3,5,main]) started.
+
+> Task :app:mergeLibDexDebug UP-TO-DATE
+Build cache key for task ':app:mergeLibDexDebug' is be6d4f11b3782cffd75e1e6f34831410
+Skipping task ':app:mergeLibDexDebug' as it is up-to-date.
+Resolve mutations for :app:mergeDebugJniLibFolders (Thread[#6510,Execution worker Thread 3,5,main]) started.
+:app:mergeDebugJniLibFolders (Thread[#6510,Execution worker Thread 3,5,main]) started.
+
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+Caching disabled for task ':app:mergeDebugJniLibFolders' because:
+  Simple merging task
+Skipping task ':app:mergeDebugJniLibFolders' as it is up-to-date.
+Resolve mutations for :app:mergeDebugNativeLibs (Thread[#6510,Execution worker Thread 3,5,main]) started.
+:app:mergeDebugNativeLibs (Thread[#6513,Execution worker Thread 6,5,main]) started.
+
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+Caching disabled for task ':app:mergeDebugNativeLibs' because:
+  Caching has been disabled for the task
+Skipping task ':app:mergeDebugNativeLibs' as it is up-to-date.
+Resolve mutations for :app:stripDebugDebugSymbols (Thread[#6513,Execution worker Thread 6,5,main]) started.
+:app:stripDebugDebugSymbols (Thread[#6513,Execution worker Thread 6,5,main]) started.
+
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+Caching disabled for task ':app:stripDebugDebugSymbols' because:
+  Caching has been disabled for the task
+Skipping task ':app:stripDebugDebugSymbols' as it is up-to-date.
+Resolve mutations for :app:validateSigningDebug (Thread[#6513,Execution worker Thread 6,5,main]) started.
+:app:validateSigningDebug (Thread[#6513,Execution worker Thread 6,5,main]) started.
+
+> Task :app:validateSigningDebug UP-TO-DATE
+Caching disabled for task ':app:validateSigningDebug' because:
+  Caching has been disabled for the task
+Skipping task ':app:validateSigningDebug' as it is up-to-date.
+Resolve mutations for :app:writeDebugAppMetadata (Thread[#6513,Execution worker Thread 6,5,main]) started.
+:app:writeDebugAppMetadata (Thread[#6513,Execution worker Thread 6,5,main]) started.
+
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+Caching disabled for task ':app:writeDebugAppMetadata' because:
+  Caching has been disabled for the task
+Skipping task ':app:writeDebugAppMetadata' as it is up-to-date.
+Resolve mutations for :app:writeDebugSigningConfigVersions (Thread[#6513,Execution worker Thread 6,5,main]) started.
+:app:writeDebugSigningConfigVersions (Thread[#6513,Execution worker Thread 6,5,main]) started.
+
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+Caching disabled for task ':app:writeDebugSigningConfigVersions' because:
+  Caching has been disabled for the task
+Skipping task ':app:writeDebugSigningConfigVersions' as it is up-to-date.
+
+> Task :app:compileDebugKotlin FAILED
+Build cache key for task ':app:compileDebugKotlin' is c78de61bbd77cf651db13b7448e04343
+Task ':app:compileDebugKotlin' is not up-to-date because:
+  Input property 'sources' file D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\MainActivity.kt has changed.
+  Input property 'sources' file D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\teams\TeamChatScreen.kt has changed.
+  Input property 'sources' file D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\teams\TeamChatViewModel.kt has changed.
+  and more...
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\java', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\java', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\main\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\main\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\main\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\java', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\java', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\java', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\main\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\main\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\main\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\java', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\java', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\java', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\main\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\main\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\main\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\java', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\java', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\java', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\main\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\main\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\main\kotlin', not found
+file or directory 'D:\Smaran\alertyai_android\app\src\debug\java', not found
+Kotlin source files: D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\AlertyAIApp.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\data\local\AppDatabase.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\data\local\ReminderDao.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\data\local\TaskDao.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\data\model\OrgModels.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\data\model\Reminder.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\data\model\Task.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\data\repository\OrgRepository.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\data\repository\ReminderRepository.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\data\repository\TaskRepository.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\di\DatabaseModule.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\MainActivity.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\navigation\NavGraph.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\network\ApiModels.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\network\ApiService.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\network\RetrofitClient.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\network\TokenManager.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\network\WebSocketManager.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\auth\AuthViewModel.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\auth\GoogleSignInHelper.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\auth\LoginScreen.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\chat\ChatScreen.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\chat\ChatViewModel.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\components\ClayComponents.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\home\HomeScreen.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\profile\ProfileScreen.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\profile\ProfileViewModel.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\reminders\RemindersScreen.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\reminders\RemindersViewModel.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\settings\SettingsScreen.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\tasks\AddTaskSheet.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\tasks\TasksScreen.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\tasks\TasksViewModel.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\teams\OrgMembersScreen.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\teams\OrgMembersViewModel.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\teams\TeamChatScreen.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\teams\TeamChatViewModel.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\teams\TeamsScreen.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\teams\TeamsViewModel.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\theme\Color.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\theme\Theme.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\theme\Type.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\util\AlarmReceiver.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\util\AlarmScheduler.kt
+Java source files: D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\AlertyAIApp_GeneratedInjector.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\data\local\AppDatabase_Impl.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\data\local\ReminderDao_Impl.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\data\local\TaskDao_Impl.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\data\repository\OrgRepository_Factory.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\data\repository\ReminderRepository_Factory.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\data\repository\TaskRepository_Factory.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\di\DatabaseModule_ProvideDatabaseFactory.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\di\DatabaseModule_ProvideReminderDaoFactory.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\di\DatabaseModule_ProvideTaskDaoFactory.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\Hilt_MainActivity.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\MainActivity_GeneratedInjector.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\ui\reminders\RemindersViewModel_Factory.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\ui\reminders\RemindersViewModel_HiltModules.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\ui\reminders\RemindersViewModel_HiltModules_KeyModule_ProvideFactory.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\ui\tasks\TasksViewModel_Factory.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\ui\tasks\TasksViewModel_HiltModules.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\ui\tasks\TasksViewModel_HiltModules_KeyModule_ProvideFactory.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\ui\teams\OrgMembersViewModel_Factory.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\ui\teams\OrgMembersViewModel_HiltModules.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\ui\teams\OrgMembersViewModel_HiltModules_KeyModule_ProvideFactory.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\ui\teams\TeamChatViewModel_Factory.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\ui\teams\TeamChatViewModel_HiltModules.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\ui\teams\TeamChatViewModel_HiltModules_KeyModule_ProvideFactory.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\ui\teams\TeamsViewModel_Factory.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\ui\teams\TeamsViewModel_HiltModules.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\com\alertyai\app\ui\teams\TeamsViewModel_HiltModules_KeyModule_ProvideFactory.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\dagger\hilt\internal\aggregatedroot\codegen\_com_alertyai_app_AlertyAIApp.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\hilt_aggregated_deps\_com_alertyai_app_AlertyAIApp_GeneratedInjector.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\hilt_aggregated_deps\_com_alertyai_app_di_DatabaseModule.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\hilt_aggregated_deps\_com_alertyai_app_MainActivity_GeneratedInjector.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\hilt_aggregated_deps\_com_alertyai_app_ui_reminders_RemindersViewModel_HiltModules_BindsModule.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\hilt_aggregated_deps\_com_alertyai_app_ui_reminders_RemindersViewModel_HiltModules_KeyModule.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\hilt_aggregated_deps\_com_alertyai_app_ui_tasks_TasksViewModel_HiltModules_BindsModule.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\hilt_aggregated_deps\_com_alertyai_app_ui_tasks_TasksViewModel_HiltModules_KeyModule.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\hilt_aggregated_deps\_com_alertyai_app_ui_teams_OrgMembersViewModel_HiltModules_BindsModule.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\hilt_aggregated_deps\_com_alertyai_app_ui_teams_OrgMembersViewModel_HiltModules_KeyModule.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\hilt_aggregated_deps\_com_alertyai_app_ui_teams_TeamChatViewModel_HiltModules_BindsModule.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\hilt_aggregated_deps\_com_alertyai_app_ui_teams_TeamChatViewModel_HiltModules_KeyModule.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\hilt_aggregated_deps\_com_alertyai_app_ui_teams_TeamsViewModel_HiltModules_BindsModule.java, D:\Smaran\alertyai_android\app\build\generated\ksp\debug\java\hilt_aggregated_deps\_com_alertyai_app_ui_teams_TeamsViewModel_HiltModules_KeyModule.java
+Script source files: 
+Script file extensions: 
+Using Kotlin/JVM incremental compilation
+[KOTLIN] Kotlin compilation 'jdkHome' argument: null
+Options for KOTLIN DAEMON: IncrementalCompilationOptions(super=CompilationOptions(compilerMode=INCREMENTAL_COMPILER, targetPlatform=JVM, reportCategories=[0, 3], reportSeverity=2, requestedCompilationResults=[0], kotlinScriptExtensions=[]), areFileChangesKnown=true, modifiedFiles=[D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\MainActivity.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\teams\TeamChatScreen.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\teams\TeamChatViewModel.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\theme\Color.kt, D:\Smaran\alertyai_android\app\src\main\java\com\alertyai\app\ui\theme\Type.kt], deletedFiles=[], classpathChanges=NoChanges, workingDir=D:\Smaran\alertyai_android\app\build\kotlin\compileDebugKotlin\cacheable, multiModuleICSettings=MultiModuleICSettings(buildHistoryFile=D:\Smaran\alertyai_android\app\build\kotlin\compileDebugKotlin\local-state\build-history.bin, useModuleDetection=true), usePreciseJavaTracking=true, icFeatures=IncrementalCompilationFeatures(withAbiSnapshot=false, preciseCompilationResultsBackup=true, keepIncrementalCompilationCachesInMemory=true, enableUnsafeIncrementalCompilationForMultiplatform=false), outputFiles=[D:\Smaran\alertyai_android\app\build\tmp\kotlin-classes\debug, D:\Smaran\alertyai_android\app\build\kotlin\compileDebugKotlin\cacheable, D:\Smaran\alertyai_android\app\build\kotlin\compileDebugKotlin\local-state])
+Finished executing kotlin compiler using DAEMON strategy
+Restoring task outputs to pre-compilation state
+e: file:///D:/Smaran/alertyai_android/app/src/main/java/com/alertyai/app/ui/teams/TeamChatScreen.kt:232:59 Null cannot be a value of a non-null type 'com.alertyai.app.network.MentionMember'.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --debug option to get more log output.
+> Run with --scan to generate a Build Scan (Powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 3s
+30 actionable tasks: 1 executed, 29 up-to-date
+Watched directory hierarchies: [D:\Smaran\alertyai_android]

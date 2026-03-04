@@ -15,20 +15,23 @@ val provider = GoogleFont.Provider(
     certificates = R.array.com_google_android_gms_fonts_certs
 )
 
-val InterFont = GoogleFont("Inter")
-val SpaceGroteskFont = GoogleFont("Space Grotesk")
+val UbuntuFont = GoogleFont("Ubuntu")
+val MontserratFont = GoogleFont("Montserrat")
 val JetBrainsMonoFont = GoogleFont("JetBrains Mono")
 
 val SansFontFamily = FontFamily(
-    Font(googleFont = InterFont, fontProvider = provider),
-    Font(googleFont = InterFont, fontProvider = provider, weight = FontWeight.Bold),
-    Font(googleFont = InterFont, fontProvider = provider, weight = FontWeight.Black)
+    Font(googleFont = UbuntuFont, fontProvider = provider, weight = FontWeight.Light),
+    Font(googleFont = UbuntuFont, fontProvider = provider, weight = FontWeight.Normal),
+    Font(googleFont = UbuntuFont, fontProvider = provider, weight = FontWeight.Medium),
+    Font(googleFont = UbuntuFont, fontProvider = provider, weight = FontWeight.SemiBold),
+    Font(googleFont = UbuntuFont, fontProvider = provider, weight = FontWeight.Medium)
 )
 
 val SpaceFontFamily = FontFamily(
-    Font(googleFont = SpaceGroteskFont, fontProvider = provider),
-    Font(googleFont = SpaceGroteskFont, fontProvider = provider, weight = FontWeight.Bold),
-    Font(googleFont = SpaceGroteskFont, fontProvider = provider, weight = FontWeight.Black)
+    Font(googleFont = MontserratFont, fontProvider = provider, weight = FontWeight.Light),
+    Font(googleFont = MontserratFont, fontProvider = provider, weight = FontWeight.Normal),
+    Font(googleFont = MontserratFont, fontProvider = provider, weight = FontWeight.Medium),
+    Font(googleFont = MontserratFont, fontProvider = provider, weight = FontWeight.SemiBold)
 )
 
 val MonoFontFamily = FontFamily(
@@ -39,47 +42,47 @@ val AlertyTypography = Typography(
     headlineLarge = TextStyle(
         fontFamily = SpaceFontFamily,
         fontSize = 32.sp, 
-        fontWeight = FontWeight.Black, 
+        fontWeight = FontWeight.Medium, 
         letterSpacing = (-1).sp,
         lineHeight = 40.sp
     ),
     headlineMedium = TextStyle(
         fontFamily = SpaceFontFamily,
         fontSize = 24.sp, 
-        fontWeight = FontWeight.Black,
+        fontWeight = FontWeight.Medium,
         letterSpacing = (-0.5).sp
     ),
     titleLarge = TextStyle(
         fontFamily = SpaceFontFamily,
         fontSize = 20.sp, 
-        fontWeight = FontWeight.ExtraBold,
+        fontWeight = FontWeight.SemiBold,
         letterSpacing = (-0.2).sp
     ),
     titleMedium = TextStyle(
         fontFamily = SpaceFontFamily,
         fontSize = 16.sp, 
-        fontWeight = FontWeight.Bold
+        fontWeight = FontWeight.Medium
     ),
     bodyLarge = TextStyle(
         fontFamily = SansFontFamily,
         fontSize = 16.sp, 
-        fontWeight = FontWeight.Medium,
+        fontWeight = FontWeight.Normal,
         lineHeight = 24.sp
     ),
     bodyMedium = TextStyle(
         fontFamily = SansFontFamily,
         fontSize = 14.sp, 
-        fontWeight = FontWeight.Medium
+        fontWeight = FontWeight.Normal
     ),
     bodySmall = TextStyle(
         fontFamily = SansFontFamily,
         fontSize = 12.sp, 
-        fontWeight = FontWeight.Medium
+        fontWeight = FontWeight.Normal
     ),
     labelSmall = TextStyle(
         fontFamily = SansFontFamily,
         fontSize = 10.sp, 
-        fontWeight = FontWeight.Black, 
-        letterSpacing = 1.5.sp
+        fontWeight = FontWeight.Medium, 
+        letterSpacing = 1.sp
     )
 )

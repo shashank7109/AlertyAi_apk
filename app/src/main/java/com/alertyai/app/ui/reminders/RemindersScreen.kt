@@ -43,7 +43,7 @@ fun RemindersScreen(vm: RemindersViewModel = hiltViewModel()) {
                         Text(
                             "RECALL PROTOCOLS",
                             style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Black
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 },
@@ -75,7 +75,7 @@ fun RemindersScreen(vm: RemindersViewModel = hiltViewModel()) {
                         }
                     }
                     Spacer(Modifier.height(24.dp))
-                    Text("NO RECALLS ACTIVE", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("NO RECALLS ACTIVE", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.height(8.dp))
                     Text("INITIATE NEW PROTOCOL VIA +", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                 }
@@ -87,7 +87,7 @@ fun RemindersScreen(vm: RemindersViewModel = hiltViewModel()) {
                 contentPadding = PaddingValues(vertical = 20.dp)
             ) {
                 item {
-                    Text("ACTIVE PROTOCOLS", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("ACTIVE PROTOCOLS", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 items(reminders, key = { it.id }) { reminder ->
                     ReminderItem(
@@ -142,20 +142,20 @@ fun ReminderItem(reminder: Reminder, onDone: () -> Unit, onDelete: () -> Unit) {
                 Text(
                     reminder.title, 
                     style = MaterialTheme.typography.bodyLarge, 
-                    fontWeight = FontWeight.Black,
+                    fontWeight = FontWeight.Medium,
                     color = if (reminder.isDone) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     fmt.format(Date(reminder.triggerAt)).uppercase(), 
                     style = MaterialTheme.typography.labelSmall, 
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.primary
                 )
                 if (reminder.isRepeating) {
                     Text(
                         "REPEAT: ${reminder.repeatInterval.name.uppercase()}", 
                         style = MaterialTheme.typography.labelSmall, 
-                        fontWeight = FontWeight.Black,
+                        fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                     )
                 }
@@ -183,8 +183,8 @@ fun AddReminderSheet(onDismiss: () -> Unit, onAdd: (String, String, Long, Repeat
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             Column {
-                Text("NEW PROTOCOL", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.primary)
-                Text("INITIATE RECALL", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Black)
+                Text("NEW PROTOCOL", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.primary)
+                Text("INITIATE RECALL", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Medium)
             }
 
             ClayCard(shape = RoundedCornerShape(16.dp)) {
@@ -200,7 +200,7 @@ fun AddReminderSheet(onDismiss: () -> Unit, onAdd: (String, String, Long, Repeat
                         unfocusedIndicatorColor = Color.Transparent,
                         focusedIndicatorColor = Color.Transparent
                     ),
-                    textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Black)
+                    textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
                 )
             }
 
@@ -216,12 +216,12 @@ fun AddReminderSheet(onDismiss: () -> Unit, onAdd: (String, String, Long, Repeat
                         unfocusedIndicatorColor = Color.Transparent,
                         focusedIndicatorColor = Color.Transparent
                     ),
-                    textStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
+                    textStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
                 )
             }
 
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("REPEAT ARCHITECTURE", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("REPEAT ARCHITECTURE", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     RepeatInterval.values().forEach { r ->
                         Surface(
@@ -235,7 +235,7 @@ fun AddReminderSheet(onDismiss: () -> Unit, onAdd: (String, String, Long, Repeat
                                 Text(
                                     r.name.uppercase(), 
                                     fontSize = 10.sp, 
-                                    fontWeight = FontWeight.Black,
+                                    fontWeight = FontWeight.Medium,
                                     color = if (repeat == r) Color.White else MaterialTheme.colorScheme.onSurfaceVariant
                                 )
                             }
@@ -250,7 +250,7 @@ fun AddReminderSheet(onDismiss: () -> Unit, onAdd: (String, String, Long, Repeat
                 modifier = Modifier.fillMaxWidth().height(64.dp),
                 containerColor = MaterialTheme.colorScheme.primary
             ) { 
-                Text("DEPLOY REMINDER", fontWeight = FontWeight.Black, style = MaterialTheme.typography.titleSmall) 
+                Text("DEPLOY REMINDER", fontWeight = FontWeight.Medium, style = MaterialTheme.typography.titleSmall) 
             }
         }
     }

@@ -94,7 +94,7 @@ fun TasksScreen() {
                     Text(
                         "ACTIVE TASKS",
                         style = MaterialTheme.typography.headlineMedium,
-                        fontWeight = FontWeight.Black,
+                        fontWeight = FontWeight.Medium,
                         letterSpacing = (-1).sp
                     )
                     IconButton(onClick = { showAddSheet = true }) {
@@ -110,7 +110,7 @@ fun TasksScreen() {
             ) {
                 Icon(Icons.Default.Add, null, tint = Color.White)
                 Spacer(Modifier.width(8.dp))
-                Text("NEW TASK", fontWeight = FontWeight.Black, style = MaterialTheme.typography.labelSmall)
+                Text("NEW TASK", fontWeight = FontWeight.Medium, style = MaterialTheme.typography.labelSmall)
             }
         }
     ) { padding ->
@@ -178,11 +178,11 @@ fun TasksScreen() {
                             modifier = Modifier.size(64.dp)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
-                                Text("0", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Black)
+                                Text("0", style = MaterialTheme.typography.headlineLarge, fontWeight = FontWeight.Medium)
                             }
                         }
                         Spacer(Modifier.height(16.dp))
-                        Text("QUIET SECTOR", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
+                        Text("QUIET SECTOR", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
                         Text("NO ACTIVE SIGNALS", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
@@ -292,7 +292,7 @@ fun TaskItem(task: Task, onToggle: () -> Unit, onDelete: () -> Unit, onEdit: () 
                 Text(
                     task.title.uppercase(),
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Black,
+                    fontWeight = FontWeight.Medium,
                     textDecoration = if (task.isDone) TextDecoration.LineThrough else null,
                     color = if (task.isDone) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
                             else MaterialTheme.colorScheme.onSurface

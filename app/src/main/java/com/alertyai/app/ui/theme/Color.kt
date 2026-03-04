@@ -2,36 +2,36 @@ package com.alertyai.app.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-// Light theme (Minimalist & Claymorphism)
-val Background       = Color(0xFFF8F9FC)   // Light, airy background
+// Minimal B&W and Glassmorphism Color Palette
+val Background       = Color(0xFFFAFAFA)   // Very light gray/white
 val Surface          = Color(0xFFFFFFFF)
-val SurfaceVariant   = Color(0xFFF1F4F9)
-val Primary          = Color(0xFF2563EB)   // Bold blue accent
-val PrimaryVariant   = Color(0xFF1E40AF)
-val OnPrimary        = Color.White
-val TextPrimary      = Color(0xFF0F172A)   // Slate 900
-val TextSecondary    = Color(0xFF64748B)   // Slate 500
-val Divider          = Color(0xFFE2E8F0)
-val Error            = Color(0xFFEF4444)
+val SurfaceVariant   = Color(0xFFF0F0F0)
+val Primary          = Color(0xFF111111)   // Almost pitch black
+val PrimaryVariant   = Color(0xFF333333)
+val OnPrimary        = Color(0xFFFFFFFF)
+val TextPrimary      = Color(0xFF1A1A1A)
+val TextSecondary    = Color(0xFF71717A)   // Zinc 500
+val Divider          = Color(0xFFE4E4E7)   // Zinc 200
+val Error            = Color(0xFFDC2626)   // Red 600
 
-// Claymorphism specific
+// Glassmorphism/Translucency specific
 val ClaySoft         = Color(0xFFFFFFFF)
-val ClayDeep         = Color(0xFFD1D5DB)
-val ClayPrimary      = Color(0xFF3B82F6)
+val ClayDeep         = Color(0xFFE5E7EB)
+val ClayPrimary      = Color(0xFF000000)
 
 // Dark theme
-val DarkBackground   = Color(0xFF0F172A)
-val DarkSurface      = Color(0xFF1E293B)
-val DarkSurfaceVar   = Color(0xFF334155)
-val DarkText         = Color(0xFFF8FAFC)
-val DarkTextSub      = Color(0xFF94A3B8)
-val DarkDivider      = Color(0xFF1E293B)
+val DarkBackground   = Color(0xFF09090B)   // Zinc 950
+val DarkSurface      = Color(0xFF18181B)   // Zinc 900
+val DarkSurfaceVar   = Color(0xFF27272A)
+val DarkText         = Color(0xFFE1E9E5)   // Requested off-white fix
+val DarkTextSub      = Color(0xFFA1A1AA)
+val DarkDivider      = Color(0xFF27272A)
 
-// Secondary & Tertiary Accents
-val Secondary        = Color(0xFF10B981)   // Emerald
-val Tertiary         = Color(0xFF6366F1)   // Indigo
+// Secondary & Tertiary Accents (monochrome with slight tint)
+val Secondary        = Color(0xFF52525B)   // Zinc 600
+val Tertiary         = Color(0xFF3F3F46)   // Zinc 700
 
-// Priority colours
+// Priority colours (muted)
 val PriorityHigh     = Color(0xFFEF4444)
-val PriorityNormal   = Color(0xFF3B82F6)
+val PriorityNormal   = Color(0xFF52525B)
 val PriorityLow      = Color(0xFF10B981)

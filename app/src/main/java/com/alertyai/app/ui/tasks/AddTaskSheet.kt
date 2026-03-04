@@ -57,11 +57,12 @@ fun AddTaskSheet(
     onAddFromText: (String) -> Unit,
     onImageSelected: (Uri) -> Unit,
     onVoiceFile: (File) -> Unit,
-    existingTask: Task? = null
+    existingTask: Task? = null,
+    initialMode: String = "manual"
 ) {
     val isEditMode = existingTask != null
     val context = LocalContext.current
-    var mode by remember { mutableStateOf("manual") }
+    var mode by remember { mutableStateOf(initialMode) }
 
     val gson = remember { Gson() }
     val initialSubtasks = remember {
@@ -204,7 +205,7 @@ fun AddTaskSheet(
                     Text(
                         if (isEditMode) "UPDATE PARAMETERS" else "INITIALIZE MISSION",
                         style = MaterialTheme.typography.headlineSmall,
-                        fontWeight = FontWeight.Black
+                        fontWeight = FontWeight.Medium
                     )
                 }
                 IconButton(onClick = onDismiss) {
@@ -246,7 +247,7 @@ fun AddTaskSheet(
                             Text(
                                 label,
                                 style = MaterialTheme.typography.labelSmall,
-                                fontWeight = if (isActive) FontWeight.Black else FontWeight.Bold,
+                                fontWeight = if (isActive) FontWeight.Medium else FontWeight.Medium,
                                 color = if (isActive) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
@@ -278,7 +279,7 @@ fun AddTaskSheet(
                                         unfocusedIndicatorColor = Color.Transparent,
                                         focusedIndicatorColor = Color.Transparent
                                     ),
-                                    textStyle = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Black)
+                                    textStyle = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Medium)
                                 )
                                 TextField(
                                     value = note, onValueChange = { note = it },
@@ -316,7 +317,7 @@ fun AddTaskSheet(
                                         Text(
                                             p.name, 
                                             style = MaterialTheme.typography.labelSmall,
-                                            fontWeight = FontWeight.Black,
+                                            fontWeight = FontWeight.Medium,
                                             color = if (isActive) Color.White else color,
                                             modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
                                         )
@@ -333,7 +334,7 @@ fun AddTaskSheet(
                                     Text(
                                         dueDate?.let { dateFormat.format(Date(it)).uppercase() } ?: "SELECT DATE",
                                         style = MaterialTheme.typography.labelSmall,
-                                        fontWeight = FontWeight.Black
+                                        fontWeight = FontWeight.Medium
                                     )
                                 }
                             }
@@ -343,7 +344,7 @@ fun AddTaskSheet(
                                     Text(
                                         dueTime?.let { timeFormat.format(Date(it)).uppercase() } ?: "SELECT TIME",
                                         style = MaterialTheme.typography.labelSmall,
-                                        fontWeight = FontWeight.Black
+                                        fontWeight = FontWeight.Medium
                                     )
                                 }
                             }
@@ -362,7 +363,7 @@ fun AddTaskSheet(
                                             Icons.Default.NotificationsActive, null, 
                                             tint = if (alarmEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant
                                         )
-                                        Text("ALERTS ENABLED", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black)
+                                        Text("ALERTS ENABLED", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium)
                                     }
                                     Switch(checked = alarmEnabled, onCheckedChange = { alarmEnabled = it })
                                 }
@@ -379,7 +380,7 @@ fun AddTaskSheet(
                             Spacer(Modifier.width(10.dp))
                             Text(
                                 if (isEditMode) "UPDATE MISSION" else "COMMENCE MISSION",
-                                fontWeight = FontWeight.Black,
+                                fontWeight = FontWeight.Medium,
                                 style = MaterialTheme.typography.labelSmall
                             )
                         }
@@ -413,7 +414,7 @@ fun AddTaskSheet(
                             } else {
                                 Icon(Icons.Default.AutoAwesome, null, tint = Color.White)
                                 Spacer(Modifier.width(10.dp))
-                                Text("SYNTHESIZE TASK", fontWeight = FontWeight.Black, style = MaterialTheme.typography.labelSmall)
+                                Text("SYNTHESIZE TASK", fontWeight = FontWeight.Medium, style = MaterialTheme.typography.labelSmall)
                             }
                         }
                     }
@@ -426,12 +427,12 @@ fun AddTaskSheet(
                             ClayButton(onClick = { imagePicker.launch("image/*") }, modifier = Modifier.weight(1f)) {
                                 Icon(Icons.Default.PhotoLibrary, null)
                                 Spacer(Modifier.width(8.dp))
-                                Text("GALLERY", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black)
+                                Text("GALLERY", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium)
                             }
                             ClayButton(onClick = { imagePicker.launch("image/*") }, modifier = Modifier.weight(1f)) {
                                 Icon(Icons.Default.CameraAlt, null)
                                 Spacer(Modifier.width(8.dp))
-                                Text("CAMERA", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black)
+                                Text("CAMERA", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium)
                             }
                         }
                     }
@@ -479,7 +480,7 @@ fun AddTaskSheet(
                         }
 
                         if (isRecording) {
-                            Text("TRANSMITTING: ${recordingSeconds}S", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.error)
+                            Text("TRANSMITTING: ${recordingSeconds}S", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.error)
                         } else {
                             Text("READY FOR SIGNAL", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }

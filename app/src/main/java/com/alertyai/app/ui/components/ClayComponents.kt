@@ -1,6 +1,8 @@
 package com.alertyai.app.ui.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -9,35 +11,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.alertyai.app.ui.theme.ClayDeep
-import com.alertyai.app.ui.theme.ClaySoft
 
 @Composable
 fun ClayCard(
     modifier: Modifier = Modifier,
-    shape: Shape = RoundedCornerShape(24.dp),
+    shape: Shape = RoundedCornerShape(20.dp),
     containerColor: Color = MaterialTheme.colorScheme.surface,
-    elevation: Dp = 8.dp,
+    elevation: Dp = 0.dp,
     onClick: (() -> Unit)? = null,
     content: @Composable ColumnScope.() -> Unit
 ) {
     Surface(
-        modifier = modifier.shadow(
-            elevation = elevation,
-            shape = shape,
-            ambientColor = ClayDeep.copy(alpha = 0.5f),
-            spotColor = ClayDeep
-        ),
+        modifier = modifier.clip(shape),
         shape = shape,
         color = containerColor,
         onClick = onClick ?: {},
         enabled = onClick != null,
-        tonalElevation = 0.dp
+        tonalElevation = elevation,
+        shadowElevation = elevation
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -55,28 +51,21 @@ fun ClayButton(
     enabled: Boolean = true,
     containerColor: Color = MaterialTheme.colorScheme.primary,
     contentColor: Color = MaterialTheme.colorScheme.onPrimary,
-    shape: Shape = RoundedCornerShape(20.dp),
+    shape: Shape = RoundedCornerShape(16.dp),
     content: @Composable RowScope.() -> Unit
 ) {
     Surface(
         onClick = onClick,
         enabled = enabled,
-        modifier = modifier
-            .shadow(
-                elevation = if (enabled) 6.dp else 0.dp, 
-                shape = shape,
-                ambientColor = if (enabled) containerColor.copy(alpha = 0.4f) else Color.Transparent,
-                spotColor = if (enabled) containerColor else Color.Transparent
-            ),
+        modifier = modifier,
         shape = shape,
-        color = if (enabled) containerColor else containerColor.copy(alpha = 0.3f),
+        color = if (enabled) containerColor else containerColor.copy(alpha = 0.5f),
         contentColor = if (enabled) contentColor else contentColor.copy(alpha = 0.5f)
     ) {
         Row(
-            modifier = Modifier
-                .padding(horizontal = 24.dp, vertical = 14.dp),
+            modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp),
             horizontalArrangement = Arrangement.Center,
-            verticalAlignment = androidx.compose.ui.Alignment.CenterVertically,
+            verticalAlignment = Alignment.CenterVertically,
             content = content
         )
     }

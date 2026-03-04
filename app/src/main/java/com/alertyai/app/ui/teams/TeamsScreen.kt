@@ -59,7 +59,7 @@ fun TeamsScreen(
                             Text(
                                 if (state.selectedOrg == null) "HIERARCHY" else state.selectedOrg!!.name.uppercase(),
                                 style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Black
+                                fontWeight = FontWeight.Medium
                             )
                         }
                     },
@@ -100,7 +100,7 @@ fun TeamsScreen(
                 ) {
                     Icon(Icons.Default.Add, null, tint = Color.White)
                     Spacer(Modifier.width(8.dp))
-                    Text("NEW ORGANIZATION", fontWeight = FontWeight.Black, style = MaterialTheme.typography.labelSmall)
+                    Text("NEW ORGANIZATION", fontWeight = FontWeight.Medium, style = MaterialTheme.typography.labelSmall)
                 }
             } else if (state.selectedOrg?.isAdmin == true) {
                 ClayButton(
@@ -109,7 +109,7 @@ fun TeamsScreen(
                 ) {
                     Icon(Icons.Default.GroupAdd, null, tint = Color.White)
                     Spacer(Modifier.width(8.dp))
-                    Text("NEW TEAM", fontWeight = FontWeight.Black, style = MaterialTheme.typography.labelSmall)
+                    Text("NEW TEAM", fontWeight = FontWeight.Medium, style = MaterialTheme.typography.labelSmall)
                 }
             }
         }
@@ -134,7 +134,7 @@ fun TeamsScreen(
                         }
                     }
                     Spacer(Modifier.height(24.dp))
-                    Text("NO HIERARCHY DETECTED", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
+                    Text("NO HIERARCHY DETECTED", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
                     Spacer(Modifier.height(8.dp))
                     Text("Establish a new organization or deploy an access code to join an existing network.",
                         style = MaterialTheme.typography.bodyMedium,
@@ -145,7 +145,7 @@ fun TeamsScreen(
                 LazyColumn(contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                     item {
                         Text("AVAILABLE ORGANIZATIONS", style = MaterialTheme.typography.labelSmall, 
-                            color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Black)
+                            color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
                     }
                     items(state.organizations) { org ->
                         OrgCard(org, onClick = { vm.selectOrganization(context, org) })
@@ -169,7 +169,7 @@ fun TeamsScreen(
                             }
                         }
                         Spacer(Modifier.height(24.dp))
-                        Text("NO TEAMS ACTIVE", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
+                        Text("NO TEAMS ACTIVE", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
                         Spacer(Modifier.height(8.dp))
                         Text(
                             if (state.selectedOrg?.isAdmin == true) "Initialize a new team unit to begin collaboration."
@@ -183,7 +183,7 @@ fun TeamsScreen(
                     LazyColumn(contentPadding = PaddingValues(20.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
                         item {
                             Text("ACTIVE UNITS", style = MaterialTheme.typography.labelSmall, 
-                                color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Black)
+                                color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
                         }
                         items(state.teams) { team ->
                             TeamCard(team) {
@@ -206,7 +206,7 @@ fun TeamsScreen(
         AlertDialog(
             onDismissRequest = { showJoinByCodeDialog = false; codeInput = "" },
             title = { 
-                Text("JOIN ORGANIZATION", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black) 
+                Text("JOIN ORGANIZATION", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium) 
             },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -219,7 +219,7 @@ fun TeamsScreen(
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         leadingIcon = { Icon(Icons.Default.VpnKey, null) },
-                        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Black)
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
                     )
                     state.error?.let {
                         Text(it, color = MaterialTheme.colorScheme.error, style = MaterialTheme.typography.labelSmall)
@@ -239,7 +239,7 @@ fun TeamsScreen(
                     containerColor = MaterialTheme.colorScheme.primary
                 ) { 
                     if (state.isLoading) CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp, color = Color.White)
-                    else Text("JOIN UNIT", fontWeight = FontWeight.Black, style = MaterialTheme.typography.labelSmall) 
+                    else Text("JOIN UNIT", fontWeight = FontWeight.Medium, style = MaterialTheme.typography.labelSmall) 
                 }
             },
             dismissButton = { TextButton(onClick = { showJoinByCodeDialog = false; codeInput = "" }) { Text("CANCEL") } }
@@ -250,7 +250,7 @@ fun TeamsScreen(
     if (showCreateOrgDialog) {
         AlertDialog(
             onDismissRequest = { showCreateOrgDialog = false },
-            title = { Text("ESTABLISH ORGANIZATION", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black) },
+            title = { Text("ESTABLISH ORGANIZATION", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     TextField(value = nameInput, onValueChange = { nameInput = it },
@@ -270,7 +270,7 @@ fun TeamsScreen(
                     },
                     enabled = nameInput.isNotBlank(),
                     containerColor = MaterialTheme.colorScheme.primary
-                ) { Text("INITIALIZE", fontWeight = FontWeight.Black, style = MaterialTheme.typography.labelSmall) }
+                ) { Text("INITIALIZE", fontWeight = FontWeight.Medium, style = MaterialTheme.typography.labelSmall) }
             },
             dismissButton = { TextButton(onClick = { showCreateOrgDialog = false }) { Text("CANCEL") } }
         )
@@ -280,7 +280,7 @@ fun TeamsScreen(
     if (showCreateTeamDialog) {
         AlertDialog(
             onDismissRequest = { showCreateTeamDialog = false },
-            title = { Text("CREATE TEAM UNIT", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black) },
+            title = { Text("CREATE TEAM UNIT", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     TextField(value = nameInput, onValueChange = { nameInput = it },
@@ -300,7 +300,7 @@ fun TeamsScreen(
                     },
                     enabled = nameInput.isNotBlank(),
                     containerColor = MaterialTheme.colorScheme.primary
-                ) { Text("DEPLOY", fontWeight = FontWeight.Black, style = MaterialTheme.typography.labelSmall) }
+                ) { Text("DEPLOY", fontWeight = FontWeight.Medium, style = MaterialTheme.typography.labelSmall) }
             },
             dismissButton = { TextButton(onClick = { showCreateTeamDialog = false }) { Text("CANCEL") } }
         )
@@ -323,12 +323,12 @@ fun OrgCard(org: Organization, onClick: () -> Unit) {
                 Box(contentAlignment = Alignment.Center) {
                     Text(org.name.take(1).uppercase(), 
                         color = MaterialTheme.colorScheme.primary, 
-                        fontWeight = FontWeight.Black, 
+                        fontWeight = FontWeight.Medium, 
                         fontSize = 24.sp)
                 }
             }
             Column(Modifier.weight(1f)) {
-                Text(org.name.uppercase(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black)
+                Text(org.name.uppercase(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
                 org.description?.let {
                     if (it.isNotBlank()) Text(it, style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant, maxLines = 1)
@@ -350,7 +350,7 @@ fun OrgCard(org: Organization, onClick: () -> Unit) {
                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                     style = MaterialTheme.typography.labelSmall,
                     color = if (org.isAdmin) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Black)
+                    fontWeight = FontWeight.Medium)
             }
         }
     }
@@ -374,7 +374,7 @@ fun TeamCard(team: Team, onClick: () -> Unit) {
                 }
             }
             Column(Modifier.weight(1f)) {
-                Text(team.name.uppercase(), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Black)
+                Text(team.name.uppercase(), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
                 team.description?.let {
                     if (it.isNotBlank()) Text(it, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }

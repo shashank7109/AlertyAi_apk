@@ -1,8 +1,15 @@
 package com.alertyai.app.ui.teams
 
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.Context
+import android.content.Intent
+import android.os.Build
+import androidx.core.app.NotificationCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.alertyai.app.MainActivity
 import com.alertyai.app.data.model.TeamChatMessage
 import com.alertyai.app.data.repository.OrgRepository
 import com.alertyai.app.network.AssignTaskRequest
@@ -70,6 +77,10 @@ class TeamChatViewModel @Inject constructor(
             // 4. Connect WebSocket
             val token = TokenManager.getToken(context) ?: return@launch
             wsManager.connect(orgId, token, onMessage = { msg ->
+                val myEmail = TokenManager.getUserEmail(context)
+                if (msg.senderEmail != myEmail && myEmail.isNotEmpty()) {
+                    showNotification(context, msg)
+                }
                 _state.value = _state.value.copy(messages = _state.value.messages + msg)
             }, onError = { t ->
                 _state.value = _state.value.copy(error = t.message)
@@ -124,7 +135,7 @@ class TeamChatViewModel @Inject constructor(
 
     // ── Admin Task Assignment ──────────────────────────────────────────────────
 
-    fun showAssignTask(member: com.alertyai.app.network.MentionMember) {
+    fun showAssignTask(member: com.alertyai.app.network.MentionMember?) {
         _state.value = _state.value.copy(showAssignTaskDialog = true, assignTaskTarget = member)
     }
 
@@ -137,28 +148,46 @@ class TeamChatViewModel @Inject constructor(
         )
     }
 
-    fun assignTask(context: Context, title: String, description: String = "", priority: String = "normal") {
-        val target = _state.value.assignTaskTarget ?: return
+    fun assignMultipleTasks(
+        context: Context,
+        targets: List<com.alertyai.app.network.MentionMember>,
+        title: String,
+        description: String = "",
+        priority: String = "normal",
+        dueDate: String = ""
+    ) {
         viewModelScope.launch {
-            val result = repository.assignTask(
-                context, currentOrgId,
-                AssignTaskRequest(
+            if (targets.isEmpty()) return@launch
+            var successCount = 0
+            
+            for (target in targets) {
+                val req = AssignTaskRequest(
                     title = title,
                     description = description,
                     priority = priority,
-                    assigneeEmail = target.userId // We'll use displayName as email hint; backend handles lookup
+                    dueDate = dueDate.ifBlank { null },
+                    assigneeEmail = target.userId // backend handles lookup
                 )
-            )
-            result.fold(
-                onSuccess = { msg ->
-                    _state.value = _state.value.copy(assignTaskSuccess = msg, assignTaskError = null)
-                    // Send a system notification to the chat
-                    wsManager.sendMessage("📋 TASK ASSIGNED: \"$title\" → @${target.username}")
-                },
-                onFailure = { e ->
-                    _state.value = _state.value.copy(assignTaskError = e.message, assignTaskSuccess = null)
+                val result = repository.assignTask(context, currentOrgId, req)
+
+                if (result.isSuccess) {
+                    successCount++
                 }
-            )
+            }
+
+            if (successCount > 0) {
+                _state.value = _state.value.copy(
+                    assignTaskSuccess = "Successfully assigned task to $successCount members.",
+                    assignTaskError = null
+                )
+                val assignedTo = targets.joinToString(", ") { "@" + it.username }
+                wsManager.sendMessage("📋 TASK ASSIGNED: \"$title\" → $assignedTo")
+            } else {
+                _state.value = _state.value.copy(
+                    assignTaskError = "Failed to assign tasks",
+                    assignTaskSuccess = null
+                )
+            }
         }
     }
 
@@ -182,5 +211,38 @@ class TeamChatViewModel @Inject constructor(
     override fun onCleared() {
         super.onCleared()
         wsManager.disconnect()
+    }
+
+    private fun showNotification(context: Context, msg: TeamChatMessage) {
+        val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val channelId = "team_chat_channel"
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val channel = NotificationChannel(
+                channelId,
+                "Team Chat Notifications",
+                NotificationManager.IMPORTANCE_HIGH
+            )
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        val intent = Intent(context, MainActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        val pendingIntent = PendingIntent.getActivity(
+            context, 0, intent,
+            PendingIntent.FLAG_IMMUTABLE
+        )
+
+        val notification = NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(android.R.drawable.ic_dialog_info)
+            .setContentTitle("New message from ${msg.senderName}")
+            .setContentText(msg.text)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .build()
+
+        notificationManager.notify(msg.id.hashCode(), notification)
     }
 }

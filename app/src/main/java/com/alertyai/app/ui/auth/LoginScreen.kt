@@ -55,7 +55,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
             Text(
                 "COMMAND HQ",
                 fontSize = 12.sp,
-                fontWeight = FontWeight.Black,
+                fontWeight = FontWeight.Medium,
                 letterSpacing = 2.sp,
                 color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.padding(bottom = 8.dp)
@@ -64,7 +64,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
             Text(
                 "ALERTY AI",
                 fontSize = 42.sp,
-                fontWeight = FontWeight.Black,
+                fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurface,
                 letterSpacing = (-1).sp
             )
@@ -72,7 +72,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
             Text(
                 "ESTABLISH SECURE LINK",
                 fontSize = 10.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
                 modifier = Modifier.padding(top = 4.dp)
             )
@@ -94,9 +94,9 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
                         CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
                     } else {
                         // Custom Google G Icon Placeholder or Text
-                        Text("G", fontWeight = FontWeight.Black, fontSize = 24.sp, color = MaterialTheme.colorScheme.primary)
+                        Text("G", fontWeight = FontWeight.Medium, fontSize = 24.sp, color = MaterialTheme.colorScheme.primary)
                         Spacer(Modifier.width(16.dp))
-                        Text("IDENTIFY WITH GOOGLE", fontWeight = FontWeight.Black, style = MaterialTheme.typography.labelMedium)
+                        Text("IDENTIFY WITH GOOGLE", fontWeight = FontWeight.Medium, style = MaterialTheme.typography.labelMedium)
                     }
                 }
             }
@@ -111,7 +111,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
                     " OR ",
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Black,
+                    fontWeight = FontWeight.Medium,
                     modifier = Modifier.padding(horizontal = 16.dp)
                 )
                 HorizontalDivider(modifier = Modifier.weight(1f), color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
@@ -134,7 +134,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
                         ),
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Black)
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
                     )
                 }
 
@@ -159,7 +159,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
                         singleLine = true,
                         visualTransformation = if (showPw) VisualTransformation.None else PasswordVisualTransformation(),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
-                        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Black)
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
                     )
                 }
             }
@@ -171,7 +171,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
                     err.uppercase(), 
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.labelSmall,
-                    fontWeight = FontWeight.Black,
+                    fontWeight = FontWeight.Medium,
                     textAlign = TextAlign.Center
                 )
             }
@@ -188,7 +188,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
                 if (state.isLoading) {
                     CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
                 } else {
-                    Text("AUTHORIZE CONNECTION", fontWeight = FontWeight.Black, style = MaterialTheme.typography.titleSmall)
+                    Text("AUTHORIZE CONNECTION", fontWeight = FontWeight.Medium, style = MaterialTheme.typography.titleSmall)
                 }
             }
 
@@ -198,7 +198,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
                 "CROSS-PLATFORM SYNC ACTIVE",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
-                fontWeight = FontWeight.Black,
+                fontWeight = FontWeight.Medium,
                 letterSpacing = 1.sp
             )
         }

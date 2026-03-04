@@ -9,7 +9,7 @@ private val LightColorScheme = lightColorScheme(
     onPrimary          = OnPrimary,
     secondary          = Secondary,
     tertiary           = Tertiary,
-    primaryContainer   = Color(0xFFD6E8FF),
+    primaryContainer   = Color(0xFFF4F4F5), // Zinc 100
     background         = Background,
     surface            = Surface,
     surfaceVariant     = SurfaceVariant,
@@ -21,8 +21,8 @@ private val LightColorScheme = lightColorScheme(
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary            = Primary,
-    onPrimary          = OnPrimary,
+    primary            = DarkText, // White text as primary on dark
+    onPrimary          = DarkBackground, // Black text on white primary
     secondary          = Secondary,
     tertiary           = Tertiary,
     background         = DarkBackground,

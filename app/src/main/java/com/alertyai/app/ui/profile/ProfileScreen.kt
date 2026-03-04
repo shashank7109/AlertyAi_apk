@@ -77,7 +77,7 @@ fun ProfileScreen(onBack: () -> Unit) {
                         Text(
                             "PERSONNEL FILE",
                             style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Black
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 },
@@ -130,10 +130,10 @@ fun ProfileScreen(onBack: () -> Unit) {
                     }
                 }
                 Spacer(Modifier.height(16.dp))
-                Text("NEURAL SIGNATURE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Black)
+                Text("NEURAL SIGNATURE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
             }
 
-            Text("DATA OVERRIDE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Black)
+            Text("DATA OVERRIDE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
 
             Column(verticalArrangement = Arrangement.spacedBy(16.dp)) {
                 ClayCard(shape = RoundedCornerShape(16.dp)) {
@@ -149,7 +149,7 @@ fun ProfileScreen(onBack: () -> Unit) {
                             unfocusedIndicatorColor = Color.Transparent,
                             focusedIndicatorColor = Color.Transparent
                         ),
-                        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Black)
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
                     )
                 }
 
@@ -167,9 +167,9 @@ fun ProfileScreen(onBack: () -> Unit) {
                                 unfocusedIndicatorColor = Color.Transparent,
                                 focusedIndicatorColor = Color.Transparent
                             ),
-                            textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Black),
+                            textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
                             supportingText = { 
-                                Text("REQUIRED FOR @MENTION PROTOCOLS", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold) 
+                                Text("REQUIRED FOR @MENTION PROTOCOLS", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium) 
                             }
                         )
                     }
@@ -188,7 +188,7 @@ fun ProfileScreen(onBack: () -> Unit) {
                             unfocusedIndicatorColor = Color.Transparent,
                             focusedIndicatorColor = Color.Transparent
                         ),
-                        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Black)
+                        textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium)
                     )
                 }
 
@@ -205,7 +205,7 @@ fun ProfileScreen(onBack: () -> Unit) {
                             unfocusedIndicatorColor = Color.Transparent,
                             focusedIndicatorColor = Color.Transparent
                         ),
-                        textStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Black)
+                        textStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium)
                     )
                 }
             }
@@ -219,9 +219,9 @@ fun ProfileScreen(onBack: () -> Unit) {
                 containerColor = MaterialTheme.colorScheme.primary
             ) {
                 if (state.isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = Color.White, strokeWidth = 2.dp)
+                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = MaterialTheme.colorScheme.onPrimary, strokeWidth = 2.dp)
                 } else {
-                    Text("SYNCHRONIZE PROFILE", fontWeight = FontWeight.Black, style = MaterialTheme.typography.titleSmall)
+                    Text("SYNCHRONIZE PROFILE", fontWeight = FontWeight.Medium, style = MaterialTheme.typography.titleSmall)
                 }
             }
             

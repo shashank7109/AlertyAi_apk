@@ -56,12 +56,6 @@ class MainActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        // When the app comes back to the foreground, check if the token has expired.
-        // If expired, clear it so the auth gate triggers the login screen immediately,
-        // rather than letting the user see 401 errors first.
-        if (TokenManager.isTokenExpired(this)) {
-            TokenManager.clearToken(this)
-            // isLoggedInState will flip to false → LoginScreen is shown automatically
-        }
+        // Do nothing to token natively, let API calls catch 401 unauths.
     }
 }

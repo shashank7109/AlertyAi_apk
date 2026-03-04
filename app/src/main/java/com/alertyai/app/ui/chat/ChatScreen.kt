@@ -71,14 +71,14 @@ fun ChatScreen() {
                             color = MaterialTheme.colorScheme.primary
                         ) {
                             Box(contentAlignment = Alignment.Center) {
-                                Icon(Icons.Default.SmartToy, null, tint = Color.White, modifier = Modifier.size(24.dp))
+                                Icon(Icons.Default.SmartToy, null, tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(24.dp))
                             }
                         }
                         Column {
-                            Text("AI ASSISTANT", fontWeight = FontWeight.Black, fontSize = 14.sp, letterSpacing = 1.sp)
+                            Text("AI ASSISTANT", fontWeight = FontWeight.Medium, fontSize = 14.sp, letterSpacing = 1.sp)
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 Box(Modifier.size(6.dp).clip(CircleShape).background(Color(0xFF22C55E)))
-                                Text("SYSTEM ONLINE", fontSize = 10.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("SYSTEM ONLINE", fontSize = 10.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
@@ -124,7 +124,7 @@ fun ChatScreen() {
                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                         ) {
                             Text(emoji, fontSize = 14.sp)
-                            Text(text.uppercase(), fontSize = 10.sp, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.primary)
+                            Text(text.uppercase(), fontSize = 10.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.primary)
                         }
                     }
                 }
@@ -168,7 +168,7 @@ fun ChatScreen() {
                             TextField(
                                 value = input,
                                 onValueChange = { input = it },
-                                placeholder = { Text("INITIATE COMMAND…", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Bold) },
+                                placeholder = { Text("INITIATE COMMAND…", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium) },
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = TextFieldDefaults.colors(
                                     unfocusedContainerColor = Color.Transparent,
@@ -179,7 +179,7 @@ fun ChatScreen() {
                                     unfocusedTextColor = MaterialTheme.colorScheme.onSurface
                                 ),
                                 maxLines = 4,
-                                textStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                                textStyle = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
                                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Send),
                                 keyboardActions = KeyboardActions(onSend = {
                                     if (input.isNotBlank()) {
@@ -203,14 +203,14 @@ fun ChatScreen() {
                             containerColor = MaterialTheme.colorScheme.primary,
                             shape = RoundedCornerShape(16.dp)
                         ) {
-                            Icon(Icons.Default.Send, "Send", tint = Color.White, modifier = Modifier.size(22.dp))
+                            Icon(Icons.Default.Send, "Send", tint = MaterialTheme.colorScheme.onPrimary, modifier = Modifier.size(22.dp))
                         }
                     }
 
                     state.error?.let {
                         Text(it.uppercase(), color = MaterialTheme.colorScheme.error,
                             modifier = Modifier.padding(top = 8.dp),
-                            style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black)
+                            style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium)
                     }
                 }
             }
@@ -255,7 +255,7 @@ private fun MessageBubble(msg: ChatMessage, onReply: (ChatMessage) -> Unit) {
                 Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) {
                     Text(
                         msg.content,
-                        color = if (isUser) Color.White else MaterialTheme.colorScheme.onSurface,
+                        color = if (isUser) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface,
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = if (isUser) FontWeight.Medium else FontWeight.Normal,
                         lineHeight = 22.sp
@@ -265,10 +265,10 @@ private fun MessageBubble(msg: ChatMessage, onReply: (ChatMessage) -> Unit) {
                         Spacer(Modifier.height(12.dp))
                         Surface(
                             shape = RoundedCornerShape(8.dp),
-                            color = if (isUser) Color.White.copy(alpha = 0.2f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
+                            color = if (isUser) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.05f),
                             modifier = Modifier.border(
                                 1.dp, 
-                                if (isUser) Color.White.copy(alpha = 0.3f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                                if (isUser) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.3f) else MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                                 RoundedCornerShape(8.dp)
                             )
                         ) {
@@ -278,11 +278,11 @@ private fun MessageBubble(msg: ChatMessage, onReply: (ChatMessage) -> Unit) {
                                 horizontalArrangement = Arrangement.spacedBy(8.dp)
                             ) {
                                 Icon(Icons.Default.CheckCircle, null, 
-                                    tint = if (isUser) Color.White else Color(0xFF15803D), 
+                                    tint = if (isUser) MaterialTheme.colorScheme.onPrimary else Color(0xFF15803D), 
                                     modifier = Modifier.size(14.dp))
                                 Text("TASK DEPLOYED: \"${msg.taskTitle.uppercase()}\"",
-                                    fontSize = 10.sp, fontWeight = FontWeight.Black,
-                                    color = if (isUser) Color.White else Color(0xFF15803D))
+                                    fontSize = 10.sp, fontWeight = FontWeight.Medium,
+                                    color = if (isUser) MaterialTheme.colorScheme.onPrimary else Color(0xFF15803D))
                             }
                         }
                     }
@@ -294,12 +294,12 @@ private fun MessageBubble(msg: ChatMessage, onReply: (ChatMessage) -> Unit) {
                 Text(
                     timeFmt.format(Date(msg.timestamp)),
                     fontSize = 10.sp, 
-                    fontWeight = FontWeight.Bold,
+                    fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
                 )
                 Text("REPLY", 
                     fontSize = 10.sp, 
-                    fontWeight = FontWeight.Black, 
+                    fontWeight = FontWeight.Medium, 
                     color = MaterialTheme.colorScheme.primary.copy(alpha = 0.7f), 
                     modifier = Modifier.clickable { onReply(msg) }.padding(4.dp)
                 )
@@ -331,7 +331,7 @@ private fun TypingIndicator() {
                             .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.6f))
                     )
                 }
-                Text(" THINKING…", fontSize = 10.sp, fontWeight = FontWeight.Black, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(" THINKING…", fontSize = 10.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }

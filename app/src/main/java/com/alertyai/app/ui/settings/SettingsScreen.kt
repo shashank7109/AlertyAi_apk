@@ -55,7 +55,7 @@ fun SettingsScreen(
                         Text(
                             "SYSTEM CONFIG",
                             style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Black
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 },
@@ -81,12 +81,12 @@ fun SettingsScreen(
                     Modifier.fillMaxWidth().padding(24.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    Text("ALERTY AI", style = MaterialTheme.typography.headlineSmall, color = Color.White, fontWeight = FontWeight.Black)
-                    Text("SYSTEM PROTOCOL V2.0.0", style = MaterialTheme.typography.labelSmall, color = Color.White.copy(alpha = 0.7f), fontWeight = FontWeight.Bold)
+                    Text("ALERTY AI", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Medium)
+                    Text("SYSTEM PROTOCOL V2.0.0", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f), fontWeight = FontWeight.Medium)
                 }
             }
 
-            Text("USER INTERFACE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Black)
+            Text("USER INTERFACE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
 
             SettingsRow(icon = if (isDark) Icons.Default.DarkMode else Icons.Default.LightMode, label = "DARK MODE PROTOCOL") {
                 Switch(
@@ -99,12 +99,12 @@ fun SettingsScreen(
                 )
             }
 
-            Text("COMMUNICATION HUB", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Black)
+            Text("COMMUNICATION HUB", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
 
             SettingsRow(icon = Icons.Default.Notifications, label = "SIGNAL NOTIFICATIONS") {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (!notificationsEnabled) {
-                        Text("DISABLED", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Black)
+                        Text("DISABLED", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Medium)
                     }
                     Switch(
                         checked = notificationsEnabled,
@@ -130,7 +130,7 @@ fun SettingsScreen(
                 )
             }
 
-            Text("DATA ARCHIVE & ML", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Black)
+            Text("DATA ARCHIVE & ML", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
 
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 SettingsRow(icon = Icons.Default.Storage, label = "LOCAL SECURE STORAGE") {
@@ -142,7 +142,7 @@ fun SettingsScreen(
             }
 
             val userEmail = remember { TokenManager.getUserEmail(context) }
-            Text("SECURE IDENTITY", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Black)
+            Text("SECURE IDENTITY", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
 
             ClayCard(
                 shape = RoundedCornerShape(20.dp),
@@ -162,8 +162,8 @@ fun SettingsScreen(
                         }
                     }
                     Column(Modifier.weight(1f)) {
-                        Text("PERSONNEL ID", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Black)
-                        Text(userEmail.ifBlank { "MANAGE ACCESS" }, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Black)
+                        Text("PERSONNEL ID", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
+                        Text(userEmail.ifBlank { "MANAGE ACCESS" }, style = MaterialTheme.typography.bodyLarge, fontWeight = FontWeight.Medium)
                     }
                     Icon(Icons.Default.ChevronRight, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
@@ -180,7 +180,7 @@ fun SettingsScreen(
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     Icon(Icons.Default.Logout, contentDescription = null, tint = MaterialTheme.colorScheme.error)
-                    Text("TERMINATE ALL SESSIONS", Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Black)
+                    Text("TERMINATE ALL SESSIONS", Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Medium)
                 }
             }
 
@@ -192,7 +192,7 @@ fun SettingsScreen(
     if (showLogoutDialog) {
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },
-            title = { Text("CONFIRM DEPLOYMENT TERMINATION", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black) },
+            title = { Text("CONFIRM DEPLOYMENT TERMINATION", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium) },
             text = { Text("Are you sure you want to terminate your session? Neutralization of AI capabilities will occur until re-authentication.") },
             confirmButton = {
                 ClayButton(
@@ -205,7 +205,7 @@ fun SettingsScreen(
                         }
                     },
                     containerColor = MaterialTheme.colorScheme.error
-                ) { Text("TERMINATE", fontWeight = FontWeight.Black, style = MaterialTheme.typography.labelSmall) }
+                ) { Text("TERMINATE", fontWeight = FontWeight.Medium, style = MaterialTheme.typography.labelSmall) }
             },
             dismissButton = {
                 TextButton(onClick = { showLogoutDialog = false }) { Text("ABORT") }
@@ -229,7 +229,7 @@ fun SettingsRow(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(24.dp))
-            Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Black)
+            Text(label, Modifier.weight(1f), style = MaterialTheme.typography.bodyMedium, fontWeight = FontWeight.Medium)
             trailing()
         }
     }

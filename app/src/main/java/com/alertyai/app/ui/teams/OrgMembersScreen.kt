@@ -61,7 +61,7 @@ fun OrgMembersScreen(
                         Text(
                             orgName.uppercase(),
                             style = MaterialTheme.typography.titleMedium,
-                            fontWeight = FontWeight.Black
+                            fontWeight = FontWeight.Medium
                         )
                     }
                 },
@@ -77,7 +77,7 @@ fun OrgMembersScreen(
                         Text(
                             state.members.size.toString(),
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            fontWeight = FontWeight.Black,
+                            fontWeight = FontWeight.Medium,
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.primary
                         )
@@ -112,7 +112,7 @@ fun OrgMembersScreen(
             item {
                 Text("AUTHORIZED PERSONNEL", style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Black,
+                    fontWeight = FontWeight.Medium,
                     modifier = Modifier.padding(top = 12.dp))
             }
 
@@ -125,7 +125,7 @@ fun OrgMembersScreen(
                 item { 
                     Text("NO PERSONNEL REGISTERED", color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.fillMaxWidth().padding(32.dp), textAlign = TextAlign.Center,
-                        style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black) 
+                        style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium) 
                 }
             } else {
                 items(state.members, key = { it.userId }) { member ->
@@ -140,7 +140,7 @@ fun OrgMembersScreen(
             state.error?.let { err ->
                 item { 
                     Text(err.uppercase(), color = MaterialTheme.colorScheme.error, 
-                        modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Black) 
+                        modifier = Modifier.fillMaxWidth(), style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium) 
                 }
             }
         }
@@ -150,7 +150,7 @@ fun OrgMembersScreen(
     showRemoveDialog?.let { member ->
         AlertDialog(
             onDismissRequest = { showRemoveDialog = null },
-            title = { Text("REVOKE ACCESS", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Black) },
+            title = { Text("REVOKE ACCESS", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium) },
             text = { Text("Terminate organizational access for ${member.displayName}? This will isolate the user from all secure channels.") },
             confirmButton = {
                 ClayButton(
@@ -159,7 +159,7 @@ fun OrgMembersScreen(
                         showRemoveDialog = null
                     },
                     containerColor = MaterialTheme.colorScheme.error
-                ) { Text("REVOKE", fontWeight = FontWeight.Black, style = MaterialTheme.typography.labelSmall) }
+                ) { Text("REVOKE", fontWeight = FontWeight.Medium, style = MaterialTheme.typography.labelSmall) }
             },
             dismissButton = { TextButton(onClick = { showRemoveDialog = null }) { Text("CANCEL") } }
         )
@@ -183,7 +183,7 @@ fun JoinCodeCard(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text("ORGANIZATIONAL ACCESS TOKEN", 
-                fontWeight = FontWeight.Black, 
+                fontWeight = FontWeight.Medium, 
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.primary)
             
@@ -204,7 +204,7 @@ fun JoinCodeCard(
                     Text(
                         text = joinCode.ifBlank { "........" },
                         fontSize = 32.sp,
-                        fontWeight = FontWeight.Black,
+                        fontWeight = FontWeight.Medium,
                         fontFamily = MonoFontFamily,
                         letterSpacing = 4.sp,
                         color = MaterialTheme.colorScheme.onSurface
@@ -225,14 +225,14 @@ fun JoinCodeCard(
                 ClayButton(onClick = onCopy, containerColor = MaterialTheme.colorScheme.primary) {
                     Icon(Icons.Default.ContentCopy, null, modifier = Modifier.size(16.dp))
                     Spacer(Modifier.width(8.dp))
-                    Text("COPY TOKEN", fontWeight = FontWeight.Black, style = MaterialTheme.typography.labelSmall)
+                    Text("COPY TOKEN", fontWeight = FontWeight.Medium, style = MaterialTheme.typography.labelSmall)
                 }
                 
                 if (isAdmin) {
                     ClayButton(onClick = onRegenerate, containerColor = MaterialTheme.colorScheme.surface) {
                         Icon(Icons.Default.Refresh, null, modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.primary)
                         Spacer(Modifier.width(8.dp))
-                        Text("RESET", fontWeight = FontWeight.Black, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
+                        Text("RESET", fontWeight = FontWeight.Medium, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
                     }
                 }
             }
@@ -259,13 +259,13 @@ fun MemberRow(member: OrgMember, canRemove: Boolean, onRemove: () -> Unit) {
                     Text(
                         member.initials.uppercase(),
                         color = if (member.isAdmin) Color.White else MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Black, fontSize = 20.sp
+                        fontWeight = FontWeight.Medium, fontSize = 20.sp
                     )
                 }
             }
             
             Column(Modifier.weight(1f)) {
-                Text(member.displayName.uppercase(), fontWeight = FontWeight.Black, style = MaterialTheme.typography.bodyMedium)
+                Text(member.displayName.uppercase(), fontWeight = FontWeight.Medium, style = MaterialTheme.typography.bodyMedium)
                 Text(member.email.lowercase(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             
@@ -284,7 +284,7 @@ fun MemberRow(member: OrgMember, canRemove: Boolean, onRemove: () -> Unit) {
                     modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
                     style = MaterialTheme.typography.labelSmall,
                     color = if (member.isAdmin) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
-                    fontWeight = FontWeight.Black
+                    fontWeight = FontWeight.Medium
                 )
             }
             

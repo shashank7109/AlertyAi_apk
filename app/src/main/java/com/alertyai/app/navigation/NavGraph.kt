@@ -34,7 +34,7 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector)
 }
 
 private val bottomItems = listOf(
-    Screen.Home, Screen.Tasks, Screen.Teams, Screen.Chat, Screen.Reminders, Screen.Settings
+    Screen.Home, Screen.Tasks, Screen.Teams, Screen.Reminders, Screen.Settings
 )
 
 @Composable
@@ -79,6 +79,24 @@ fun AlertyNavGraph(isDark: Boolean, onToggleTheme: () -> Unit, onLogout: () -> U
                             indicatorColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
                         )
                     )
+                }
+            }
+        },
+        floatingActionButton = {
+            val showFabOnRoutes = listOf(
+                Screen.Home.route, 
+                Screen.Tasks.route, 
+                Screen.Teams.route, 
+                Screen.Reminders.route, 
+                Screen.Settings.route
+            )
+            if (currentRoute in showFabOnRoutes) {
+                FloatingActionButton(
+                    onClick = { navController.navigate(Screen.Chat.route) },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary
+                ) {
+                    Icon(Icons.Default.SmartToy, contentDescription = "Assistant")
                 }
             }
         }
