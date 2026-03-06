@@ -53,7 +53,7 @@ fun LoginScreen(onLoginSuccess: () -> Unit) {
         ) {
             // Branding Area
             Text(
-                "COMMAND HQ",
+                "Welcome",
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
                 letterSpacing = 2.sp,

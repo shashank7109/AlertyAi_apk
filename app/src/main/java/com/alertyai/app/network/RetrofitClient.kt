@@ -9,7 +9,7 @@ import java.util.concurrent.TimeUnit
 
 object RetrofitClient {
 
-    const val BASE_URL = "https://alertyai-backend.onrender.com/"
+    const val BASE_URL = "http://10.0.2.2:8000/"
 
     private val loggingInterceptor = HttpLoggingInterceptor().apply {
         level = HttpLoggingInterceptor.Level.BASIC // changed from BODY to reduce log noise

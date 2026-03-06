@@ -35,7 +35,12 @@ interface TaskDao {
     suspend fun getAllTitles(): List<String>
 
     /** One-shot (non-Flow) query — used for BOOT_COMPLETED alarm re-scheduling. */
-    @Query("SELECT * FROM tasks WHERE alarmEnabled = 1 AND dueDate IS NOT NULL AND dueTime IS NOT NULL AND isDone = 0")
+    /** One-shot (non-Flow) query — used for syncing. */
+    @Query("SELECT * FROM tasks")
     suspend fun getAllTasksList(): List<Task>
+
+    /** One-shot (non-Flow) query — used for BOOT_COMPLETED alarm re-scheduling. */
+    @Query("SELECT * FROM tasks WHERE alarmEnabled = 1 AND dueDate IS NOT NULL AND dueTime IS NOT NULL AND isDone = 0")
+    suspend fun getTasksWithAlarms(): List<Task>
 }
 

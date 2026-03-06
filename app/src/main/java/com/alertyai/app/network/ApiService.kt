@@ -4,6 +4,7 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import retrofit2.Response
 import retrofit2.http.*
+import com.alertyai.app.data.model.TeamDetailedResponse
 
 interface ApiService {
 
@@ -22,6 +23,26 @@ interface ApiService {
     suspend fun getBackendTasks(
         @Header("Authorization") bearer: String
     ): Response<List<BackendTask>>
+
+    // ── Delete a task on the backend (204 on success) ─────────────────────────
+    @POST("api/tasks/{task_id}/complete")
+    suspend fun completeBackendTask(
+        @Header("Authorization") bearer: String,
+        @Path("task_id") taskId: String
+    ): Response<com.alertyai.app.network.BackendTask>
+
+    @DELETE("api/tasks/{task_id}")
+    suspend fun deleteBackendTask(
+        @Header("Authorization") bearer: String,
+        @Path("task_id") taskId: String
+    ): Response<Unit>
+
+    @PUT("api/tasks/{task_id}")
+    suspend fun updateBackendTask(
+        @Header("Authorization") bearer: String,
+        @Path("task_id") taskId: String,
+        @Body request: BackendTaskUpdate
+    ): Response<BackendTask>
 
     // ── AI Chat (backend uses POST /chat with message as query param) ──────────
     @POST("api/v2/chat")
@@ -107,17 +128,50 @@ interface ApiService {
         @Path("org_id") orgId: String
     ): Response<TeamListResponse>
 
-    @POST("api/orgs/{org_id}/teams")
+    @GET("api/teams/{team_id}")
+    suspend fun getTeam(
+        @Header("Authorization") bearer: String,
+        @Path("team_id") teamId: String
+    ): Response<TeamDetailedResponse>
+
+    @GET("api/teams")
+    suspend fun getTeams(
+        @Header("Authorization") bearer: String
+    ): Response<List<TeamDetailedResponse>>
+
+    @GET("api/teams/invitations/pending")
+    suspend fun getPendingInvitations(
+        @Header("Authorization") bearer: String
+    ): Response<List<com.alertyai.app.data.model.PendingInvitation>>
+
+    @POST("api/teams/invitations/{invitation_id}/accept")
+    suspend fun acceptInvitation(
+        @Header("Authorization") bearer: String,
+        @Path("invitation_id") invitationId: String
+    ): Response<Any>
+
+    @POST("api/teams/invitations/{invitation_id}/decline")
+    suspend fun declineInvitation(
+        @Header("Authorization") bearer: String,
+        @Path("invitation_id") invitationId: String
+    ): Response<Any>
+
+    @POST("api/teams")
     suspend fun createTeam(
         @Header("Authorization") bearer: String,
-        @Path("org_id") orgId: String,
-        @Body body: Map<String, String>
-    ): Response<Map<String, Any>>
+        @Body body: Map<String, @JvmSuppressWildcards Any>
+    ): Response<com.alertyai.app.data.model.TeamDetailedResponse>
 
-    @GET("api/chat/history/{org_id}")
+    @FormUrlEncoded
+    @POST("api/teams/join/code")
+    suspend fun joinTeamByCode(
+        @Header("Authorization") bearer: String,
+        @Field("code") code: String
+    ): Response<com.alertyai.app.data.model.TeamDetailedResponse>
+    @GET("api/chat/history/{team_id}")
     suspend fun getTeamChatHistory(
         @Header("Authorization") bearer: String,
-        @Path("org_id") orgId: String,
+        @Path("team_id") teamId: String,
         @Query("token") token: String
     ): Response<ChatHistoryResponse>
 
@@ -134,29 +188,27 @@ interface ApiService {
     ): Response<UserInfo>
 
     // ── Mentions ──────────────────────────────────────────────────────────────
-    @GET("api/chat/mentions/{org_id}")
+    @GET("api/chat/mentions/{team_id}")
     suspend fun getMentionSuggestions(
         @Header("Authorization") bearer: String,
-        @Path("org_id") orgId: String
+        @Path("team_id") teamId: String
     ): Response<MentionSuggestionsResponse>
 
     // ── Task Assignment ────────────────────────────────────────────────────────
-    @POST("api/orgs/{org_id}/assign-task")
+    @POST("api/teams/{team_id}/tasks")
     suspend fun assignTask(
         @Header("Authorization") bearer: String,
-        @Path("org_id") orgId: String,
+        @Path("team_id") teamId: String,
         @Body body: AssignTaskRequest
     ): Response<AssignTaskResponse>
 
-    @GET("api/orgs/{org_id}/my-tasks")
+    @GET("api/teams/tasks/pending")
     suspend fun getMyAssignedTasks(
-        @Header("Authorization") bearer: String,
-        @Path("org_id") orgId: String
-    ): Response<TeamTasksResponse>
+        @Header("Authorization") bearer: String
+    ): Response<List<TeamTask>>
 
-    @GET("api/orgs/{org_id}/assigned-by-me")
+    @GET("api/teams/tasks/assigned")
     suspend fun getTasksAssignedByMe(
-        @Header("Authorization") bearer: String,
-        @Path("org_id") orgId: String
-    ): Response<TeamTasksResponse>
+        @Header("Authorization") bearer: String
+    ): Response<List<TeamTask>>
 }

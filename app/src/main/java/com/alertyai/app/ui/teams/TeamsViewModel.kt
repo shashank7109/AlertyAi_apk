@@ -3,8 +3,8 @@ package com.alertyai.app.ui.teams
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.alertyai.app.data.model.Organization
-import com.alertyai.app.data.model.Team
+import com.alertyai.app.data.model.PendingInvitation
+import com.alertyai.app.data.model.TeamDetailedResponse
 import com.alertyai.app.data.repository.OrgRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -13,10 +13,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class TeamsState(
-    val organizations: List<Organization> = emptyList(),
-    val teams: List<Team> = emptyList(),
-    val selectedOrg: Organization? = null,
+    val teams: List<TeamDetailedResponse> = emptyList(),
+    val invitations: List<PendingInvitation> = emptyList(),
     val isLoading: Boolean = false,
+    val isProcessingInvite: String? = null,
     val error: String? = null
 )
 
@@ -28,66 +28,74 @@ class TeamsViewModel @Inject constructor(
     private val _state = MutableStateFlow(TeamsState())
     val state = _state.asStateFlow()
 
-    fun loadOrganizations(context: Context) {
-        viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true)
-            val orgs = repository.getMyOrganizations(context)
-            _state.value = _state.value.copy(organizations = orgs, isLoading = false)
-        }
-    }
-
-    fun createOrganization(context: Context, name: String, description: String = "") {
+    fun loadData(context: Context) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
-            val joinCode = repository.createOrganization(context, name, description)
-            if (joinCode != null) {
-                val orgs = repository.getMyOrganizations(context)
-                _state.value = _state.value.copy(organizations = orgs, isLoading = false)
-            } else {
-                _state.value = _state.value.copy(isLoading = false, error = "Failed to create organization")
-            }
+            val teamsList = repository.getTeams(context)
+            val invsList = repository.getPendingInvitations(context)
+            _state.value = _state.value.copy(teams = teamsList, invitations = invsList, isLoading = false)
         }
     }
 
-    fun joinByCode(context: Context, code: String, onResult: (Boolean) -> Unit) {
+    fun createTeam(
+        context: Context, 
+        name: String, 
+        description: String = "",
+        purpose: String = "other",
+        memberEmails: List<String> = emptyList(),
+        memberPhones: List<String> = emptyList()
+    ) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
-            val result = repository.joinByCode(context, code)
-            if (result.isSuccess) {
-                val orgs = repository.getMyOrganizations(context)
-                _state.value = _state.value.copy(organizations = orgs, isLoading = false, error = null)
-                onResult(true)
-            } else {
-                val errorMsg = result.exceptionOrNull()?.message ?: "Invalid code"
-                _state.value = _state.value.copy(isLoading = false, error = errorMsg)
-                onResult(false)
-            }
-        }
-    }
-
-    fun selectOrganization(context: Context, org: Organization) {
-        viewModelScope.launch {
-            _state.value = _state.value.copy(selectedOrg = org, isLoading = true, teams = emptyList())
-            val teams = repository.getOrgTeams(context, org.id)
-            _state.value = _state.value.copy(teams = teams, isLoading = false)
-        }
-    }
-
-    fun createTeam(context: Context, name: String, description: String = "") {
-        val org = _state.value.selectedOrg ?: return
-        viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true)
-            val success = repository.createTeam(context, org.id, name, description)
+            val success = repository.createTeam(context, name, description, purpose, memberEmails, memberPhones)
             if (success) {
-                val teams = repository.getOrgTeams(context, org.id)
-                _state.value = _state.value.copy(teams = teams, isLoading = false, error = null)
+                loadData(context)
             } else {
                 _state.value = _state.value.copy(isLoading = false, error = "Failed to create team")
             }
         }
     }
 
-    fun clearSelection() {
-        _state.value = _state.value.copy(selectedOrg = null, teams = emptyList())
+    fun acceptInvitation(context: Context, invitationId: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isProcessingInvite = invitationId)
+            val success = repository.acceptInvitation(context, invitationId)
+            if (success) {
+                loadData(context)
+            } else {
+                _state.value = _state.value.copy(error = "Failed to accept invitation")
+            }
+            _state.value = _state.value.copy(isProcessingInvite = null)
+        }
+    }
+
+    fun declineInvitation(context: Context, invitationId: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isProcessingInvite = invitationId)
+            val success = repository.declineInvitation(context, invitationId)
+            if (success) {
+                loadData(context)
+            } else {
+                _state.value = _state.value.copy(error = "Failed to decline invitation")
+            }
+            _state.value = _state.value.copy(isProcessingInvite = null)
+        }
+    }
+
+    fun joinTeamByCode(context: Context, code: String, onSuccess: () -> Unit = {}) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isLoading = true, error = null)
+            val result = repository.joinTeamByCode(context, code)
+            if (result.isSuccess) {
+                loadData(context)
+                onSuccess()
+            } else {
+                _state.value = _state.value.copy(isLoading = false, error = result.exceptionOrNull()?.message ?: "Failed to join team by code")
+            }
+        }
+    }
+    
+    fun clearError() {
+        _state.value = _state.value.copy(error = null)
     }
 }

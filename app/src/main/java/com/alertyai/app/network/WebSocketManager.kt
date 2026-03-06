@@ -27,11 +27,16 @@ class WebSocketManager(private val gson: Gson = Gson()) {
     private var onMessageCallback: ((TeamChatMessage) -> Unit)? = null
     private var onErrorCallback: ((Throwable) -> Unit)? = null
     private var onConnectedCallback: (() -> Unit)? = null
-    private var currentOrgId: String? = null
+    private var currentTeamId: String? = null
     private var currentToken: String? = null
 
+    private var isReconnecting = false
+    private var reconnectJob: Job? = null
+    // Use a coroutine scope for delaying reconnect attempts
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
+
     fun connect(
-        orgId: String,
+        teamId: String,
         token: String,
         onConnected: () -> Unit = {},
         onMessage: (TeamChatMessage) -> Unit,
@@ -40,13 +45,21 @@ class WebSocketManager(private val gson: Gson = Gson()) {
         onMessageCallback = onMessage
         onErrorCallback = onError
         onConnectedCallback = onConnected
-        currentOrgId = orgId
+        currentTeamId = teamId
         currentToken = token
 
-        // Fix: base URL is https://x.com/ → ws URL should be wss://x.com/api/chat/ws/chat/{orgId}
+        connectInternal()
+    }
+
+    private fun connectInternal() {
+        if (currentTeamId == null || currentToken == null) return
+        val teamId = currentTeamId!!
+        val token = currentToken!!
+
+        // Fix: base URL is https://x.com/ → ws URL should be wss://x.com/api/chat/ws/chat/{teamId}
         val base = RetrofitClient.BASE_URL.trimEnd('/')
         val wsBase = base.replace("https://", "wss://").replace("http://", "ws://")
-        val wsUrl = "$wsBase/api/chat/ws/chat/$orgId?token=$token"
+        val wsUrl = "$wsBase/api/chat/ws/chat/$teamId?token=$token"
 
         Log.d(TAG, "Connecting to: $wsUrl")
 
@@ -55,15 +68,17 @@ class WebSocketManager(private val gson: Gson = Gson()) {
 
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 isConnected = true
-                Log.d(TAG, "✅ WebSocket Connected | Org: $orgId")
-                onConnected()
+                isReconnecting = false
+                reconnectJob?.cancel()
+                Log.d(TAG, "✅ WebSocket Connected | Team: $teamId")
+                onConnectedCallback?.invoke()
             }
 
             override fun onMessage(webSocket: WebSocket, text: String) {
                 try {
                     Log.d(TAG, "📥 Received: $text")
                     val msg = gson.fromJson(text, TeamChatMessage::class.java)
-                    onMessage(msg)
+                    onMessageCallback?.invoke(msg)
                 } catch (e: Exception) {
                     Log.e(TAG, "Error parsing message: $text", e)
                 }
@@ -72,7 +87,8 @@ class WebSocketManager(private val gson: Gson = Gson()) {
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 isConnected = false
                 Log.e(TAG, "❌ WebSocket Failure: ${t.message} | HTTP: ${response?.code}")
-                onError(t)
+                onErrorCallback?.invoke(t)
+                tryReconnect()
             }
 
             override fun onClosing(webSocket: WebSocket, code: Int, reason: String) {
@@ -84,8 +100,21 @@ class WebSocketManager(private val gson: Gson = Gson()) {
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                 isConnected = false
                 Log.d(TAG, "WebSocket Closed [$code]: $reason")
+                tryReconnect()
             }
         })
+    }
+
+    private fun tryReconnect() {
+        if (isReconnecting || currentTeamId == null) return
+        isReconnecting = true
+        Log.d(TAG, "Attempting to reconnect in 3 seconds...")
+        reconnectJob?.cancel()
+        reconnectJob = scope.launch {
+            delay(3000)
+            isReconnecting = false
+            connectInternal()
+        }
     }
 
     fun sendMessage(text: String): Boolean {
@@ -101,6 +130,10 @@ class WebSocketManager(private val gson: Gson = Gson()) {
 
     fun disconnect() {
         isConnected = false
+        isReconnecting = false
+        reconnectJob?.cancel()
+        currentTeamId = null
+        currentToken = null
         webSocket?.close(1000, "Screen closed")
         webSocket = null
         Log.d(TAG, "WebSocket disconnected")

@@ -41,7 +41,7 @@ fun RemindersScreen(vm: RemindersViewModel = hiltViewModel()) {
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
                         Text(
-                            "RECALL PROTOCOLS",
+                            "Reminders",
                             style = MaterialTheme.typography.titleLarge,
                             fontWeight = FontWeight.Medium
                         )
@@ -77,7 +77,7 @@ fun RemindersScreen(vm: RemindersViewModel = hiltViewModel()) {
                     Spacer(Modifier.height(24.dp))
                     Text("NO RECALLS ACTIVE", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Spacer(Modifier.height(8.dp))
-                    Text("INITIATE NEW PROTOCOL VIA +", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
+                    Text("Tap + to add a reminder", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f))
                 }
             }
         } else {
@@ -87,7 +87,7 @@ fun RemindersScreen(vm: RemindersViewModel = hiltViewModel()) {
                 contentPadding = PaddingValues(vertical = 20.dp)
             ) {
                 item {
-                    Text("ACTIVE PROTOCOLS", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text("Active Reminders", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
                 items(reminders, key = { it.id }) { reminder ->
                     ReminderItem(
@@ -183,15 +183,15 @@ fun AddReminderSheet(onDismiss: () -> Unit, onAdd: (String, String, Long, Repeat
             verticalArrangement = Arrangement.spacedBy(20.dp)
         ) {
             Column {
-                Text("NEW PROTOCOL", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.primary)
-                Text("INITIATE RECALL", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Medium)
+                Text("New Reminder", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.primary)
+                Text("Create Reminder", style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Medium)
             }
 
             ClayCard(shape = RoundedCornerShape(16.dp)) {
                 TextField(
                     value = title, 
                     onValueChange = { title = it }, 
-                    placeholder = { Text("PROTOCOL TITLE") }, 
+                    placeholder = { Text("Reminder title") }, 
                     modifier = Modifier.fillMaxWidth(), 
                     singleLine = true,
                     colors = TextFieldDefaults.colors(
@@ -250,7 +250,7 @@ fun AddReminderSheet(onDismiss: () -> Unit, onAdd: (String, String, Long, Repeat
                 modifier = Modifier.fillMaxWidth().height(64.dp),
                 containerColor = MaterialTheme.colorScheme.primary
             ) { 
-                Text("DEPLOY REMINDER", fontWeight = FontWeight.Medium, style = MaterialTheme.typography.titleSmall) 
+                Text("Create Reminder", fontWeight = FontWeight.Medium, style = MaterialTheme.typography.titleSmall) 
             }
         }
     }

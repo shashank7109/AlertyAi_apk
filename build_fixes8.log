@@ -1,0 +1,62 @@
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :app:checkDebugAarMetadata UP-TO-DATE
+> Task :app:generateDebugResValues UP-TO-DATE
+> Task :app:mapDebugSourceSetPaths UP-TO-DATE
+> Task :app:generateDebugResources UP-TO-DATE
+> Task :app:mergeDebugResources UP-TO-DATE
+> Task :app:packageDebugResources UP-TO-DATE
+> Task :app:parseDebugLocalResources UP-TO-DATE
+> Task :app:createDebugCompatibleScreenManifests UP-TO-DATE
+> Task :app:extractDeepLinksDebug UP-TO-DATE
+> Task :app:processDebugMainManifest FROM-CACHE
+> Task :app:processDebugManifest FROM-CACHE
+> Task :app:processDebugManifestForPackage FROM-CACHE
+> Task :app:processDebugResources FROM-CACHE
+> Task :app:javaPreCompileDebug UP-TO-DATE
+> Task :app:mergeDebugShaders UP-TO-DATE
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :app:mergeDebugAssets UP-TO-DATE
+> Task :app:compressDebugAssets UP-TO-DATE
+> Task :app:desugarDebugFileDependencies UP-TO-DATE
+> Task :app:checkDebugDuplicateClasses UP-TO-DATE
+> Task :app:mergeDebugStartupProfile UP-TO-DATE
+> Task :app:mergeExtDexDebug UP-TO-DATE
+> Task :app:mergeLibDexDebug UP-TO-DATE
+> Task :app:mergeDebugJniLibFolders UP-TO-DATE
+> Task :app:mergeDebugNativeLibs UP-TO-DATE
+> Task :app:stripDebugDebugSymbols UP-TO-DATE
+> Task :app:validateSigningDebug UP-TO-DATE
+> Task :app:writeDebugAppMetadata UP-TO-DATE
+> Task :app:writeDebugSigningConfigVersions UP-TO-DATE
+> Task :app:kspDebugKotlin
+
+> Task :app:compileDebugKotlin FAILED
+e: file:///D:/Smaran/alertyai_android/app/src/main/java/com/alertyai/app/ui/tasks/TasksViewModel.kt:116:35 Unresolved reference 'parseDateToMillis'.
+e: file:///D:/Smaran/alertyai_android/app/src/main/java/com/alertyai/app/ui/tasks/TasksViewModel.kt:117:35 Argument type mismatch: actual type is 'kotlin.String?', but 'kotlin.Long?' was expected.
+e: file:///D:/Smaran/alertyai_android/app/src/main/java/com/alertyai/app/ui/tasks/TasksViewModel.kt:118:36 Unresolved reference 'parsePriority'.
+e: file:///D:/Smaran/alertyai_android/app/src/main/java/com/alertyai/app/ui/tasks/TasksViewModel.kt:172:35 Unresolved reference 'parseDateToMillis'.
+e: file:///D:/Smaran/alertyai_android/app/src/main/java/com/alertyai/app/ui/tasks/TasksViewModel.kt:173:35 Argument type mismatch: actual type is 'kotlin.String?', but 'kotlin.Long?' was expected.
+e: file:///D:/Smaran/alertyai_android/app/src/main/java/com/alertyai/app/ui/tasks/TasksViewModel.kt:174:36 Unresolved reference 'parsePriority'.
+e: file:///D:/Smaran/alertyai_android/app/src/main/java/com/alertyai/app/ui/tasks/TasksViewModel.kt:225:35 Unresolved reference 'parseDateToMillis'.
+e: file:///D:/Smaran/alertyai_android/app/src/main/java/com/alertyai/app/ui/tasks/TasksViewModel.kt:226:35 Argument type mismatch: actual type is 'kotlin.String?', but 'kotlin.Long?' was expected.
+e: file:///D:/Smaran/alertyai_android/app/src/main/java/com/alertyai/app/ui/tasks/TasksViewModel.kt:227:36 Unresolved reference 'parsePriority'.
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':app:compileDebugKotlin'.
+> A failure occurred while executing org.jetbrains.kotlin.compilerRunner.GradleCompilerRunnerWithWorkers$GradleKotlinCompilerWorkAction
+   > Compilation error. See log for more details
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to generate a Build Scan (Powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+BUILD FAILED in 9s
+30 actionable tasks: 2 executed, 4 from cache, 24 up-to-date

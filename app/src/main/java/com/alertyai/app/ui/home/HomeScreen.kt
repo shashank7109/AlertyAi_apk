@@ -34,8 +34,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.alertyai.app.network.TokenManager
 import com.alertyai.app.ui.reminders.RemindersViewModel
 import com.alertyai.app.ui.tasks.TasksViewModel
-import com.alertyai.app.ui.tasks.TaskItem
+import com.alertyai.app.ui.tasks.components.TaskItem
 import com.alertyai.app.ui.tasks.AddTaskSheet
+import com.alertyai.app.data.model.Task
 import com.alertyai.app.ui.components.ClayCard
 import com.alertyai.app.ui.components.ClayButton
 import java.text.SimpleDateFormat
@@ -45,7 +46,7 @@ import java.util.*
 fun HomeScreen(
     tasksVm: TasksViewModel = hiltViewModel(),
     remindersVm: RemindersViewModel = hiltViewModel(),
-    onNavigateToTasks: () -> Unit = {},
+    onNavigateToTasks: () -> Unit,
     onNavigateToTeams: () -> Unit = {},
     onNavigateToReminders: () -> Unit = {},
     onNavigateToProfile: () -> Unit = {}
@@ -56,11 +57,52 @@ fun HomeScreen(
     val aiState by tasksVm.aiState.collectAsState()
     val isLoggedIn = remember { TokenManager.isLoggedIn(context) }
     var showAddSheet by remember { mutableStateOf<String?>(null) }
+    var editingTask by remember { mutableStateOf<Task?>(null) }
     
-    val todayTasks = tasks.filter { !it.isDone }.take(3)
+    // Filter tasks for today only
+    val todayTasks = remember(tasks) {
+        val today = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        val tomorrow = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+            add(Calendar.DAY_OF_YEAR, 1)
+        }
+        
+        tasks.filter { task ->
+            !task.isDone && when {
+                // Task with due date - check if it's today
+                task.dueDate != null -> {
+                    val taskDate = Calendar.getInstance().apply { timeInMillis = task.dueDate }
+                    val taskYear = taskDate.get(Calendar.YEAR)
+                    val taskDay = taskDate.get(Calendar.DAY_OF_YEAR)
+                    val todayYear = today.get(Calendar.YEAR)
+                    val todayDay = today.get(Calendar.DAY_OF_YEAR)
+                    taskYear == todayYear && taskDay == todayDay
+                }
+                // Task with no due date - show if created today or recently
+                else -> {
+                    // Show tasks without due dates that are recent (created in last 7 days)
+                    val taskCreated = task.createdAt ?: 0L
+                    taskCreated >= today.timeInMillis - (7 * 24 * 60 * 60 * 1000)
+                }
+            }
+        }.take(3)
+    }
     val today = SimpleDateFormat("EEEE, d MMMM", Locale.getDefault()).format(Date())
 
     // Handle AI status messages
+    // Sync tasks from backend when screen loads
+    LaunchedEffect(Unit) {
+        tasksVm.syncFromBackend(context)
+    }
+
     LaunchedEffect(aiState.aiSuccess, aiState.aiError) {
         aiState.aiSuccess?.let {
             Toast.makeText(context, it, Toast.LENGTH_LONG).show()
@@ -176,7 +218,8 @@ fun HomeScreen(
                 TaskItem(
                     task     = task,
                     onToggle = { tasksVm.toggleDone(context, task) },
-                    onDelete = { tasksVm.deleteTask(context, task) }
+                    onDelete = { tasksVm.deleteTask(context, task) },
+                    onEdit   = { editingTask = task }
                 )
             }
             
@@ -236,6 +279,23 @@ fun HomeScreen(
                 showAddSheet = null
             },
             initialMode = mode
+        )
+    }
+
+    editingTask?.let { task ->
+        AddTaskSheet(
+            isLoggedIn = isLoggedIn,
+            isAiLoading = false,
+            onDismiss = { editingTask = null },
+            onAddTask = { },
+            onUpdateTask = { updated ->
+                tasksVm.updateTask(context, updated)
+                editingTask = null
+            },
+            onAddFromText = { },
+            onImageSelected = { },
+            onVoiceFile = { },
+            existingTask = task
         )
     }
 }

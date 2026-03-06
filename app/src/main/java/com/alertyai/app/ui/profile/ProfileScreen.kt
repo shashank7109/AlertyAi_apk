@@ -130,7 +130,7 @@ fun ProfileScreen(onBack: () -> Unit) {
                     }
                 }
                 Spacer(Modifier.height(16.dp))
-                Text("NEURAL SIGNATURE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
+                Text("Profile Picture", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
             }
 
             Text("DATA OVERRIDE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
@@ -169,7 +169,7 @@ fun ProfileScreen(onBack: () -> Unit) {
                             ),
                             textStyle = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Medium),
                             supportingText = { 
-                                Text("REQUIRED FOR @MENTION PROTOCOLS", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium) 
+                                Text("Required for @mentions", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium) 
                             }
                         )
                     }
@@ -196,7 +196,7 @@ fun ProfileScreen(onBack: () -> Unit) {
                     TextField(
                         value = profilePic,
                         onValueChange = { profilePic = it },
-                        placeholder = { Text("SIGNATURE URL") },
+                        placeholder = { Text("Profile picture URL") },
                         modifier = Modifier.fillMaxWidth(),
                         leadingIcon = { Icon(Icons.Default.Image, null, tint = MaterialTheme.colorScheme.primary) },
                         colors = TextFieldDefaults.colors(

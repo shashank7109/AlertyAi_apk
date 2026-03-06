@@ -3,6 +3,8 @@ package com.alertyai.app.ui.tasks
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -28,6 +30,8 @@ import com.alertyai.app.data.model.Task
 import com.alertyai.app.network.TokenManager
 import com.alertyai.app.ui.components.ClayCard
 import com.alertyai.app.ui.components.ClayButton
+import com.alertyai.app.ui.tasks.components.TaskFilters
+import com.alertyai.app.ui.tasks.components.TaskItem
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 import kotlinx.coroutines.delay
@@ -48,8 +52,15 @@ fun TasksScreen() {
     var editingTask by remember { mutableStateOf<Task?>(null) }
     var filter by remember { mutableStateOf("all") }
 
+    // Sync tasks when screen becomes visible
     LaunchedEffect(Unit) {
         vm.syncFromBackend(context)
+    }
+    
+    // Also sync when screen is recomposed (e.g., when navigating back to it)
+    DisposableEffect(Unit) {
+        vm.syncFromBackend(context)
+        onDispose { }
     }
 
     LaunchedEffect(aiState.aiSuccess, aiState.aiError) {
@@ -59,21 +70,70 @@ fun TasksScreen() {
         }
     }
 
-    val filteredTasks = remember(tasks, filter) {
-        when (filter) {
-            "today" -> tasks.filter { task ->
-                task.dueDate?.let { date ->
-                    val today = Calendar.getInstance()
-                    val taskCal = Calendar.getInstance().apply { timeInMillis = date }
-                    today.get(Calendar.DAY_OF_YEAR) == taskCal.get(Calendar.DAY_OF_YEAR) &&
-                    today.get(Calendar.YEAR) == taskCal.get(Calendar.YEAR)
-                } ?: false
-            }
-            "upcoming" -> tasks.filter {
-                it.dueDate != null && it.dueDate > System.currentTimeMillis()
-            }
-            else -> tasks
+    var currentFilter by remember { mutableStateOf("ALL") } // ALL, PAST, TODAY, WEEKLY, MONTHLY, CUSTOM_DATE
+    var pastTasksFilter by remember { mutableStateOf("ALL") } // ALL, PENDING, COMPLETED
+    var selectedDate by remember { mutableStateOf<Long?>(null) } // Used for CUSTOM_DATE
+
+    val filteredTasks = remember(tasks, currentFilter, selectedDate, pastTasksFilter) {
+        val todayCal = Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
         }
+        val startOfToday = todayCal.timeInMillis
+        val startOfWeek = Calendar.getInstance().apply {
+            set(Calendar.DAY_OF_WEEK, firstDayOfWeek)
+            set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+        val startOfMonth = Calendar.getInstance().apply {
+            set(Calendar.DAY_OF_MONTH, 1)
+            set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0); set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+
+        tasks.filter { task ->
+            val isPast = task.dueDate != null && task.dueDate < startOfToday
+
+            when (currentFilter) {
+                "PAST" -> {
+                    val matchesStatus = when (pastTasksFilter) {
+                        "PENDING" -> !task.isDone
+                        "COMPLETED" -> task.isDone
+                        else -> true
+                    }
+                    isPast && matchesStatus
+                }
+                "TODAY" -> {
+                    val isToday = task.dueDate != null && task.dueDate >= startOfToday && task.dueDate < startOfToday + 86400000L
+                    val isDaily = task.repeatInterval == com.alertyai.app.data.model.RepeatInterval.DAILY
+                    isToday || isDaily || (isPast && !task.isDone) // Carried over past pending
+                }
+                "WEEKLY" -> {
+                    val isThisWeek = task.dueDate != null && task.dueDate >= startOfWeek && task.dueDate < startOfWeek + 7 * 86400000L
+                    val isWeekly = task.repeatInterval == com.alertyai.app.data.model.RepeatInterval.WEEKLY
+                    isThisWeek || isWeekly || (isPast && !task.isDone)
+                }
+                "MONTHLY" -> {
+                    val isThisMonth = task.dueDate != null && task.dueDate >= startOfMonth && task.dueDate < startOfMonth + 31 * 86400000L // Approx
+                    val isMonthly = task.repeatInterval == com.alertyai.app.data.model.RepeatInterval.MONTHLY
+                    isThisMonth || isMonthly || (isPast && !task.isDone)
+                }
+                "CUSTOM_DATE" -> {
+                    selectedDate?.let { sd ->
+                        val selCal = Calendar.getInstance().apply { timeInMillis = sd }
+                        val selYear = selCal.get(Calendar.YEAR)
+                        val selDay = selCal.get(Calendar.DAY_OF_YEAR)
+                        val taskCal = task.dueDate?.let { Calendar.getInstance().apply { timeInMillis = it } }
+                        
+                        val matchesDate = taskCal?.let {
+                            it.get(Calendar.YEAR) == selYear && it.get(Calendar.DAY_OF_YEAR) == selDay
+                        } ?: false
+
+                        matchesDate
+                    } ?: false
+                }
+                else -> { // "ALL"
+                    true
+                }
+            }
+        }.sortedBy { it.dueDate ?: Long.MAX_VALUE }
     }
 
     Scaffold(
@@ -81,7 +141,7 @@ fun TasksScreen() {
         topBar = {
             Column(Modifier.padding(horizontal = 20.dp, vertical = 24.dp)) {
                 Text(
-                    "MISSION CONTROL", 
+                    "Tasks", 
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
@@ -92,7 +152,7 @@ fun TasksScreen() {
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        "ACTIVE TASKS",
+                        "My Tasks",
                         style = MaterialTheme.typography.headlineMedium,
                         fontWeight = FontWeight.Medium,
                         letterSpacing = (-1).sp
@@ -134,7 +194,7 @@ fun TasksScreen() {
                     ) {
                         if (aiState.isAiLoading) {
                             CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
-                            Text("NEURAL PROCESSING...", style = MaterialTheme.typography.labelSmall)
+                            Text("Processing...", style = MaterialTheme.typography.labelSmall)
                         } else {
                             Text((aiState.aiSuccess ?: aiState.aiError ?: "").uppercase(),
                                 style = MaterialTheme.typography.labelSmall,
@@ -146,27 +206,33 @@ fun TasksScreen() {
             }
 
             // Filter Chips 
-            Row(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(10.dp)
-            ) {
-                listOf("all" to "ALL", "today" to "TODAY", "upcoming" to "INCOMING").forEach { (key, label) ->
-                    val isActive = filter == key
-                    ClayCard(
-                        onClick = { filter = key },
-                        containerColor = if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
-                        elevation = if (isActive) 0.dp else 2.dp,
-                        shape = RoundedCornerShape(12.dp)
-                    ) {
-                        Text(
-                            label, 
-                            style = MaterialTheme.typography.labelSmall,
-                            color = if (isActive) Color.White else MaterialTheme.colorScheme.onSurfaceVariant,
-                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
-                        )
-                    }
-                }
+            val datePickerDialog = remember {
+                android.app.DatePickerDialog(
+                    context,
+                    { _, year, month, dayOfMonth ->
+                        val cal = Calendar.getInstance()
+                        cal.set(year, month, dayOfMonth, 0, 0, 0)
+                        cal.set(Calendar.MILLISECOND, 0)
+                        selectedDate = cal.timeInMillis
+                    },
+                    Calendar.getInstance().get(Calendar.YEAR),
+                    Calendar.getInstance().get(Calendar.MONTH),
+                    Calendar.getInstance().get(Calendar.DAY_OF_MONTH)
+                )
             }
+
+            TaskFilters(
+                datePickerDialog = datePickerDialog,
+                selectedDate = selectedDate,
+                onSelectedDateChange = { 
+                    selectedDate = it
+                    if (it != null) currentFilter = "CUSTOM_DATE"
+                },
+                currentFilter = currentFilter,
+                onFilterChange = { currentFilter = it },
+                pastTasksFilter = pastTasksFilter,
+                onPastTasksFilterChange = { pastTasksFilter = it }
+            )
 
             // Task List 
             if (filteredTasks.isEmpty()) {
@@ -182,8 +248,8 @@ fun TasksScreen() {
                             }
                         }
                         Spacer(Modifier.height(16.dp))
-                        Text("QUIET SECTOR", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
-                        Text("NO ACTIVE SIGNALS", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("No tasks", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
+                        Text("All done for now", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             } else {
@@ -196,7 +262,9 @@ fun TasksScreen() {
                             task = task,
                             onToggle = { vm.toggleDone(context, task) },
                             onDelete = { vm.deleteTask(context, task) },
-                            onEdit   = { editingTask = task }
+                            onEdit   = { 
+                                editingTask = task
+                            }
                         )
                     }
                     item { Spacer(Modifier.height(100.dp)) }
@@ -245,104 +313,4 @@ fun TasksScreen() {
     }
 }
 
-@Composable
-fun TaskItem(task: Task, onToggle: () -> Unit, onDelete: () -> Unit, onEdit: () -> Unit = {}) {
-    val priorityColor = when (task.priority) {
-        Priority.HIGH   -> Color(0xFFEF4444)
-        Priority.NORMAL -> Color(0xFFF97316)
-        Priority.LOW    -> Color(0xFF22C55E)
-    }
 
-    val gson = remember { Gson() }
-    val checklist = remember(task.checklistJson) {
-        try { gson.fromJson<List<CheckItem>>(task.checklistJson, object : TypeToken<List<CheckItem>>() {}.type) ?: emptyList() }
-        catch (_: Exception) { emptyList() }
-    }
-    val dateFormat = remember { SimpleDateFormat("d MMM", Locale.getDefault()) }
-    val timeFormat = remember { SimpleDateFormat("h:mm a", Locale.getDefault()) }
-
-    ClayCard(
-        modifier = Modifier.fillMaxWidth(),
-        containerColor = if (task.isDone) MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f) 
-                        else MaterialTheme.colorScheme.surface,
-        elevation = if (task.isDone) 2.dp else 8.dp
-    ) {
-        Row(
-            modifier = Modifier.fillMaxWidth().padding(4.dp),
-            verticalAlignment = Alignment.Top,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Box(
-                modifier = Modifier
-                    .padding(top = 4.dp)
-                    .size(24.dp)
-                    .clip(CircleShape)
-                    .background(if (task.isDone) Color(0xFF10B981) else priorityColor.copy(alpha = 0.1f))
-                    .clickable { onToggle() },
-                contentAlignment = Alignment.Center
-            ) {
-                if (task.isDone) {
-                    Icon(Icons.Default.Check, null, modifier = Modifier.size(16.dp), tint = Color.White)
-                } else {
-                    Box(Modifier.size(8.dp).clip(CircleShape).background(priorityColor))
-                }
-            }
-
-            Column(Modifier.weight(1f)) {
-                Text(
-                    task.title.uppercase(),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Medium,
-                    textDecoration = if (task.isDone) TextDecoration.LineThrough else null,
-                    color = if (task.isDone) MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-                            else MaterialTheme.colorScheme.onSurface
-                )
-                
-                if (task.note.isNotBlank()) {
-                    Text(
-                        task.note, 
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(top = 4.dp)
-                    )
-                }
-
-                if (task.dueDate != null || task.dueTime != null || checklist.isNotEmpty()) {
-                    Row(
-                        modifier = Modifier.padding(top = 10.dp),
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        task.dueDate?.let {
-                            Indicator(Icons.Default.CalendarToday, dateFormat.format(Date(it)))
-                        }
-                        task.dueTime?.let {
-                            Indicator(Icons.Default.AccessTime, timeFormat.format(Date(it)))
-                        }
-                        if (checklist.isNotEmpty()) {
-                            val done = checklist.count { it.done }
-                            Indicator(Icons.Default.FactCheck, "$done/${checklist.size}")
-                        }
-                    }
-                }
-            }
-
-            Column(horizontalAlignment = Alignment.End) {
-                IconButton(onClick = onEdit, modifier = Modifier.size(32.dp)) {
-                    Icon(Icons.Default.Edit, "Edit", tint = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-                IconButton(onClick = onDelete, modifier = Modifier.size(32.dp)) {
-                    Icon(Icons.Default.Delete, "Delete", tint = MaterialTheme.colorScheme.error.copy(alpha = 0.7f))
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun Indicator(icon: androidx.compose.ui.graphics.vector.ImageVector, text: String) {
-    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-        Icon(icon, null, modifier = Modifier.size(10.dp), tint = MaterialTheme.colorScheme.primary)
-        Text(text.uppercase(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary)
-    }
-}

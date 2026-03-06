@@ -45,10 +45,27 @@ data class BackendTask(
     val description: String? = null,
     val priority: String = "medium",
     val status: String = "pending",
-    @SerializedName("due_date") val dueDate: String? = null,
+    @SerializedName("due_date")  val dueDate: String? = null,
+    @SerializedName("due_time")  val dueTime: String? = null,   // "HH:mm" e.g. "05:00"
+    val category: String? = null,
+    val tags: List<String>? = null,
     @SerializedName("ai_generated") val aiGenerated: Boolean = false,
-    val source: String = "manual"
+    val subtasks: List<String>? = null,
+    val source: String = "manual",
+    @SerializedName("is_team_task") val isTeamTask: Boolean = false,
+    @SerializedName("team_name")    val teamName: String? = null
 )
+
+// ── Backend Task Update ────────────────────────────────────────────────────────
+data class BackendTaskUpdate(
+    val title: String? = null,
+    val description: String? = null,
+    val priority: String? = null,
+    val status: String? = null,
+    @SerializedName("due_date") val dueDate: String? = null,
+    @SerializedName("due_time") val dueTime: String? = null
+)
+
 
 // ── Chat ──────────────────────────────────────────────────────────────────────
 data class ChatResponse(
@@ -122,9 +139,11 @@ data class MentionMember(
 data class AssignTaskRequest(
     val title: String,
     val description: String = "",
-    val priority: String = "normal",
-    @SerializedName("due_date") val dueDate: String? = null,
-    @SerializedName("assignee_email") val assigneeEmail: String
+    val priority: String = "medium",
+    @SerializedName("assigned_to") val assignedTo: String,
+    val deadline: String? = null,
+    @SerializedName("reminder_frequency") val reminderFrequency: String = "daily",
+    @SerializedName("reminder_time") val reminderTime: String? = null
 )
 
 data class AssignTaskResponse(
@@ -135,7 +154,7 @@ data class AssignTaskResponse(
 
 data class TeamTask(
     val id: String = "",
-    @SerializedName("org_id") val orgId: String = "",
+    @SerializedName("team_id") val teamId: String = "",
     val title: String = "",
     val description: String? = "",
     val priority: String = "normal",
@@ -143,6 +162,8 @@ data class TeamTask(
     @SerializedName("assignee_email") val assigneeEmail: String = "",
     @SerializedName("assigned_by_email") val assignedByEmail: String = "",
     @SerializedName("due_date") val dueDate: String? = null,
+    @SerializedName("task_type") val taskType: String = "",
+    val subtasks: List<String>? = null,
     @SerializedName("created_at") val createdAt: String = ""
 )
 

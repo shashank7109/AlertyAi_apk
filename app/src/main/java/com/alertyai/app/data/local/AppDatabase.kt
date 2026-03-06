@@ -15,7 +15,7 @@ import com.alertyai.app.data.model.Task
 
 @Database(
     entities = [Task::class, Reminder::class],
-    version = 2,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -35,7 +35,7 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     DATABASE_NAME
-                ).addMigrations(MIGRATION_1_2).build().also { INSTANCE = it }
+                ).addMigrations(MIGRATION_1_2, MIGRATION_2_3, MIGRATION_3_4).build().also { INSTANCE = it }
             }
         }
 
@@ -48,6 +48,20 @@ abstract class AppDatabase : RoomDatabase() {
                 database.execSQL("ALTER TABLE tasks ADD COLUMN location TEXT NOT NULL DEFAULT ''")
                 database.execSQL("ALTER TABLE tasks ADD COLUMN subtasksJson TEXT NOT NULL DEFAULT '[]'")
                 database.execSQL("ALTER TABLE tasks ADD COLUMN checklistJson TEXT NOT NULL DEFAULT '[]'")
+            }
+        }
+
+        /** Migration from v2 → v3: add repeat column */
+        val MIGRATION_2_3 = object : Migration(2, 3) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE tasks ADD COLUMN repeatInterval TEXT NOT NULL DEFAULT 'NONE'")
+            }
+        }
+
+        /** Migration from v3 → v4: add backendId for MongoDB _id tracking */
+        val MIGRATION_3_4 = object : Migration(3, 4) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                database.execSQL("ALTER TABLE tasks ADD COLUMN backendId TEXT NOT NULL DEFAULT ''")
             }
         }
     }

@@ -40,6 +40,8 @@ class TasksViewModel @Inject constructor(
     val tasks: StateFlow<List<Task>> = repository.getAllTasks()
         .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), emptyList())
 
+    private val userWsManager = com.alertyai.app.network.UserWebSocketManager()
+
     private val _aiState = MutableStateFlow(AiOpState())
     val aiState: StateFlow<AiOpState> = _aiState.asStateFlow()
 
@@ -70,12 +72,59 @@ class TasksViewModel @Inject constructor(
             if (task.alarmEnabled && task.dueDate != null && task.dueTime != null) {
                 AlarmScheduler.schedule(context, task)
             }
+
+            // Sync with backend if it exists there
+            if (task.backendId.isNotBlank()) {
+                val token = TokenManager.getToken(context) ?: return@launch
+                try {
+                    var dueDateStr: String? = null
+                    if (task.dueDate != null) {
+                        val sdf = java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", java.util.Locale.US).apply {
+                            timeZone = java.util.TimeZone.getTimeZone("UTC")
+                        }
+                        // Combine dueDate and dueTime for the backend if both exist, otherwise just dueDate
+                        val timeToUse = if (task.dueTime != null) {
+                            val dCal = java.util.Calendar.getInstance().apply { timeInMillis = task.dueDate }
+                            val tCal = java.util.Calendar.getInstance().apply { timeInMillis = task.dueTime }
+                            dCal.set(java.util.Calendar.HOUR_OF_DAY, tCal.get(java.util.Calendar.HOUR_OF_DAY))
+                            dCal.set(java.util.Calendar.MINUTE, tCal.get(java.util.Calendar.MINUTE))
+                            dCal.timeInMillis
+                        } else {
+                            task.dueDate
+                        }
+                        dueDateStr = sdf.format(java.util.Date(timeToUse))
+                    }
+
+                    val updateRequest = com.alertyai.app.network.BackendTaskUpdate(
+                        title = task.title,
+                        description = task.note,
+                        priority = task.priority.name.lowercase(),
+                        status = if (task.isDone) "completed" else "pending",
+                        dueDate = dueDateStr
+                    )
+                    RetrofitClient.api.updateBackendTask("Bearer $token", task.backendId, updateRequest)
+                } catch (e: Exception) {
+                    // Fail silently, local copy is saved
+                }
+            }
         }
     }
 
     fun toggleDone(context: Context, task: Task) {
         viewModelScope.launch {
             repository.toggleDone(task)
+            
+            // Handle backend sync if applicable
+            if (!task.isDone && task.backendId.isNotBlank()) {
+                val token = TokenManager.getToken(context) ?: return@launch
+                try {
+                    RetrofitClient.api.completeBackendTask("Bearer $token", task.backendId)
+                } catch (e: Exception) {
+                    // Fail silently, DB completes it locally anyway. Re-sync pulls state from backend though, 
+                    // ideally we want a background offline-sync job, but for now this fixes the immediate parity issue.
+                }
+            }
+            
             // When a task is completed, cancel its alarm
             if (!task.isDone) AlarmScheduler.cancel(context, task)
         }
@@ -85,6 +134,16 @@ class TasksViewModel @Inject constructor(
         viewModelScope.launch {
             AlarmScheduler.cancel(context, task)
             repository.deleteTask(task)
+            // If this task was created on the backend, delete it there too —
+            // otherwise syncFromBackend will re-insert it on next screen open.
+            if (task.backendId.isNotBlank()) {
+                val token = TokenManager.getToken(context) ?: return@launch
+                try {
+                    RetrofitClient.api.deleteBackendTask("Bearer $token", task.backendId)
+                } catch (_: Exception) {
+                    // Silent: local delete already happened; backend will be cleaned up on next sync
+                }
+            }
         }
     }
 
@@ -101,10 +160,27 @@ class TasksViewModel @Inject constructor(
                 val resp = RetrofitClient.api.createTaskFromText("Bearer $token", text)
                 if (resp.isSuccessful) {
                     val body = resp.body()
-                    val taskTitle = (body?.task?.get("title") as? String) ?: text
-                    val subtasksJson = com.google.gson.Gson().toJson(body?.getSubtasks())
+                    val taskMap = body?.task ?: emptyMap()
+                    val taskTitle = (taskMap["title"] as? String) ?: text
+                    val checklistJson = com.google.gson.Gson().toJson(
+                        body?.getSubtasks()?.map { com.alertyai.app.data.model.CheckItem(text = it) } ?: emptyList<com.alertyai.app.data.model.CheckItem>()
+                    )
                     val note = body?.getDescription().orEmpty().ifBlank { "Created by AI" }
-                    repository.addTask(Task(title = taskTitle, note = note, subtasksJson = subtasksJson))
+                    val dueDateStr = taskMap["due_date"] as? String
+                    val dueTimeStr = taskMap["due_time"] as? String
+                    val priorityStr = taskMap["priority"] as? String
+                    val backendId = (taskMap["_id"] as? String).orEmpty()
+
+                    addFullTask(context, Task(
+                        title = taskTitle,
+                        note = note,
+                        checklistJson = checklistJson,
+                        dueDate = parseDateToMillis(dueDateStr),
+                        dueTime = parseTimeToMillis(dueTimeStr),
+                        priority = parsePriority(priorityStr),
+                        alarmEnabled = true,
+                        backendId = backendId
+                    ))
                     _aiState.value = _aiState.value.copy(isAiLoading = false,
                         aiSuccess = "✅ Task created: \"$taskTitle\"")
                 } else if (resp.code() == 401) {
@@ -145,10 +221,27 @@ class TasksViewModel @Inject constructor(
                 )
                 if (resp.isSuccessful) {
                     val body = resp.body()
-                    val taskTitle = (body?.task?.get("title") as? String) ?: "Task from image"
-                    val subtasksJson = com.google.gson.Gson().toJson(body?.getSubtasks())
+                    val taskMap = body?.task ?: emptyMap()
+                    val taskTitle = (taskMap["title"] as? String) ?: "Task from image"
+                    val checklistJson = com.google.gson.Gson().toJson(
+                        body?.getSubtasks()?.map { com.alertyai.app.data.model.CheckItem(text = it) } ?: emptyList<com.alertyai.app.data.model.CheckItem>()
+                    )
                     val note = body?.getDescription().orEmpty().ifBlank { "Created from image OCR" }
-                    repository.addTask(Task(title = taskTitle, note = note, subtasksJson = subtasksJson))
+                    val dueDateStr = taskMap["due_date"] as? String
+                    val dueTimeStr = taskMap["due_time"] as? String
+                    val priorityStr = taskMap["priority"] as? String
+                    val backendId = (taskMap["_id"] as? String).orEmpty()
+
+                    addFullTask(context, Task(
+                        title = taskTitle,
+                        note = note,
+                        checklistJson = checklistJson,
+                        dueDate = parseDateToMillis(dueDateStr),
+                        dueTime = parseTimeToMillis(dueTimeStr),
+                        priority = parsePriority(priorityStr),
+                        alarmEnabled = true,
+                        backendId = backendId
+                    ))
                     _aiState.value = _aiState.value.copy(isAiLoading = false,
                         aiSuccess = "📷 Task created: \"$taskTitle\"")
                 } else if (resp.code() == 401) {
@@ -186,11 +279,26 @@ class TasksViewModel @Inject constructor(
                 )
                 if (resp.isSuccessful) {
                     val body = resp.body()
-                    val taskTitle = (body?.task?.get("title") as? String) ?: "Voice task"
+                    val taskMap = body?.task ?: emptyMap()
+                    val taskTitle = (taskMap["title"] as? String) ?: "Voice task"
                     val transcript = body?.transcript
-                    repository.addTask(Task(
+                    val checklistJson = com.google.gson.Gson().toJson(
+                        body?.getSubtasks()?.map { com.alertyai.app.data.model.CheckItem(text = it) } ?: emptyList<com.alertyai.app.data.model.CheckItem>()
+                    )
+                    val dueDateStr = taskMap["due_date"] as? String
+                    val dueTimeStr = taskMap["due_time"] as? String
+                    val priorityStr = taskMap["priority"] as? String
+                    val backendId = (taskMap["_id"] as? String).orEmpty()
+
+                    addFullTask(context, Task(
                         title = taskTitle,
-                        note = if (transcript != null) "Transcript: $transcript" else "Created from voice"
+                        note = if (transcript != null) "Transcript: $transcript" else "Created from voice",
+                        checklistJson = checklistJson,
+                        dueDate = parseDateToMillis(dueDateStr),
+                        dueTime = parseTimeToMillis(dueTimeStr),
+                        priority = parsePriority(priorityStr),
+                        alarmEnabled = true,
+                        backendId = backendId
                     ))
                     _aiState.value = _aiState.value.copy(isAiLoading = false,
                         aiSuccess = "🎤 Task created: \"$taskTitle\"")
@@ -217,28 +325,131 @@ class TasksViewModel @Inject constructor(
     // Called on screen open so tasks created via Chat (stored in MongoDB) appear here too.
     fun syncFromBackend(context: Context) {
         val token = TokenManager.getToken(context) ?: return
+        
+        // Setup Real-Time Sync WebSocket 
+        val userId = TokenManager.getUserId(context)
+        if (userId != null && !userWsManager.isConnected) {
+            userWsManager.connect(
+                userId = userId,
+                token = token,
+                onMessage = { msg ->
+                    if (msg.type == "task_created" && msg.task != null) {
+                        val bt = msg.task
+                        viewModelScope.launch {
+                            val allLocal = repository.getAllTasksList() // Needs to be added to repo
+                            val existing = allLocal.find { it.backendId == bt.id || (bt.title.isNotBlank() && it.title == bt.title) }
+                            
+                            if (existing == null) {
+                                val priority = when (bt.priority.lowercase()) {
+                                    "high" -> Priority.HIGH
+                                    "low"  -> Priority.LOW
+                                    else   -> Priority.NORMAL
+                                }
+                                val checklistJson = com.google.gson.Gson().toJson(
+                                    bt.subtasks?.map { com.alertyai.app.data.model.CheckItem(text = it) }
+                                        ?: emptyList<com.alertyai.app.data.model.CheckItem>()
+                                )
+                                val dueDateMillis = parseDateToMillis(bt.dueDate)
+                                val dueTimeMillis = parseTimeToMillis(bt.dueTime)
+                                    ?: run {
+                                        val isoTime = bt.dueDate?.takeIf { it.contains("T") }
+                                            ?.substringAfter("T")?.take(5)
+                                        parseTimeToMillis(isoTime?.takeIf { it != "00:00" })
+                                    }
+
+                                val noteText = buildString {
+                                    if (!bt.description.isNullOrBlank()) append(bt.description)
+                                    if (bt.isTeamTask && !bt.teamName.isNullOrBlank()) {
+                                        if (isNotEmpty()) append("\n")
+                                        append("Team: ${bt.teamName}")
+                                    }
+                                    if (isEmpty()) append(if (bt.aiGenerated) "Created by AI" else "")
+                                }
+
+                                val hasTime = dueDateMillis != null && dueTimeMillis != null
+                                val isCompleted = bt.status == "completed"
+                                val newTask = Task(
+                                    title     = bt.title,
+                                    note      = noteText,
+                                    priority  = priority,
+                                    isDone    = isCompleted,
+                                    checklistJson = checklistJson,
+                                    dueDate   = dueDateMillis,
+                                    dueTime   = dueTimeMillis,
+                                    alarmEnabled = hasTime && !isCompleted,
+                                    backendId = bt.id
+                                )
+                                if (!isCompleted && hasTime) {
+                                    addFullTask(context, newTask)
+                                } else {
+                                    repository.addTask(newTask)
+                                }
+                            }
+                        }
+                    }
+                }
+            )
+        }
+
         viewModelScope.launch {
             try {
                 val resp = RetrofitClient.api.getBackendTasks("Bearer $token")
                 if (resp.isSuccessful) {
                     val backendTasks = resp.body() ?: emptyList()
-                    val localTitles = repository.getAllTasksTitles()
+                    val allLocal = repository.getAllTasksList()
+                    
                     backendTasks.forEach { bt ->
-                        // Only insert if not already in Room (match by title to avoid duplicates)
-                        if (bt.title.isNotBlank() && !localTitles.contains(bt.title)) {
+                        val existing = allLocal.find { it.backendId == bt.id || (bt.title.isNotBlank() && it.title == bt.title) }
+                        
+                        if (existing == null) {
                             val priority = when (bt.priority.lowercase()) {
                                 "high" -> Priority.HIGH
                                 "low"  -> Priority.LOW
                                 else   -> Priority.NORMAL
                             }
-                            repository.addTask(
-                                Task(
-                                    title = bt.title,
-                                    note = bt.description ?: if (bt.aiGenerated) "Created by AI" else "",
-                                    priority = priority,
-                                    isDone = bt.status == "completed"
-                                )
+                            val checklistJson = com.google.gson.Gson().toJson(
+                                bt.subtasks?.map { com.alertyai.app.data.model.CheckItem(text = it) }
+                                    ?: emptyList<com.alertyai.app.data.model.CheckItem>()
                             )
+
+                            val dueDateMillis = parseDateToMillis(bt.dueDate)
+                            val dueTimeMillis = parseTimeToMillis(bt.dueTime)
+                                ?: run {
+                                    val isoTime = bt.dueDate?.takeIf { it.contains("T") }
+                                        ?.substringAfter("T")?.take(5)
+                                    parseTimeToMillis(isoTime?.takeIf { it != "00:00" })
+                                }
+
+                            val noteText = buildString {
+                                if (!bt.description.isNullOrBlank()) append(bt.description)
+                                if (bt.isTeamTask && !bt.teamName.isNullOrBlank()) {
+                                    if (isNotEmpty()) append("\n")
+                                    append("Team: ${bt.teamName}")
+                                }
+                                if (isEmpty()) append(if (bt.aiGenerated) "Created by AI" else "")
+                            }
+
+                            val hasTime = dueDateMillis != null && dueTimeMillis != null
+                            val isCompleted = bt.status == "completed"
+                            val newTask = Task(
+                                title     = bt.title,
+                                note      = noteText,
+                                priority  = priority,
+                                isDone    = isCompleted,
+                                checklistJson = checklistJson,
+                                dueDate   = dueDateMillis,
+                                dueTime   = dueTimeMillis,
+                                alarmEnabled = hasTime && !isCompleted,
+                                backendId = bt.id
+                            )
+                            if (!isCompleted && hasTime) {
+                                addFullTask(context, newTask)
+                            } else {
+                                repository.addTask(newTask)
+                            }
+                        } else if (existing.backendId.isBlank() && bt.id.isNotBlank()) {
+                             // Link the local task to the backend id
+                             repository.updateTask(existing.copy(backendId = bt.id))
                         }
                     }
                 } else if (resp.code() == 401) {
@@ -256,5 +467,41 @@ class TasksViewModel @Inject constructor(
         val file = File.createTempFile("img_", ".jpg", context.cacheDir)
         FileOutputStream(file).use { inputStream.copyTo(it) }
         return file
+    }
+
+    private fun parseDateToMillis(dateStr: String?): Long? {
+        if (dateStr.isNullOrBlank()) return null
+        return try {
+            if (dateStr.contains("T")) {
+                val clean = dateStr.substringBefore(".")
+                java.text.SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", java.util.Locale.getDefault()).parse(clean)?.time
+            } else {
+                java.text.SimpleDateFormat("yyyy-MM-dd", java.util.Locale.getDefault()).parse(dateStr)?.time
+            }
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun parseTimeToMillis(timeStr: String?): Long? {
+        if (timeStr.isNullOrBlank()) return null
+        return try {
+            java.text.SimpleDateFormat("HH:mm", java.util.Locale.getDefault()).parse(timeStr)?.time
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    private fun parsePriority(priorityStr: String?): Priority {
+        return when (priorityStr?.lowercase()) {
+            "high" -> Priority.HIGH
+            "low" -> Priority.LOW
+            else -> Priority.NORMAL
+        }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        userWsManager.disconnect()
     }
 }

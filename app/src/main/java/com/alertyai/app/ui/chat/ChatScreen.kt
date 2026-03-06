@@ -33,7 +33,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.foundation.clickable
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.alertyai.app.ui.components.*
 import java.text.SimpleDateFormat
 import java.util.*
@@ -49,7 +49,7 @@ private val quickActions = listOf(
 @Composable
 fun ChatScreen() {
     val context = LocalContext.current
-    val vm: ChatViewModel = viewModel()
+    val vm: ChatViewModel = hiltViewModel()
     val state by vm.state.collectAsState()
     val listState = rememberLazyListState()
     val keyboard = LocalSoftwareKeyboardController.current
@@ -75,10 +75,10 @@ fun ChatScreen() {
                             }
                         }
                         Column {
-                            Text("AI ASSISTANT", fontWeight = FontWeight.Medium, fontSize = 14.sp, letterSpacing = 1.sp)
+                            Text("AI Assistant", fontWeight = FontWeight.Medium, fontSize = 14.sp, letterSpacing = 1.sp)
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
                                 Box(Modifier.size(6.dp).clip(CircleShape).background(Color(0xFF22C55E)))
-                                Text("SYSTEM ONLINE", fontSize = 10.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                                Text("Online", fontSize = 10.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                             }
                         }
                     }
@@ -88,7 +88,7 @@ fun ChatScreen() {
         }
     ) { padding ->
         Column(
-            modifier = Modifier.fillMaxSize().padding(padding)
+            modifier = Modifier.fillMaxSize().padding(padding).imePadding()
         ) {
             // Messages List
             LazyColumn(
@@ -168,7 +168,7 @@ fun ChatScreen() {
                             TextField(
                                 value = input,
                                 onValueChange = { input = it },
-                                placeholder = { Text("INITIATE COMMAND…", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium) },
+                                placeholder = { Text("Type a message…", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium) },
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = TextFieldDefaults.colors(
                                     unfocusedContainerColor = Color.Transparent,
@@ -222,7 +222,7 @@ fun ChatScreen() {
 private fun MessageBubble(msg: ChatMessage, onReply: (ChatMessage) -> Unit) {
     val isUser = msg.role == MessageRole.USER
     val timeFmt = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
-
+    val date = Date(msg.timestamp)
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = if (isUser) Arrangement.End else Arrangement.Start
@@ -280,7 +280,7 @@ private fun MessageBubble(msg: ChatMessage, onReply: (ChatMessage) -> Unit) {
                                 Icon(Icons.Default.CheckCircle, null, 
                                     tint = if (isUser) MaterialTheme.colorScheme.onPrimary else Color(0xFF15803D), 
                                     modifier = Modifier.size(14.dp))
-                                Text("TASK DEPLOYED: \"${msg.taskTitle.uppercase()}\"",
+                                Text("Task created: \"${msg.taskTitle}\"",
                                     fontSize = 10.sp, fontWeight = FontWeight.Medium,
                                     color = if (isUser) MaterialTheme.colorScheme.onPrimary else Color(0xFF15803D))
                             }
@@ -292,7 +292,7 @@ private fun MessageBubble(msg: ChatMessage, onReply: (ChatMessage) -> Unit) {
             Spacer(Modifier.height(4.dp))
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                 Text(
-                    timeFmt.format(Date(msg.timestamp)),
+                    timeFmt.format(date),
                     fontSize = 10.sp, 
                     fontWeight = FontWeight.Medium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
@@ -331,7 +331,7 @@ private fun TypingIndicator() {
                             .background(MaterialTheme.colorScheme.primary.copy(alpha = 0.6f))
                     )
                 }
-                Text(" THINKING…", fontSize = 10.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(" Thinking…", fontSize = 10.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
         }
     }

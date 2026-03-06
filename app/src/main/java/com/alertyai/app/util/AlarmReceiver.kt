@@ -6,6 +6,7 @@ import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.media.RingtoneManager
 import android.os.Build
 import android.util.Log
 import androidx.core.app.NotificationCompat
@@ -32,7 +33,7 @@ class AlarmReceiver : BroadcastReceiver() {
             CoroutineScope(Dispatchers.IO).launch {
                 try {
                     val db = AppDatabase.getInstance(context)
-                    val tasks = db.taskDao().getAllTasksList()
+                    val tasks = db.taskDao().getTasksWithAlarms()
                     tasks.forEach { AlarmScheduler.schedule(context, it) }
                     Log.i("AlarmReceiver", "📲 Re-scheduled ${tasks.size} alarms after boot")
                 } finally {
@@ -57,7 +58,7 @@ class AlarmReceiver : BroadcastReceiver() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val notification = NotificationCompat.Builder(context, CHANNEL_ID)
+        val builder = NotificationCompat.Builder(context, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_dialog_info)
             .setContentTitle(title)
             .setContentText(body)
@@ -67,7 +68,15 @@ class AlarmReceiver : BroadcastReceiver() {
             .setAutoCancel(true)
             .setVibrate(longArrayOf(0, 300, 200, 300))
             .setContentIntent(tapIntent)
-            .build()
+            
+        val loudAlarmEnabled = context.getSharedPreferences("alertyai_prefs", Context.MODE_PRIVATE).getBoolean("loud_alarm", false)
+        if (loudAlarmEnabled) {
+            builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_ALARM))
+        } else {
+            builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+        }
+
+        val notification = builder.build()
 
         val nm = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         nm.notify(id, notification)

@@ -36,13 +36,16 @@ import com.alertyai.app.network.MentionMember
 import com.alertyai.app.network.TeamTask
 import com.alertyai.app.network.TokenManager
 import com.alertyai.app.ui.components.*
+import com.alertyai.app.ui.teams.components.AssignTaskDialog
+import com.alertyai.app.ui.teams.components.TaskPanelDialog
+import com.alertyai.app.ui.teams.components.TeamMessageBubble
 import java.text.SimpleDateFormat
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TeamChatScreen(
-    orgId: String,
+    teamId: String,
     teamName: String,
     onBack: () -> Unit
 ) {
@@ -54,7 +57,7 @@ fun TeamChatScreen(
     var input by remember { mutableStateOf(TextFieldValue("")) }
     val myEmail = remember { TokenManager.getUserEmail(context) }
 
-    LaunchedEffect(orgId) { vm.initChat(context, orgId) }
+    LaunchedEffect(teamId) { vm.initChat(context, teamId) }
     LaunchedEffect(state.messages.size) {
         if (state.messages.isNotEmpty()) listState.animateScrollToItem(state.messages.size - 1)
     }
@@ -65,8 +68,8 @@ fun TeamChatScreen(
             members = state.mentionMembers,
             success = state.assignTaskSuccess,
             error = state.assignTaskError,
-            onAssign = { targets, title, desc, priority, dueDate -> 
-                vm.assignMultipleTasks(context, targets, title, desc, priority, dueDate) 
+            onAssign = { targets, title, desc, priority, deadline, freq, rTime -> 
+                vm.assignMultipleTasks(context, targets, title, desc, priority, deadline, freq, rTime) 
             },
             onDismiss = { vm.dismissAssignTask() }
         )
@@ -82,6 +85,48 @@ fun TeamChatScreen(
         )
     }
 
+    // ── Join Code Dialog ──────────────────────────────────────────────────────
+    if (state.showJoinCodeDialog) {
+        AlertDialog(
+            onDismissRequest = { vm.dismissJoinCodeDialog() },
+            title = { Text("Team Join Code", style = MaterialTheme.typography.titleLarge) },
+            text = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier.fillMaxWidth()) {
+                    if (state.isFetchingCode) {
+                        CircularProgressIndicator(modifier = Modifier.padding(16.dp))
+                    } else if (state.joinCode != null) {
+                        Text(
+                            text = state.joinCode!!,
+                            style = MaterialTheme.typography.displayMedium,
+                            fontWeight = FontWeight.Bold,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(vertical = 16.dp)
+                        )
+                        Text(
+                            "Share this code with others so they can join ${teamName}.",
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    } else {
+                        Text("Failed to load join code.")
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = { vm.dismissJoinCodeDialog() }) {
+                    Text("DONE")
+                }
+            },
+            dismissButton = {
+                if (state.isAdmin && !state.isFetchingCode) {
+                    TextButton(onClick = { vm.regenerateJoinCode(context) }) {
+                        Text("REGENERATE")
+                    }
+                }
+            }
+        )
+    }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -93,15 +138,38 @@ fun TeamChatScreen(
                 },
                 navigationIcon = { IconButton(onClick = onBack) { Icon(Icons.Default.ArrowBack, null) } },
                 actions = {
+                    if (state.isAdmin) {
+                        // Assign Task
+                        IconButton(onClick = { vm.showAssignTask(null) }) {
+                            Icon(Icons.Default.AddTask, "Assign Task", tint = MaterialTheme.colorScheme.primary)
+                        }
+                        // Join Code
+                        IconButton(onClick = { vm.showJoinCodeDialog() }) {
+                            Icon(Icons.Default.QrCode, "Join Code", tint = MaterialTheme.colorScheme.primary)
+                        }
+                    }
+                    // View Tasks
                     IconButton(onClick = { vm.loadTaskPanel(context) }) {
-                        Icon(Icons.Default.Task, null, tint = MaterialTheme.colorScheme.primary)
+                        Icon(Icons.Default.Assignment, "Tasks", tint = MaterialTheme.colorScheme.primary)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
+        },
+        floatingActionButton = {
+            if (state.isAdmin) {
+                FloatingActionButton(
+                    onClick = { vm.showAssignTask(null) },
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    contentColor = Color.White,
+                    shape = RoundedCornerShape(16.dp)
+                ) {
+                    Icon(Icons.Default.AddTask, "Assign Task")
+                }
+            }
         }
     ) { padding ->
-        Column(Modifier.fillMaxSize().padding(padding)) {
+        Column(Modifier.fillMaxSize().padding(padding).imePadding()) {
             // Messages
             LazyColumn(
                 state = listState,
@@ -253,338 +321,4 @@ fun TeamChatScreen(
     }
 }
 
-// ── Message Bubble ─────────────────────────────────────────────────────────────
 
-@Composable
-fun TeamMessageBubble(
-    msg: TeamChatMessage,
-    isMe: Boolean,
-    isAdmin: Boolean = false,
-    members: List<MentionMember> = emptyList(),
-    onReply: (TeamChatMessage) -> Unit,
-    onAssignTask: (MentionMember) -> Unit = {}
-) {
-    val timeFmt = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
-    val date = try { SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault()).parse(msg.timestamp) } catch (e: Exception) { Date() }
-
-    // Detect if message is a system assignment notice
-    val isSystemMsg = msg.text.startsWith("📋 TASK ASSIGNED:")
-
-    // Telegram chat bubble physics
-    val bubbleShape = RoundedCornerShape(
-        topStart = 16.dp, 
-        topEnd = 16.dp,
-        bottomStart = if (isMe) 16.dp else 2.dp,
-        bottomEnd = if (isMe) 2.dp else 16.dp
-    )
-
-    // Telegram Colors
-    val bubbleColor = when {
-        isSystemMsg -> MaterialTheme.colorScheme.tertiary.copy(alpha = 0.1f)
-        isMe -> Color(0xFFEFFDDE) // Telegram outgoing light green or use MaterialTheme.colorScheme.primary.copy(alpha=0.9f)
-        else -> MaterialTheme.colorScheme.surface
-    }
-    
-    // Support dark mode bubble text appropriately
-    val isDark = androidx.compose.foundation.isSystemInDarkTheme()
-    val finalBgColor = if (isMe) {
-        if (isDark) Color(0xFF2B5278) else Color(0xFFE3FFC9) 
-    } else {
-        MaterialTheme.colorScheme.surface
-    }
-
-    val textColor = if (isMe) {
-        if (isDark) Color.White else Color.Black 
-    } else {
-        MaterialTheme.colorScheme.onSurface 
-    }
-
-    val timeColor = if (isMe) {
-        if (isDark) Color(0xFFA1C9F2) else Color(0xFF45A250)
-    } else {
-        MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f)
-    }
-
-    // Parse logic for 'Reply to'
-    var isReply = false
-    var replyName = ""
-    var replyQuote = ""
-    var actualMessage = msg.text
-
-    if (msg.text.startsWith("[Reply to ") && msg.text.contains("]: \"")) {
-        try {
-            val nameEndIdx = msg.text.indexOf("]: \"")
-            replyName = msg.text.substring(10, nameEndIdx)
-            val quoteEndIdx = msg.text.indexOf("\"\n", nameEndIdx)
-            if (quoteEndIdx != -1) {
-                isReply = true
-                replyQuote = msg.text.substring(nameEndIdx + 4, quoteEndIdx).trim()
-                actualMessage = msg.text.substring(quoteEndIdx + 2).trim()
-            }
-        } catch (e: Exception) {}
-    }
-
-    Column(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 4.dp),
-        horizontalAlignment = if (isMe) Alignment.End else Alignment.Start
-    ) {
-        Surface(
-            shape = bubbleShape,
-            color = finalBgColor,
-            shadowElevation = 1.dp
-        ) {
-            Column(
-                modifier = Modifier
-                    .clickable { onReply(msg) }
-                    .padding(horizontal = 12.dp, vertical = 8.dp)
-                    .widthIn(max = 280.dp) // Telegram max-width approximation
-            ) {
-                if (!isMe && !isSystemMsg) {
-                    Text(
-                        msg.senderName,
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Medium,
-                        modifier = Modifier.padding(bottom = 2.dp)
-                    )
-                }
-
-                // Inner Reply Box
-                if (isReply) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 6.dp)
-                            .clip(RoundedCornerShape(4.dp))
-                            .background(if (isDark) Color(0xFF1E3C5B) else Color(0xFFC7E6A9))
-                            .padding(start = 2.dp) // creates the left colored bar effect
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .background(finalBgColor)
-                                .padding(horizontal = 8.dp, vertical = 4.dp)
-                        ) {
-                            Text(replyName, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
-                            Text(replyQuote, style = MaterialTheme.typography.bodySmall, color = textColor, maxLines = 1, overflow = TextOverflow.Ellipsis)
-                        }
-                    }
-                }
-
-                val annotatedText = buildAnnotatedString {
-                    val words = actualMessage.split(" ")
-                    words.forEachIndexed { index, word ->
-                        if (word.startsWith("@") && word.length > 1) {
-                            val mentionColor = MaterialTheme.colorScheme.primary
-                            withStyle(style = SpanStyle(fontWeight = FontWeight.Medium, color = mentionColor)) {
-                                append(word)
-                            }
-                        } else {
-                            append(word)
-                        }
-                        if (index < words.size - 1) append(" ")
-                    }
-                }
-
-                Text(
-                    text = annotatedText,
-                    color = if (isSystemMsg) MaterialTheme.colorScheme.tertiary else textColor,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-
-                // Inline Timestamp Telegram style (bottom right of text)
-                Text(
-                    text = timeFmt.format(date ?: Date()),
-                    style = MaterialTheme.typography.labelSmall, 
-                    fontSize = 11.sp,
-                    color = timeColor,
-                    modifier = Modifier.align(Alignment.End).padding(top = 4.dp)
-                )
-            }
-        }
-    }
-}
-
-// ── Assign Task Dialog ─────────────────────────────────────────────────────────
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AssignTaskDialog(
-    members: List<MentionMember>,
-    success: String?,
-    error: String?,
-    onAssign: (List<MentionMember>, String, String, String, String) -> Unit,
-    onDismiss: () -> Unit
-) {
-    var title by remember { mutableStateOf("") }
-    var description by remember { mutableStateOf("") }
-    var priority by remember { mutableStateOf("normal") }
-    var dueDate by remember { mutableStateOf("") }
-    
-    // Multiple selection state
-    val selectedMembers = remember { mutableStateListOf<MentionMember>() }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("ASSIGN TASK", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium) },
-        text = {
-            LazyColumn(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                item {
-                    if (success != null) {
-                        Text(success.uppercase(), style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
-                    }
-                    if (error != null) {
-                        Text(error, style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Medium)
-                    }
-                }
-                
-                item {
-                    Text("ASSIGNEES", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                }
-
-                items(members) { member ->
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.fillMaxWidth().clickable {
-                            if (selectedMembers.contains(member)) selectedMembers.remove(member)
-                            else selectedMembers.add(member)
-                        }
-                    ) {
-                        Checkbox(
-                            checked = selectedMembers.contains(member),
-                            onCheckedChange = { checked ->
-                                if (checked) selectedMembers.add(member)
-                                else selectedMembers.remove(member)
-                            }
-                        )
-                        Text(member.displayName, style = MaterialTheme.typography.bodyMedium)
-                    }
-                }
-
-                item {
-                    OutlinedTextField(
-                        value = title, onValueChange = { title = it },
-                        label = { Text("TASK TITLE") },
-                        modifier = Modifier.fillMaxWidth(), singleLine = true
-                    )
-                }
-                
-                item {
-                    OutlinedTextField(
-                        value = description, onValueChange = { description = it },
-                        label = { Text("DESCRIPTION (OPTIONAL)") },
-                        modifier = Modifier.fillMaxWidth(), maxLines = 3
-                    )
-                }
-                
-                item {
-                    OutlinedTextField(
-                        value = dueDate, onValueChange = { dueDate = it },
-                        label = { Text("DUE DATE (e.g. 2024-12-31)") },
-                        modifier = Modifier.fillMaxWidth(), singleLine = true
-                    )
-                }
-
-                item {
-                    Text("PRIORITY", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                        listOf("low" to Color(0xFF22C55E), "normal" to Color(0xFFF97316), "high" to Color(0xFFEF4444)).forEach { (p, color) ->
-                            val selected = priority == p
-                            Surface(
-                                onClick = { priority = p },
-                                shape = RoundedCornerShape(8.dp),
-                                color = if (selected) color.copy(alpha = 0.15f) else MaterialTheme.colorScheme.surface,
-                                modifier = Modifier.weight(1f)
-                            ) {
-                                Text(p.uppercase(), fontSize = 9.sp, fontWeight = FontWeight.Medium,
-                                    color = if (selected) color else MaterialTheme.colorScheme.onSurfaceVariant,
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 6.dp))
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            Button(onClick = {
-                if (title.isNotBlank() && selectedMembers.isNotEmpty()) {
-                    onAssign(selectedMembers.toList(), title, description, priority, dueDate)
-                }
-            }, enabled = title.isNotBlank() && selectedMembers.isNotEmpty()) {
-                Text("DEPLOY TASKS", fontWeight = FontWeight.Medium, style = MaterialTheme.typography.labelSmall)
-            }
-        },
-        dismissButton = {
-            TextButton(onClick = onDismiss) { Text("CANCEL") }
-        }
-    )
-}
-
-// ── Task Panel Dialog ──────────────────────────────────────────────────────────
-
-@Composable
-fun TaskPanelDialog(
-    isAdmin: Boolean,
-    myTasks: List<TeamTask>,
-    assignedByMeTasks: List<TeamTask>,
-    onDismiss: () -> Unit
-) {
-    val tasks = if (isAdmin) assignedByMeTasks else myTasks
-    val title = if (isAdmin) "TASKS I ASSIGNED" else "MY ASSIGNED TASKS"
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
-        },
-        text = {
-            Column(modifier = Modifier.heightIn(max = 400.dp)) {
-                if (tasks.isEmpty()) {
-                    Box(Modifier.fillMaxWidth().padding(32.dp), contentAlignment = Alignment.Center) {
-                        Text("NO TASKS YET", style = MaterialTheme.typography.labelSmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
-                    }
-                } else {
-                    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                        items(tasks) { task ->
-                            Surface(
-                                shape = RoundedCornerShape(12.dp),
-                                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
-                            ) {
-                                Column(Modifier.fillMaxWidth().padding(12.dp)) {
-                                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                                        Text(task.title.uppercase(), style = MaterialTheme.typography.bodyMedium,
-                                            fontWeight = FontWeight.Medium, modifier = Modifier.weight(1f))
-                                        val statusColor = when (task.status) {
-                                            "completed" -> Color(0xFF22C55E)
-                                            "in_progress" -> Color(0xFFF97316)
-                                            else -> MaterialTheme.colorScheme.onSurfaceVariant
-                                        }
-                                        Text(task.status.uppercase(), fontSize = 9.sp, fontWeight = FontWeight.Medium,
-                                            color = statusColor, modifier = Modifier
-                                                .background(statusColor.copy(alpha = 0.1f), RoundedCornerShape(4.dp))
-                                                .padding(horizontal = 6.dp, vertical = 3.dp))
-                                    }
-                                    if (isAdmin) {
-                                        Text("→ ${task.assigneeEmail}", style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Medium)
-                                    } else {
-                                        Text("From: ${task.assignedByEmail}", style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        confirmButton = {
-            TextButton(onClick = onDismiss) { Text("CLOSE") }
-        }
-    )
-}

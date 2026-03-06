@@ -40,7 +40,12 @@ data class TeamChatState(
     // Task lists
     val myAssignedTasks: List<TeamTask> = emptyList(),
     val tasksAssignedByMe: List<TeamTask> = emptyList(),
-    val showTasksPanel: Boolean = false
+    val showTasksPanel: Boolean = false,
+    
+    // Join code
+    val joinCode: String? = null,
+    val isFetchingCode: Boolean = false,
+    val showJoinCodeDialog: Boolean = false
 )
 
 @HiltViewModel
@@ -52,31 +57,31 @@ class TeamChatViewModel @Inject constructor(
     val state = _state.asStateFlow()
 
     private val wsManager = WebSocketManager()
-    private var currentOrgId: String = ""
+    private var currentTeamId: String = ""
     private var currentContext: Context? = null
 
-    fun initChat(context: Context, orgId: String) {
-        currentOrgId = orgId
+    fun initChat(context: Context, teamId: String) {
+        currentTeamId = teamId
         currentContext = context
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true)
 
             // 1. Fetch History
-            val history = repository.getChatHistory(context, orgId)
+            val history = repository.getChatHistory(context, teamId)
             _state.value = _state.value.copy(messages = history, isLoading = false)
 
             // 2. Fetch Members for Mentions and detect admin role
-            val members = repository.getMentionSuggestions(context, orgId)
+            val members = repository.getMentionSuggestions(context, teamId)
             _state.value = _state.value.copy(mentionMembers = members)
 
-            // 3. Detect admin role via org list
-            val orgs = repository.getMyOrganizations(context)
-            val isAdmin = orgs.find { it.id == orgId }?.isAdmin ?: false
+            // 3. Detect admin role via team list
+            val orgs = repository.getMyOrganizations(context) // TODO: Rename getMyOrganizations to Teams later if needed
+            val isAdmin = orgs.find { it.id == teamId }?.isAdmin ?: false
             _state.value = _state.value.copy(isAdmin = isAdmin)
 
             // 4. Connect WebSocket
             val token = TokenManager.getToken(context) ?: return@launch
-            wsManager.connect(orgId, token, onMessage = { msg ->
+            wsManager.connect(teamId, token, onMessage = { msg ->
                 val myEmail = TokenManager.getUserEmail(context)
                 if (msg.senderEmail != myEmail && myEmail.isNotEmpty()) {
                     showNotification(context, msg)
@@ -153,8 +158,10 @@ class TeamChatViewModel @Inject constructor(
         targets: List<com.alertyai.app.network.MentionMember>,
         title: String,
         description: String = "",
-        priority: String = "normal",
-        dueDate: String = ""
+        priority: String = "medium",
+        deadline: String? = null,
+        reminderFrequency: String = "daily",
+        reminderTime: String? = null
     ) {
         viewModelScope.launch {
             if (targets.isEmpty()) return@launch
@@ -165,10 +172,12 @@ class TeamChatViewModel @Inject constructor(
                     title = title,
                     description = description,
                     priority = priority,
-                    dueDate = dueDate.ifBlank { null },
-                    assigneeEmail = target.userId // backend handles lookup
+                    deadline = deadline,
+                    reminderFrequency = reminderFrequency,
+                    reminderTime = reminderTime,
+                    assignedTo = target.userId // backend handles lookup
                 )
-                val result = repository.assignTask(context, currentOrgId, req)
+                val result = repository.assignTask(context, currentTeamId, req)
 
                 if (result.isSuccess) {
                     successCount++
@@ -195,10 +204,10 @@ class TeamChatViewModel @Inject constructor(
         viewModelScope.launch {
             val isAdmin = _state.value.isAdmin
             if (isAdmin) {
-                val byMe = repository.getTasksAssignedByMe(context, currentOrgId)
+                val byMe = repository.getTasksAssignedByMe(context, currentTeamId)
                 _state.value = _state.value.copy(tasksAssignedByMe = byMe, showTasksPanel = true)
             } else {
-                val myTasks = repository.getMyAssignedTasks(context, currentOrgId)
+                val myTasks = repository.getMyAssignedTasks(context, currentTeamId)
                 _state.value = _state.value.copy(myAssignedTasks = myTasks, showTasksPanel = true)
             }
         }
@@ -206,6 +215,35 @@ class TeamChatViewModel @Inject constructor(
 
     fun dismissTaskPanel() {
         _state.value = _state.value.copy(showTasksPanel = false)
+    }
+
+    // ── Join Code ──────────────────────────────────────────────────────────────
+
+    fun showJoinCodeDialog() {
+        _state.value = _state.value.copy(showJoinCodeDialog = true)
+        currentContext?.let { getJoinCode(it) }
+    }
+
+    fun dismissJoinCodeDialog() {
+        _state.value = _state.value.copy(showJoinCodeDialog = false)
+    }
+
+    private fun getJoinCode(context: Context) {
+         if (currentTeamId.isEmpty()) return
+         viewModelScope.launch {
+             _state.value = _state.value.copy(isFetchingCode = true)
+             val code = repository.getJoinCode(context, currentTeamId)
+             _state.value = _state.value.copy(isFetchingCode = false, joinCode = code)
+         }
+    }
+
+    fun regenerateJoinCode(context: Context) {
+        if (currentTeamId.isEmpty()) return
+        viewModelScope.launch {
+             _state.value = _state.value.copy(isFetchingCode = true)
+             val code = repository.regenerateJoinCode(context, currentTeamId)
+             _state.value = _state.value.copy(isFetchingCode = false, joinCode = code)
+        }
     }
 
     override fun onCleared() {

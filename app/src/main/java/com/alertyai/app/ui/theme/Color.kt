@@ -20,9 +20,9 @@ val ClayDeep         = Color(0xFFE5E7EB)
 val ClayPrimary      = Color(0xFF000000)
 
 // Dark theme
-val DarkBackground   = Color(0xFF09090B)   // Zinc 950
-val DarkSurface      = Color(0xFF18181B)   // Zinc 900
-val DarkSurfaceVar   = Color(0xFF27272A)
+val DarkBackground   = Color(0xFF000000)   // OLED Pure Black
+val DarkSurface      = Color(0xFF0A0A0A)   // very dark gray
+val DarkSurfaceVar   = Color(0xFF18181B)
 val DarkText         = Color(0xFFE1E9E5)   // Requested off-white fix
 val DarkTextSub      = Color(0xFFA1A1AA)
 val DarkDivider      = Color(0xFF27272A)

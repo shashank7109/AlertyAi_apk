@@ -19,7 +19,6 @@ import com.alertyai.app.ui.chat.ChatScreen
 import com.alertyai.app.ui.settings.SettingsScreen
 import com.alertyai.app.ui.teams.TeamsScreen
 import com.alertyai.app.ui.teams.TeamChatScreen
-import com.alertyai.app.ui.teams.OrgMembersScreen
 
 sealed class Screen(val route: String, val label: String, val icon: ImageVector) {
     object Home      : Screen("home",      "Home",      Icons.Default.Home)
@@ -29,8 +28,8 @@ sealed class Screen(val route: String, val label: String, val icon: ImageVector)
     object Reminders : Screen("reminders", "Recalls",   Icons.Default.Notifications)
     object Settings  : Screen("settings",  "Settings",  Icons.Default.Settings)
     object Profile   : Screen("profile",   "Profile",   Icons.Default.Person)
-    object TeamChat  : Screen("team_chat/{orgId}/{teamName}", "Chat", Icons.Default.Chat)
-    object OrgMembers: Screen("org_members/{orgId}/{orgName}/{isAdmin}/{joinCode}", "Members", Icons.Default.People)
+    object TeamChat  : Screen("team_chat/{teamId}/{teamName}", "Chat", Icons.Default.Chat)
+    object TeamDashboard : Screen("team_dashboard/{teamId}/{teamName}", "Team", Icons.Default.Dashboard)
 }
 
 private val bottomItems = listOf(
@@ -55,9 +54,14 @@ fun AlertyNavGraph(isDark: Boolean, onToggleTheme: () -> Unit, onLogout: () -> U
                         selected    = selected,
                         onClick     = {
                             navController.navigate(screen.route) {
-                                popUpTo(navController.graph.findStartDestination().id) { saveState = true }
+                                // Pop back to start destination, but keep state
+                                popUpTo(navController.graph.findStartDestination().id) { 
+                                    saveState = true 
+                                }
+                                // Avoid multiple copies of the same destination
                                 launchSingleTop = true
-                                restoreState    = true
+                                // Restore state when reselecting a previously selected item
+                                restoreState = true
                             }
                         },
                         icon        = { 
@@ -108,7 +112,18 @@ fun AlertyNavGraph(isDark: Boolean, onToggleTheme: () -> Unit, onLogout: () -> U
         ) {
             composable(Screen.Home.route)      { 
                 HomeScreen(
-                    onNavigateToReminders = { navController.navigate(Screen.Reminders.route) },
+                    onNavigateToTasks = { 
+                        navController.navigate(Screen.Tasks.route) {
+                            popUpTo(Screen.Home.route) { inclusive = false }
+                            launchSingleTop = true
+                        }
+                    },
+                    onNavigateToReminders = { 
+                        navController.navigate(Screen.Reminders.route) {
+                            popUpTo(Screen.Home.route) { inclusive = false }
+                            launchSingleTop = true
+                        }
+                    },
                     onNavigateToProfile = { navController.navigate(Screen.Profile.route) }
                 ) 
             }
@@ -116,51 +131,44 @@ fun AlertyNavGraph(isDark: Boolean, onToggleTheme: () -> Unit, onLogout: () -> U
             composable(Screen.Reminders.route) { com.alertyai.app.ui.reminders.RemindersScreen() }
             composable(Screen.Teams.route)     {
                 TeamsScreen(
-                    onTeamClick = { orgId, teamId, teamName ->
+                    onTeamClick = { teamId, teamName ->
                         val encodedName = java.net.URLEncoder.encode(teamName, "UTF-8")
-                        navController.navigate("team_chat/$orgId/$encodedName")
-                    },
-                    onMembersClick = { orgId, orgName, isAdmin, joinCode ->
-                        val encodedName = java.net.URLEncoder.encode(orgName, "UTF-8")
-                        val encodedCode = java.net.URLEncoder.encode(joinCode, "UTF-8")
-                        navController.navigate("org_members/$orgId/$encodedName/$isAdmin/$encodedCode")
+                        navController.navigate("team_dashboard/$teamId/$encodedName")
+                    }
+                )
+            }
+            
+            composable(
+                route = Screen.TeamDashboard.route,
+                arguments = listOf(
+                    navArgument("teamId") { type = NavType.StringType },
+                    navArgument("teamName") { type = NavType.StringType }
+                )
+            ) { backStackEntry ->
+                val teamId = backStackEntry.arguments?.getString("teamId") ?: ""
+                val encodedName = backStackEntry.arguments?.getString("teamName") ?: ""
+                val teamName = java.net.URLDecoder.decode(encodedName, "UTF-8")
+                
+                com.alertyai.app.ui.teams.TeamDashboardScreen(
+                    teamId = teamId,
+                    teamName = teamName,
+                    onBack = { navController.popBackStack() },
+                    onNavigateToChat = {
+                        navController.navigate("team_chat/$teamId/$encodedName")
                     }
                 )
             }
             composable(
                 route = Screen.TeamChat.route,
                 arguments = listOf(
-                    navArgument("orgId") { type = NavType.StringType },
+                    navArgument("teamId") { type = NavType.StringType },
                     navArgument("teamName") { type = NavType.StringType }
                 )
             ) { backStackEntry ->
-                val orgId = backStackEntry.arguments?.getString("orgId") ?: ""
+                val teamId = backStackEntry.arguments?.getString("teamId") ?: ""
                 val encodedName = backStackEntry.arguments?.getString("teamName") ?: ""
                 val teamName = java.net.URLDecoder.decode(encodedName, "UTF-8")
-                TeamChatScreen(orgId = orgId, teamName = teamName, onBack = { navController.popBackStack() })
-            }
-            composable(
-                route = Screen.OrgMembers.route,
-                arguments = listOf(
-                    navArgument("orgId") { type = NavType.StringType },
-                    navArgument("orgName") { type = NavType.StringType },
-                    navArgument("isAdmin") { type = NavType.BoolType },
-                    navArgument("joinCode") { type = NavType.StringType; defaultValue = "" }
-                )
-            ) { backStackEntry ->
-                val orgId = backStackEntry.arguments?.getString("orgId") ?: ""
-                val encodedName = backStackEntry.arguments?.getString("orgName") ?: ""
-                val orgName = java.net.URLDecoder.decode(encodedName, "UTF-8")
-                val isAdmin = backStackEntry.arguments?.getBoolean("isAdmin") ?: false
-                val encodedCode = backStackEntry.arguments?.getString("joinCode") ?: ""
-                val joinCode = java.net.URLDecoder.decode(encodedCode, "UTF-8")
-                OrgMembersScreen(
-                    orgId = orgId,
-                    orgName = orgName,
-                    isAdmin = isAdmin,
-                    initialJoinCode = joinCode,
-                    onBack = { navController.popBackStack() }
-                )
+                TeamChatScreen(teamId = teamId, teamName = teamName, onBack = { navController.popBackStack() })
             }
             composable(Screen.Chat.route)      { ChatScreen() }
             composable(Screen.Settings.route)  { 

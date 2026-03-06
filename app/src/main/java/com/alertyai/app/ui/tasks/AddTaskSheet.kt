@@ -81,6 +81,7 @@ fun AddTaskSheet(
     var title by remember { mutableStateOf(existingTask?.title ?: "") }
     var note by remember { mutableStateOf(existingTask?.note ?: "") }
     var priority by remember { mutableStateOf(existingTask?.priority ?: Priority.NORMAL) }
+    var repeatInterval by remember { mutableStateOf(existingTask?.repeatInterval ?: com.alertyai.app.data.model.RepeatInterval.NONE) }
     var dueDate by remember { mutableStateOf<Long?>(existingTask?.dueDate) }
     var dueTime by remember { mutableStateOf<Long?>(existingTask?.dueTime) }
     var alarmEnabled by remember { mutableStateOf(existingTask?.alarmEnabled ?: false) }
@@ -105,14 +106,16 @@ fun AddTaskSheet(
     val cal = Calendar.getInstance()
 
     fun showDatePicker() {
-        android.app.DatePickerDialog(
+        val dialog = android.app.DatePickerDialog(
             context,
             { _, y, m, d ->
                 val c = Calendar.getInstance().apply { set(y, m, d, 0, 0, 0); set(Calendar.MILLISECOND, 0) }
                 dueDate = c.timeInMillis
             },
             cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH)
-        ).show()
+        )
+        dialog.datePicker.minDate = System.currentTimeMillis() - 1000
+        dialog.show()
     }
 
     fun showTimePicker() {
@@ -164,13 +167,15 @@ fun AddTaskSheet(
             priority = priority,
             dueDate = dueDate,
             dueTime = dueTime,
+            repeatInterval = repeatInterval,
             alarmEnabled = alarmEnabled && dueDate != null,
             remindMinsBefore = remindMinsBefore,
             location = location.trim(),
             subtasksJson = gson.toJson(subtasks),
             checklistJson = gson.toJson(checklist),
             isDone = existingTask?.isDone ?: false,
-            createdAt = existingTask?.createdAt ?: System.currentTimeMillis()
+            createdAt = existingTask?.createdAt ?: System.currentTimeMillis(),
+            backendId = existingTask?.backendId ?: ""
         )
         if (isEditMode) onUpdateTask(task) else onAddTask(task)
         onDismiss()
@@ -198,12 +203,12 @@ fun AddTaskSheet(
             ) {
                 Column {
                     Text(
-                        if (isEditMode) "TASK RECALIBRATION" else "NEW OBJECTIVE",
+                        if (isEditMode) "Edit Task" else "New Task",
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        if (isEditMode) "UPDATE PARAMETERS" else "INITIALIZE MISSION",
+                        if (isEditMode) "Update Task" else "Create Task",
                         style = MaterialTheme.typography.headlineSmall,
                         fontWeight = FontWeight.Medium
                     )
@@ -257,7 +262,7 @@ fun AddTaskSheet(
 
             if (!isLoggedIn && mode == "manual") {
                 Text(
-                    "🔐 LOG IN FOR NEURAL FEATURES", 
+                    "🔐 Log in for AI features", 
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(top = 4.dp)
@@ -271,7 +276,7 @@ fun AddTaskSheet(
                             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                                 TextField(
                                     value = title, onValueChange = { title = it },
-                                    placeholder = { Text("MISSION TITLE") },
+                                    placeholder = { Text("Task title") },
                                     modifier = Modifier.fillMaxWidth(),
                                     colors = TextFieldDefaults.colors(
                                         unfocusedContainerColor = Color.Transparent,
@@ -283,7 +288,7 @@ fun AddTaskSheet(
                                 )
                                 TextField(
                                     value = note, onValueChange = { note = it },
-                                    placeholder = { Text("ADDITIONAL INTEL") },
+                                    placeholder = { Text("Notes (optional)") },
                                     modifier = Modifier.fillMaxWidth(),
                                     colors = TextFieldDefaults.colors(
                                         unfocusedContainerColor = Color.Transparent,
@@ -326,6 +331,31 @@ fun AddTaskSheet(
                             }
                         }
 
+                        // Recurrence
+                        Column {
+                            Text("RECURRENCE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Spacer(Modifier.height(8.dp))
+                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                com.alertyai.app.data.model.RepeatInterval.values().forEach { r ->
+                                    val isActive = repeatInterval == r
+                                    ClayCard(
+                                        onClick = { repeatInterval = r },
+                                        containerColor = if (isActive) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
+                                        elevation = if (isActive) 0.dp else 4.dp,
+                                        shape = RoundedCornerShape(12.dp)
+                                    ) {
+                                        Text(
+                                            r.name, 
+                                            style = MaterialTheme.typography.labelSmall,
+                                            fontWeight = FontWeight.Medium,
+                                            color = if (isActive) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.primary,
+                                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
                         // Date & Time 
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             ClayCard(modifier = Modifier.weight(1f), onClick = { showDatePicker() }) {
@@ -346,6 +376,98 @@ fun AddTaskSheet(
                                         style = MaterialTheme.typography.labelSmall,
                                         fontWeight = FontWeight.Medium
                                     )
+                                }
+                            }
+                        }
+
+                        // Checklist
+                        Column {
+                            Text("SUBTASKS / CHECKLIST", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Spacer(Modifier.height(8.dp))
+                            ClayCard(modifier = Modifier.fillMaxWidth()) {
+                                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    checklist.forEachIndexed { index, item ->
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            Checkbox(
+                                                checked = item.done,
+                                                onCheckedChange = { checked ->
+                                                    val newList = checklist.toMutableList()
+                                                    newList[index] = item.copy(done = checked)
+                                                    checklist = newList
+                                                }
+                                            )
+                                            TextField(
+                                                value = item.text,
+                                                onValueChange = { text ->
+                                                    val newList = checklist.toMutableList()
+                                                    newList[index] = item.copy(text = text)
+                                                    checklist = newList
+                                                },
+                                                modifier = Modifier.weight(1f),
+                                                colors = TextFieldDefaults.colors(
+                                                    unfocusedContainerColor = Color.Transparent,
+                                                    focusedContainerColor = Color.Transparent,
+                                                    unfocusedIndicatorColor = Color.Transparent,
+                                                    focusedIndicatorColor = Color.Transparent
+                                                ),
+                                                textStyle = MaterialTheme.typography.bodyMedium.copy(
+                                                    textDecoration = if (item.done) androidx.compose.ui.text.style.TextDecoration.LineThrough else null
+                                                )
+                                            )
+                                            IconButton(
+                                                onClick = {
+                                                    val newList = checklist.toMutableList()
+                                                    newList.removeAt(index)
+                                                    checklist = newList
+                                                }
+                                            ) {
+                                                Icon(Icons.Default.Close, "Remove", tint = MaterialTheme.colorScheme.error)
+                                            }
+                                        }
+                                    }
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
+                                        Icon(Icons.Default.Add, "Add", tint = MaterialTheme.colorScheme.primary)
+                                        TextField(
+                                            value = newCheckItem,
+                                            onValueChange = { newCheckItem = it },
+                                            placeholder = { Text("Add new subtask...") },
+                                            modifier = Modifier.weight(1f),
+                                            colors = TextFieldDefaults.colors(
+                                                unfocusedContainerColor = Color.Transparent,
+                                                focusedContainerColor = Color.Transparent,
+                                                unfocusedIndicatorColor = Color.Transparent,
+                                                focusedIndicatorColor = Color.Transparent
+                                            ),
+                                            keyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences),
+                                            keyboardActions = androidx.compose.foundation.text.KeyboardActions(
+                                                onDone = {
+                                                    if (newCheckItem.isNotBlank()) {
+                                                        checklist = checklist + CheckItem(text = newCheckItem.trim())
+                                                        newCheckItem = ""
+                                                    }
+                                                }
+                                            ),
+                                            singleLine = true
+                                        )
+                                        if (newCheckItem.isNotBlank()) {
+                                            IconButton(
+                                                onClick = {
+                                                    checklist = checklist + CheckItem(text = newCheckItem.trim())
+                                                    newCheckItem = ""
+                                                }
+                                            ) {
+                                                Icon(Icons.Default.Check, "Add Item", tint = MaterialTheme.colorScheme.primary)
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -379,7 +501,7 @@ fun AddTaskSheet(
                             Icon(if (isEditMode) Icons.Default.Sync else Icons.Default.Check, null, tint = Color.White)
                             Spacer(Modifier.width(10.dp))
                             Text(
-                                if (isEditMode) "UPDATE MISSION" else "COMMENCE MISSION",
+                                if (isEditMode) "Update Task" else "Create Task",
                                 fontWeight = FontWeight.Medium,
                                 style = MaterialTheme.typography.labelSmall
                             )
@@ -392,7 +514,7 @@ fun AddTaskSheet(
                         ClayCard(modifier = Modifier.fillMaxWidth()) {
                             TextField(
                                 value = aiText, onValueChange = { aiText = it },
-                                placeholder = { Text("DESCRIBE OBJECTIVE IN NEURAL TEXT...") },
+                                placeholder = { Text("Describe what you need to do...") },
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = TextFieldDefaults.colors(
                                     unfocusedContainerColor = Color.Transparent,
@@ -440,7 +562,7 @@ fun AddTaskSheet(
 
                 "voice" -> {
                     Column(verticalArrangement = Arrangement.spacedBy(20.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("RECORD VOCAL COMMAND", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text("Record voice note", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         
                         Box(contentAlignment = Alignment.Center) {
                             Surface(
@@ -482,11 +604,11 @@ fun AddTaskSheet(
                         if (isRecording) {
                             Text("TRANSMITTING: ${recordingSeconds}S", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.error)
                         } else {
-                            Text("READY FOR SIGNAL", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text("Ready to record", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
 
                         if (tooShortWarning) {
-                            Text("SIGNAL TOO WEAK (MIN 2S)", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
+                            Text("Recording too short (min 2 seconds)", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
                         }
                     }
                 }

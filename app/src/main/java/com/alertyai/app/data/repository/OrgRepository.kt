@@ -108,21 +108,106 @@ class OrgRepository @Inject constructor() {
         }
     }
 
-    suspend fun createTeam(context: Context, orgId: String, name: String, description: String = ""): Boolean = withContext(Dispatchers.IO) {
+    suspend fun createTeam(
+        context: Context, 
+        name: String, 
+        description: String = "", 
+        purpose: String = "other",
+        memberEmails: List<String> = emptyList(),
+        memberPhones: List<String> = emptyList()
+    ): Boolean = withContext(Dispatchers.IO) {
         val token = TokenManager.getToken(context) ?: return@withContext false
         try {
-            val body = mapOf("name" to name, "description" to description)
-            val response = api.createTeam("Bearer $token", orgId, body)
+            val body = mapOf(
+                "name" to name, 
+                "description" to description,
+                "purpose" to purpose,
+                "member_emails" to memberEmails,
+                "member_phones" to memberPhones
+            )
+            val response = api.createTeam("Bearer $token", body)
             response.isSuccessful
         } catch (e: Exception) {
             false
         }
     }
 
-    suspend fun getChatHistory(context: Context, orgId: String): List<TeamChatMessage> = withContext(Dispatchers.IO) {
+    suspend fun getTeams(context: Context): List<TeamDetailedResponse> = withContext(Dispatchers.IO) {
         val token = TokenManager.getToken(context) ?: return@withContext emptyList()
         try {
-            val response = api.getTeamChatHistory("Bearer $token", orgId, token)
+            val response = api.getTeams("Bearer $token")
+            if (response.isSuccessful) response.body() ?: emptyList()
+            else emptyList()
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun getTeam(context: Context, teamId: String): TeamDetailedResponse? = withContext(Dispatchers.IO) {
+        val token = TokenManager.getToken(context) ?: return@withContext null
+        try {
+            val response = api.getTeam("Bearer $token", teamId)
+            if (response.isSuccessful) response.body()
+            else null
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    suspend fun joinTeamByCode(context: Context, code: String): Result<Team> = withContext(Dispatchers.IO) {
+        val token = TokenManager.getToken(context) ?: return@withContext Result.failure(Exception("No token found"))
+        try {
+            val response = api.joinTeamByCode("Bearer $token", code)
+            if (response.isSuccessful) {
+                val teamResponse = response.body()
+                if (teamResponse != null) {
+                    Result.success(teamResponse.toTeam())
+                } else {
+                    Result.failure(Exception("Empty response body"))
+                }
+            } else {
+                Result.failure(Exception(response.message()))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun getPendingInvitations(context: Context): List<PendingInvitation> = withContext(Dispatchers.IO) {
+        val token = TokenManager.getToken(context) ?: return@withContext emptyList()
+        try {
+            val response = api.getPendingInvitations("Bearer $token")
+            if (response.isSuccessful) response.body() ?: emptyList()
+            else emptyList()
+        } catch (e: Exception) {
+            emptyList()
+        }
+    }
+
+    suspend fun acceptInvitation(context: Context, invitationId: String): Boolean = withContext(Dispatchers.IO) {
+        val token = TokenManager.getToken(context) ?: return@withContext false
+        try {
+            val response = api.acceptInvitation("Bearer $token", invitationId)
+            response.isSuccessful
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    suspend fun declineInvitation(context: Context, invitationId: String): Boolean = withContext(Dispatchers.IO) {
+        val token = TokenManager.getToken(context) ?: return@withContext false
+        try {
+            val response = api.declineInvitation("Bearer $token", invitationId)
+            response.isSuccessful
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    suspend fun getChatHistory(context: Context, teamId: String): List<TeamChatMessage> = withContext(Dispatchers.IO) {
+        val token = TokenManager.getToken(context) ?: return@withContext emptyList()
+        try {
+            val response = api.getTeamChatHistory("Bearer $token", teamId, token)
             if (response.isSuccessful) response.body()?.messages ?: emptyList()
             else emptyList()
         } catch (e: Exception) {
@@ -130,10 +215,10 @@ class OrgRepository @Inject constructor() {
         }
     }
 
-    suspend fun getMentionSuggestions(context: Context, orgId: String): List<com.alertyai.app.network.MentionMember> = withContext(Dispatchers.IO) {
+    suspend fun getMentionSuggestions(context: Context, teamId: String): List<com.alertyai.app.network.MentionMember> = withContext(Dispatchers.IO) {
         val token = TokenManager.getToken(context) ?: return@withContext emptyList()
         try {
-            val response = api.getMentionSuggestions("Bearer $token", orgId)
+            val response = api.getMentionSuggestions("Bearer $token", teamId)
             if (response.isSuccessful) response.body()?.members ?: emptyList()
             else emptyList()
         } catch (e: Exception) {
@@ -141,10 +226,10 @@ class OrgRepository @Inject constructor() {
         }
     }
 
-    suspend fun assignTask(context: Context, orgId: String, req: com.alertyai.app.network.AssignTaskRequest): Result<String> = withContext(Dispatchers.IO) {
+    suspend fun assignTask(context: Context, teamId: String, req: com.alertyai.app.network.AssignTaskRequest): Result<String> = withContext(Dispatchers.IO) {
         val token = TokenManager.getToken(context) ?: return@withContext Result.failure(Exception("Not logged in"))
         try {
-            val response = api.assignTask("Bearer $token", orgId, req)
+            val response = api.assignTask("Bearer $token", teamId, req)
             if (response.isSuccessful) {
                 Result.success(response.body()?.message ?: "Task assigned successfully")
             } else {
@@ -155,23 +240,27 @@ class OrgRepository @Inject constructor() {
         }
     }
 
-    suspend fun getMyAssignedTasks(context: Context, orgId: String): List<com.alertyai.app.network.TeamTask> = withContext(Dispatchers.IO) {
+    suspend fun getMyAssignedTasks(context: Context, teamId: String): List<com.alertyai.app.network.TeamTask> = withContext(Dispatchers.IO) {
         val token = TokenManager.getToken(context) ?: return@withContext emptyList()
         try {
-            val response = api.getMyAssignedTasks("Bearer $token", orgId)
-            if (response.isSuccessful) response.body()?.tasks ?: emptyList()
-            else emptyList()
+            val response = api.getMyAssignedTasks("Bearer $token")
+            if (response.isSuccessful) {
+                val tasks = response.body() ?: emptyList()
+                tasks.filter { it.teamId == teamId }
+            } else emptyList()
         } catch (e: Exception) {
             emptyList()
         }
     }
 
-    suspend fun getTasksAssignedByMe(context: Context, orgId: String): List<com.alertyai.app.network.TeamTask> = withContext(Dispatchers.IO) {
+    suspend fun getTasksAssignedByMe(context: Context, teamId: String): List<com.alertyai.app.network.TeamTask> = withContext(Dispatchers.IO) {
         val token = TokenManager.getToken(context) ?: return@withContext emptyList()
         try {
-            val response = api.getTasksAssignedByMe("Bearer $token", orgId)
-            if (response.isSuccessful) response.body()?.tasks ?: emptyList()
-            else emptyList()
+            val response = api.getTasksAssignedByMe("Bearer $token")
+            if (response.isSuccessful) {
+                val tasks = response.body() ?: emptyList()
+                tasks.filter { it.teamId == teamId }
+            } else emptyList()
         } catch (e: Exception) {
             emptyList()
         }

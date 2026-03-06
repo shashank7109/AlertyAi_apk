@@ -74,4 +74,18 @@ object TokenManager {
     fun getValidToken(context: Context): String? {
         return if (isTokenExpired(context)) null else getToken(context)
     }
+
+    /** Extract user_id or sub from the JWT payload. */
+    fun getUserId(context: Context): String? {
+        val token = getToken(context) ?: return null
+        return try {
+            val parts = token.split(".")
+            if (parts.size != 3) return null
+            val payload = String(Base64.decode(parts[1], Base64.URL_SAFE or Base64.NO_PADDING), Charsets.UTF_8)
+            val json = org.json.JSONObject(payload)
+            json.optString("user_id").takeIf { it.isNotBlank() } ?: json.optString("sub").takeIf { it.isNotBlank() }
+        } catch (e: Exception) {
+            null
+        }
+    }
 }

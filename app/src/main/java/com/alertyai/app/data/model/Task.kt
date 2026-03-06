@@ -22,6 +22,9 @@ data class Task(
     val alarmEnabled: Boolean = false,
     val remindMinsBefore: Int = 10,    // 0 = at time, 10 = 10 min before, 30, 60, etc.
 
+    // Recurrence
+    val repeatInterval: RepeatInterval = RepeatInterval.NONE,
+
     // Location
     val location: String = "",
 
@@ -31,7 +34,11 @@ data class Task(
     // Checklist stored as JSON string
     val checklistJson: String = "[]",  // List<CheckItem> serialized
 
-    val createdAt: Long = System.currentTimeMillis()
+    val createdAt: Long = System.currentTimeMillis(),
+
+    // MongoDB _id — set for tasks synced from / created on the backend.
+    // Empty string means local-only task (never synced to backend).
+    val backendId: String = ""
 )
 
 data class CheckItem(val text: String, val done: Boolean = false)

@@ -15,6 +15,10 @@ import com.alertyai.app.ui.auth.LoginScreen
 import com.alertyai.app.ui.theme.AlertyAITheme
 import com.alertyai.app.network.TokenManager
 import dagger.hilt.android.AndroidEntryPoint
+import com.alertyai.app.data.local.AppDatabase
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -45,7 +49,12 @@ class MainActivity : ComponentActivity() {
                     AlertyNavGraph(
                         isDark = isDark,
                         onToggleTheme = { isDark = !isDark },
-                        onLogout = { /* TokenManager.isLoggedInState already handles the switch */ }
+                        onLogout = {
+                            kotlinx.coroutines.GlobalScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+                                TokenManager.clearToken(this@MainActivity)
+                                AppDatabase.getInstance(this@MainActivity).clearAllTables()
+                            }
+                        }
                     )
                 } else {
                     LoginScreen(onLoginSuccess = { TokenManager.isLoggedIn(this) })

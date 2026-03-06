@@ -1,6 +1,7 @@
 package com.alertyai.app.ui.settings
 
 import android.content.Intent
+import android.content.Context
 import android.provider.Settings
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -82,13 +83,13 @@ fun SettingsScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     Text("ALERTY AI", style = MaterialTheme.typography.headlineSmall, color = MaterialTheme.colorScheme.onPrimary, fontWeight = FontWeight.Medium)
-                    Text("SYSTEM PROTOCOL V2.0.0", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f), fontWeight = FontWeight.Medium)
+                    Text("Version 2.0.0", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.7f), fontWeight = FontWeight.Medium)
                 }
             }
 
             Text("USER INTERFACE", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
 
-            SettingsRow(icon = if (isDark) Icons.Default.DarkMode else Icons.Default.LightMode, label = "DARK MODE PROTOCOL") {
+            SettingsRow(icon = if (isDark) Icons.Default.DarkMode else Icons.Default.LightMode, label = "Dark Mode") {
                 Switch(
                     checked = isDark, 
                     onCheckedChange = { onToggleTheme() },
@@ -101,7 +102,7 @@ fun SettingsScreen(
 
             Text("COMMUNICATION HUB", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
 
-            SettingsRow(icon = Icons.Default.Notifications, label = "SIGNAL NOTIFICATIONS") {
+            SettingsRow(icon = Icons.Default.Notifications, label = "Notifications") {
                 Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     if (!notificationsEnabled) {
                         Text("DISABLED", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error, fontWeight = FontWeight.Medium)
@@ -130,13 +131,30 @@ fun SettingsScreen(
                 )
             }
 
+            var loudAlarmEnabled by remember {
+                mutableStateOf(context.getSharedPreferences("alertyai_prefs", Context.MODE_PRIVATE).getBoolean("loud_alarm", false))
+            }
+            SettingsRow(icon = Icons.Default.VolumeUp, label = "LOUD ALARM SOUND") {
+                Switch(
+                    checked = loudAlarmEnabled,
+                    onCheckedChange = { chk ->
+                        loudAlarmEnabled = chk
+                        context.getSharedPreferences("alertyai_prefs", Context.MODE_PRIVATE).edit().putBoolean("loud_alarm", chk).apply()
+                    },
+                    colors = SwitchDefaults.colors(
+                        checkedThumbColor = Color.White,
+                        checkedTrackColor = MaterialTheme.colorScheme.primary
+                    )
+                )
+            }
+
             Text("DATA ARCHIVE & ML", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Medium)
 
             Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                 SettingsRow(icon = Icons.Default.Storage, label = "LOCAL SECURE STORAGE") {
                     Icon(Icons.Default.Lock, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                 }
-                SettingsRow(icon = Icons.Default.RecordVoiceOver, label = "NEURAL SPEECH ENGINE") {
+                SettingsRow(icon = Icons.Default.RecordVoiceOver, label = "Voice Recognition") {
                     Icon(Icons.Default.PhoneAndroid, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
                 }
             }
@@ -192,8 +210,8 @@ fun SettingsScreen(
     if (showLogoutDialog) {
         AlertDialog(
             onDismissRequest = { showLogoutDialog = false },
-            title = { Text("CONFIRM DEPLOYMENT TERMINATION", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium) },
-            text = { Text("Are you sure you want to terminate your session? Neutralization of AI capabilities will occur until re-authentication.") },
+            title = { Text("Confirm Logout", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium) },
+            text = { Text("Are you sure you want to log out? You'll need to sign in again to use AI features.") },
             confirmButton = {
                 ClayButton(
                     onClick = {
