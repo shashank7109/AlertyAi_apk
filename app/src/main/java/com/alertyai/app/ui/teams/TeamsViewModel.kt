@@ -30,10 +30,27 @@ class TeamsViewModel @Inject constructor(
 
     fun loadData(context: Context) {
         viewModelScope.launch {
-            _state.value = _state.value.copy(isLoading = true, error = null)
-            val teamsList = repository.getTeams(context)
-            val invsList = repository.getPendingInvitations(context)
-            _state.value = _state.value.copy(teams = teamsList, invitations = invsList, isLoading = false)
+            try {
+                _state.value = _state.value.copy(isLoading = true, error = null)
+                android.util.Log.d("TeamsViewModel", "Loading teams...")
+                val teamsList = repository.getTeams(context)
+                android.util.Log.d("TeamsViewModel", "Fetched ${teamsList.size} teams")
+                
+                val invsList = repository.getPendingInvitations(context)
+                android.util.Log.d("TeamsViewModel", "Fetched ${invsList.size} invitations")
+                
+                _state.value = _state.value.copy(
+                    teams = teamsList, 
+                    invitations = invsList, 
+                    isLoading = false
+                )
+            } catch (e: Exception) {
+                android.util.Log.e("TeamsViewModel", "Error loading data", e)
+                _state.value = _state.value.copy(
+                    isLoading = false, 
+                    error = "Failed to load teams: ${e.message}"
+                )
+            }
         }
     }
 
