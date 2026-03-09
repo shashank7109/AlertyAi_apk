@@ -30,6 +30,7 @@ import com.alertyai.app.data.model.Task
 import com.alertyai.app.network.TokenManager
 import com.alertyai.app.ui.components.ClayCard
 import com.alertyai.app.ui.components.ClayButton
+import com.alertyai.app.ui.tasks.components.DailyTimelineView
 import com.alertyai.app.ui.tasks.components.TaskFilters
 import com.alertyai.app.ui.tasks.components.TaskItem
 import com.google.gson.Gson
@@ -234,8 +235,15 @@ fun TasksScreen() {
                 onPastTasksFilterChange = { pastTasksFilter = it }
             )
 
-            // Task List 
-            if (filteredTasks.isEmpty()) {
+            // Task List — show timeline view for TODAY, flat list for everything else
+            if (currentFilter == "TODAY" && filteredTasks.isNotEmpty()) {
+                DailyTimelineView(
+                    tasks = filteredTasks,
+                    onToggle = { task -> vm.toggleDone(context, task) },
+                    onEdit = { task -> editingTask = task },
+                    modifier = Modifier.fillMaxSize()
+                )
+            } else if (filteredTasks.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         Surface(

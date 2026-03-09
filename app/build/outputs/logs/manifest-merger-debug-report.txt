@@ -188,7 +188,6 @@ ADDED from D:\Smaran\alertyai_android\app\src\main\AndroidManifest.xml:13:5-107
 application
 ADDED from D:\Smaran\alertyai_android\app\src\main\AndroidManifest.xml:15:5-52:19
 INJECTED from D:\Smaran\alertyai_android\app\src\main\AndroidManifest.xml:15:5-52:19
-INJECTED from D:\Smaran\alertyai_android\app\src\main\AndroidManifest.xml:15:5-52:19
 MERGED from [com.google.android.gms:play-services-mlkit-text-recognition-common:19.1.0] C:\Users\binda\.gradle\caches\9.0.0\transforms\e08b36386765c59e7e5b4000221eef1e\transformed\play-services-mlkit-text-recognition-common-19.1.0\AndroidManifest.xml:8:5-16:19
 MERGED from [com.google.android.gms:play-services-mlkit-text-recognition-common:19.1.0] C:\Users\binda\.gradle\caches\9.0.0\transforms\e08b36386765c59e7e5b4000221eef1e\transformed\play-services-mlkit-text-recognition-common-19.1.0\AndroidManifest.xml:8:5-16:19
 MERGED from [com.google.mlkit:vision-common:17.3.0] C:\Users\binda\.gradle\caches\9.0.0\transforms\acf47f81864dcd8df7cdbe663cac3308\transformed\vision-common-17.3.0\AndroidManifest.xml:8:5-16:19
@@ -239,8 +238,6 @@ MERGED from [com.google.android.odml:image:1.0.0-beta1] C:\Users\binda\.gradle\c
 		ADDED from D:\Smaran\alertyai_android\app\src\main\AndroidManifest.xml:21:9-35
 	android:label
 		ADDED from D:\Smaran\alertyai_android\app\src\main\AndroidManifest.xml:19:9-41
-	android:testOnly
-		INJECTED from D:\Smaran\alertyai_android\app\src\main\AndroidManifest.xml
 	android:roundIcon
 		ADDED from D:\Smaran\alertyai_android\app\src\main\AndroidManifest.xml:20:9-54
 	android:icon

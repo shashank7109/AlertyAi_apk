@@ -53,8 +53,22 @@ data class BackendTask(
     val subtasks: List<String>? = null,
     val source: String = "manual",
     @SerializedName("is_team_task") val isTeamTask: Boolean = false,
-    @SerializedName("team_name")    val teamName: String? = null
-)
+    @SerializedName("team_name")    val teamName: String? = null,
+    // Recurring task fields
+    @SerializedName("recurrence_type") val recurrenceType: String = "none",
+    @SerializedName("completed_dates") val completedDates: List<String>? = null,
+    @SerializedName("last_completed_at") val lastCompletedAt: String? = null
+) {
+    /** Returns true if this recurring task was already completed today */
+    fun isCompletedToday(): Boolean {
+        if (recurrenceType == "none" || recurrenceType.isNullOrEmpty()) return false
+        val today = java.time.LocalDate.now().toString() // YYYY-MM-DD
+        return completedDates?.contains(today) == true
+    }
+
+    val isRecurring: Boolean get() = recurrenceType != "none" && !recurrenceType.isNullOrEmpty()
+}
+
 
 // ── Backend Task Update ────────────────────────────────────────────────────────
 data class BackendTaskUpdate(

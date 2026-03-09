@@ -56,11 +56,10 @@ class WebSocketManager(private val gson: Gson = Gson()) {
         val teamId = currentTeamId!!
         val token = currentToken!!
 
-        // Fix: base URL is https://x.com/ → ws URL should be wss://x.com/api/chat/ws/chat/{teamId}
         val base = RetrofitClient.BASE_URL.trimEnd('/')
         val wsBase = base.replace("https://", "wss://").replace("http://", "ws://")
         val wsUrl = "$wsBase/api/chat/ws/chat/$teamId?token=$token"
-
+        
         Log.d(TAG, "Connecting to: $wsUrl")
 
         val request = Request.Builder().url(wsUrl).build()

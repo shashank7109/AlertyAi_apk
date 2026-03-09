@@ -133,15 +133,27 @@ class OrgRepository @Inject constructor() {
     }
 
     suspend fun getTeams(context: Context): List<TeamDetailedResponse> = withContext(Dispatchers.IO) {
-        val token = TokenManager.getToken(context) ?: return@withContext emptyList()
+        val token = TokenManager.getToken(context) ?: run {
+            android.util.Log.e("OrgRepository", "getTeams: No auth token found!")
+            return@withContext emptyList()
+        }
         try {
             val response = api.getTeams("Bearer $token")
-            if (response.isSuccessful) response.body() ?: emptyList()
-            else emptyList()
+            if (response.isSuccessful) {
+                val teams = response.body() ?: emptyList()
+                android.util.Log.d("OrgRepository", "getTeams: Fetched ${teams.size} teams successfully")
+                teams
+            } else {
+                val errBody = response.errorBody()?.string() ?: "no body"
+                android.util.Log.e("OrgRepository", "getTeams: HTTP ${response.code()} - $errBody")
+                emptyList()
+            }
         } catch (e: Exception) {
+            android.util.Log.e("OrgRepository", "getTeams: Exception - ${e.javaClass.simpleName}: ${e.message}", e)
             emptyList()
         }
     }
+
 
     suspend fun getTeam(context: Context, teamId: String): TeamDetailedResponse? = withContext(Dispatchers.IO) {
         val token = TokenManager.getToken(context) ?: return@withContext null

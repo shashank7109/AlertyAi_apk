@@ -73,10 +73,18 @@ data class TeamDetailedResponse(
     @SerializedName("co_leaders") val coLeaders: List<String> = emptyList(),
     val members: List<OrgMember> = emptyList(),
     val tasks: List<TeamTask> = emptyList(),
+    @SerializedName("join_code") val joinCode: String = "",
     @SerializedName("invite_link") val inviteLink: String? = null,
     @SerializedName("invite_token") val inviteToken: String? = null,
+    @SerializedName("my_role") val myRole: String = "member",
+    @SerializedName("is_active") val isActive: Boolean = true,
     @SerializedName("created_at") val createdAt: String = ""
 ) {
+    // isAdmin: true if current user is leader or co-leader
+    // The backend sets my_role = "leader" for the creator.
+    // As fallback also check leaderId (populated from token in UI layer).
+    val isAdmin: Boolean get() = myRole == "leader" || myRole == "co_leader" || myRole == "admin"
+
     fun toTeam(): Team = Team(
         id = id,
         teamId = teamId,
@@ -86,6 +94,7 @@ data class TeamDetailedResponse(
         createdAt = createdAt
     )
 }
+
 
 data class PendingInvitation(
     @SerializedName("_id") val id: String = "",

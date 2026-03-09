@@ -74,9 +74,9 @@ class TeamChatViewModel @Inject constructor(
             val members = repository.getMentionSuggestions(context, teamId)
             _state.value = _state.value.copy(mentionMembers = members)
 
-            // 3. Detect admin role via team list
-            val orgs = repository.getMyOrganizations(context) // TODO: Rename getMyOrganizations to Teams later if needed
-            val isAdmin = orgs.find { it.id == teamId }?.isAdmin ?: false
+            // 3. Detect admin role via team itself
+            val team = repository.getTeam(context, teamId)
+            val isAdmin = team?.isAdmin ?: false
             _state.value = _state.value.copy(isAdmin = isAdmin)
 
             // 4. Connect WebSocket
