@@ -74,7 +74,7 @@
         <service
             android:name=".widget.QuickSettingsVoiceTileService"
             android:label="@string/qs_tile_label"
-            android:icon="@drawable/ic_launcher_foreground"
+            android:icon="@drawable/ic_qs_mic"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE"
             android:exported="true">
             <intent-filter>

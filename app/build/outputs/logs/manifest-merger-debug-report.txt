@@ -333,7 +333,7 @@ ADDED from D:\Smaran\alertyai_android\app\src\main\AndroidManifest.xml:74:9-85:1
 	android:permission
 		ADDED from D:\Smaran\alertyai_android\app\src\main\AndroidManifest.xml:78:13-77
 	android:icon
-		ADDED from D:\Smaran\alertyai_android\app\src\main\AndroidManifest.xml:77:13-60
+		ADDED from D:\Smaran\alertyai_android\app\src\main\AndroidManifest.xml:77:13-47
 	android:name
 		ADDED from D:\Smaran\alertyai_android\app\src\main\AndroidManifest.xml:75:13-65
 intent-filter#action:name:android.service.quicksettings.action.QS_TILE

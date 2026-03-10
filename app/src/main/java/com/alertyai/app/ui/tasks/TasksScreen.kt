@@ -50,6 +50,13 @@ fun TasksScreen(autoStartVoice: Boolean = false) {
     val isLoggedIn = remember { TokenManager.isLoggedIn(context) }
 
     var showAddSheet by remember { mutableStateOf(autoStartVoice) }
+    
+    // React to new intents when screen is already composed
+    LaunchedEffect(autoStartVoice) {
+        if (autoStartVoice) {
+            showAddSheet = true
+        }
+    }
     var editingTask by remember { mutableStateOf<Task?>(null) }
     var filter by remember { mutableStateOf("all") }
 

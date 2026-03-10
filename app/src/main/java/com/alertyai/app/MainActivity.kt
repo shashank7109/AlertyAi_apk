@@ -18,6 +18,8 @@ import com.alertyai.app.network.TokenManager
 import com.alertyai.app.widget.TaskWidgetReceiver
 import dagger.hilt.android.AndroidEntryPoint
 import com.alertyai.app.data.local.AppDatabase
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -26,7 +28,7 @@ import kotlinx.coroutines.GlobalScope
 class MainActivity : ComponentActivity() {
 
     // Tracks whether we should deep-link to the Add Task screen on launch
-    private var widgetAction: String? = null
+    private val _widgetAction = MutableStateFlow<String?>(null)
 
     private val requestPermissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -55,22 +57,23 @@ class MainActivity : ComponentActivity() {
         checkNotificationPermission()
 
         // Handle widget deep-link intent
-        widgetAction = intent?.action
+        _widgetAction.value = intent?.action
         handleWidgetIntent(intent)
 
         setContent {
             var isDark by remember { mutableStateOf(false) }
             val isLoggedIn by TokenManager.isLoggedInState.collectAsState(initial = TokenManager.isLoggedIn(this))
+            val currentWidgetAction by _widgetAction.collectAsState()
 
-            var deepLinkToAddTask by remember { 
+            var deepLinkToAddTask by remember(currentWidgetAction) { 
                 mutableStateOf(
-                    widgetAction == TaskWidgetReceiver.ACTION_ADD_TASK || 
-                    widgetAction == com.alertyai.app.widget.QuickSettingsVoiceTileService.ACTION_QUICK_SETTINGS_VOICE
+                    currentWidgetAction == TaskWidgetReceiver.ACTION_ADD_TASK || 
+                    currentWidgetAction == com.alertyai.app.widget.QuickSettingsVoiceTileService.ACTION_QUICK_SETTINGS_VOICE
                 ) 
             }
             
-            var autoStartVoice by remember {
-                mutableStateOf(widgetAction == com.alertyai.app.widget.QuickSettingsVoiceTileService.ACTION_QUICK_SETTINGS_VOICE)
+            var autoStartVoice by remember(currentWidgetAction) {
+                mutableStateOf(currentWidgetAction == com.alertyai.app.widget.QuickSettingsVoiceTileService.ACTION_QUICK_SETTINGS_VOICE)
             }
 
             AlertyAITheme(darkTheme = isDark) {
@@ -83,6 +86,7 @@ class MainActivity : ComponentActivity() {
                         onAddTaskConsumed = { 
                             deepLinkToAddTask = false
                             autoStartVoice = false 
+                            _widgetAction.value = null
                         },
                         onLogout = {
                             GlobalScope.launch(Dispatchers.IO) {
