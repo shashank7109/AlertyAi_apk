@@ -14,7 +14,10 @@ import javax.inject.Inject
 data class TeamDashboardState(
     val teamDetails: TeamDetailedResponse? = null,
     val isLoading: Boolean = false,
-    val error: String? = null
+    val error: String? = null,
+    val actionLoading: Boolean = false,
+    val actionSuccess: String? = null,
+    val actionError: String? = null
 )
 
 @HiltViewModel
@@ -38,5 +41,47 @@ class TeamDashboardViewModel @Inject constructor(
                 )
             }
         }
+    }
+    fun deleteTeam(context: Context, teamId: String, onSuccess: () -> Unit) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(actionLoading = true, actionError = null)
+            val result = repository.deleteTeam(context, teamId)
+            if (result.isSuccess) {
+                _state.value = _state.value.copy(actionLoading = false, actionSuccess = "Team deleted successfully")
+                onSuccess()
+            } else {
+                _state.value = _state.value.copy(actionLoading = false, actionError = result.exceptionOrNull()?.message ?: "Failed to delete team")
+            }
+        }
+    }
+
+    fun updateMemberRole(context: Context, teamId: String, userId: String, newRole: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(actionLoading = true, actionError = null)
+            val result = repository.updateMemberRole(context, teamId, userId, newRole)
+            if (result.isSuccess) {
+                _state.value = _state.value.copy(actionLoading = false, actionSuccess = "Role updated successfully")
+                loadTeamDetails(context, teamId) // Reload to reflect changes
+            } else {
+                _state.value = _state.value.copy(actionLoading = false, actionError = result.exceptionOrNull()?.message ?: "Failed to update role")
+            }
+        }
+    }
+
+    fun removeMember(context: Context, teamId: String, userId: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(actionLoading = true, actionError = null)
+            val result = repository.removeTeamMember(context, teamId, userId)
+            if (result.isSuccess) {
+                _state.value = _state.value.copy(actionLoading = false, actionSuccess = "Member removed successfully")
+                loadTeamDetails(context, teamId) // Reload to reflect changes
+            } else {
+                _state.value = _state.value.copy(actionLoading = false, actionError = result.exceptionOrNull()?.message ?: "Failed to remove member")
+            }
+        }
+    }
+
+    fun dismissActionMessage() {
+        _state.value = _state.value.copy(actionSuccess = null, actionError = null)
     }
 }

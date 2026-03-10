@@ -132,7 +132,16 @@ fun TeamChatScreen(
             TopAppBar(
                 title = {
                     Column {
-                        Text("SYNC CHANNEL", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("SYNC CHANNEL", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Spacer(Modifier.width(8.dp))
+                            val color = when(state.connectionState) {
+                                "CONNECTED" -> Color(0xFF10B981)
+                                "DISCONNECTED" -> MaterialTheme.colorScheme.error
+                                else -> Color(0xFFF59E0B)
+                            }
+                            Text("● ${state.connectionState}", style = MaterialTheme.typography.labelSmall, color = color, fontWeight = FontWeight.Bold)
+                        }
                         Text(teamName.uppercase(), style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Medium)
                     }
                 },

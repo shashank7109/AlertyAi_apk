@@ -115,8 +115,8 @@ class OrgRepository @Inject constructor() {
         purpose: String = "other",
         memberEmails: List<String> = emptyList(),
         memberPhones: List<String> = emptyList()
-    ): Boolean = withContext(Dispatchers.IO) {
-        val token = TokenManager.getToken(context) ?: return@withContext false
+    ): Result<String> = withContext(Dispatchers.IO) {
+        val token = TokenManager.getToken(context) ?: return@withContext Result.failure(Exception("Not logged in"))
         try {
             val body = mapOf(
                 "name" to name, 
@@ -126,9 +126,14 @@ class OrgRepository @Inject constructor() {
                 "member_phones" to memberPhones
             )
             val response = api.createTeam("Bearer $token", body)
-            response.isSuccessful
+            if (response.isSuccessful) {
+                Result.success("Success")
+            } else {
+                val errBody = response.errorBody()?.string()
+                Result.failure(Exception(errBody ?: "HTTP ${response.code()} error"))
+            }
         } catch (e: Exception) {
-            false
+            Result.failure(e)
         }
     }
 
@@ -178,7 +183,8 @@ class OrgRepository @Inject constructor() {
                     Result.failure(Exception("Empty response body"))
                 }
             } else {
-                Result.failure(Exception(response.message()))
+                val errBody = response.errorBody()?.string()
+                Result.failure(Exception(errBody ?: response.message()))
             }
         } catch (e: Exception) {
             Result.failure(e)
@@ -275,6 +281,49 @@ class OrgRepository @Inject constructor() {
             } else emptyList()
         } catch (e: Exception) {
             emptyList()
+        }
+    }
+
+    suspend fun deleteTeam(context: Context, teamId: String): Result<Unit> = withContext(Dispatchers.IO) {
+        val token = TokenManager.getToken(context) ?: return@withContext Result.failure(Exception("Not logged in"))
+        try {
+            val response = api.deleteTeam("Bearer $token", teamId)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Failed to delete team"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun removeTeamMember(context: Context, teamId: String, userId: String): Result<Unit> = withContext(Dispatchers.IO) {
+        val token = TokenManager.getToken(context) ?: return@withContext Result.failure(Exception("Not logged in"))
+        try {
+            val response = api.removeTeamMember("Bearer $token", teamId, userId)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Failed to remove member"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun updateMemberRole(context: Context, teamId: String, userId: String, role: String): Result<Unit> = withContext(Dispatchers.IO) {
+        val token = TokenManager.getToken(context) ?: return@withContext Result.failure(Exception("Not logged in"))
+        try {
+            val body = mapOf("role" to role)
+            val response = api.updateMemberRole("Bearer $token", teamId, userId, body)
+            if (response.isSuccessful) {
+                Result.success(Unit)
+            } else {
+                Result.failure(Exception("Failed to update role"))
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
         }
     }
 }

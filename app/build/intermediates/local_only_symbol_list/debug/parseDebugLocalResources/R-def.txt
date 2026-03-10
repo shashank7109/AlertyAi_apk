@@ -5,10 +5,14 @@ array com_google_android_gms_fonts_certs_dev
 array com_google_android_gms_fonts_certs_prod
 drawable ic_launcher_background
 drawable ic_launcher_foreground
+drawable ic_qs_mic
 drawable logo
 drawable logo_icon
 mipmap ic_launcher
 mipmap ic_launcher_round
 string app_name
+string qs_tile_label
+string qs_tile_subtitle
 style Theme.AlertyAI
 xml network_security_config
+xml task_widget_info

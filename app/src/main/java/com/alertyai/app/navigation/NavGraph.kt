@@ -37,10 +37,28 @@ private val bottomItems = listOf(
 )
 
 @Composable
-fun AlertyNavGraph(isDark: Boolean, onToggleTheme: () -> Unit, onLogout: () -> Unit) {
+fun AlertyNavGraph(
+    isDark: Boolean,
+    onToggleTheme: () -> Unit,
+    onLogout: () -> Unit,
+    startOnAddTask: Boolean = false,
+    autoStartVoice: Boolean = false,
+    onAddTaskConsumed: () -> Unit = {}
+) {
     val navController = rememberNavController()
     val currentBackStack by navController.currentBackStackEntryAsState()
     val currentRoute = currentBackStack?.destination?.route
+
+    // Deep-link from widget + button → go to Tasks screen
+    LaunchedEffect(startOnAddTask) {
+        if (startOnAddTask) {
+            navController.navigate(Screen.Tasks.route) {
+                launchSingleTop = true
+                restoreState = true
+            }
+            onAddTaskConsumed()
+        }
+    }
 
     Scaffold(
         bottomBar = {
@@ -127,7 +145,7 @@ fun AlertyNavGraph(isDark: Boolean, onToggleTheme: () -> Unit, onLogout: () -> U
                     onNavigateToProfile = { navController.navigate(Screen.Profile.route) }
                 ) 
             }
-            composable(Screen.Tasks.route)     { TasksScreen() }
+            composable(Screen.Tasks.route)     { TasksScreen(autoStartVoice = autoStartVoice) }
             composable(Screen.Reminders.route) { com.alertyai.app.ui.reminders.RemindersScreen() }
             composable(Screen.Teams.route)     {
                 TeamsScreen(

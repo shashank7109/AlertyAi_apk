@@ -3,6 +3,8 @@ package com.alertyai.app.network
 import android.util.Log
 import com.alertyai.app.data.model.TeamChatMessage
 import com.google.gson.Gson
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.*
 import okhttp3.*
 import java.util.concurrent.TimeUnit
@@ -23,6 +25,9 @@ class WebSocketManager(private val gson: Gson = Gson()) {
     // Connection state
     var isConnected: Boolean = false
         private set
+
+    private val _connectionState = MutableStateFlow("DISCONNECTED")
+    val connectionState = _connectionState.asStateFlow()
 
     private var onMessageCallback: ((TeamChatMessage) -> Unit)? = null
     private var onErrorCallback: ((Throwable) -> Unit)? = null
@@ -56,6 +61,8 @@ class WebSocketManager(private val gson: Gson = Gson()) {
         val teamId = currentTeamId!!
         val token = currentToken!!
 
+        _connectionState.value = "CONNECTING..."
+
         val base = RetrofitClient.BASE_URL.trimEnd('/')
         val wsBase = base.replace("https://", "wss://").replace("http://", "ws://")
         val wsUrl = "$wsBase/api/chat/ws/chat/$teamId?token=$token"
@@ -68,6 +75,7 @@ class WebSocketManager(private val gson: Gson = Gson()) {
             override fun onOpen(webSocket: WebSocket, response: Response) {
                 isConnected = true
                 isReconnecting = false
+                _connectionState.value = "CONNECTED"
                 reconnectJob?.cancel()
                 Log.d(TAG, "✅ WebSocket Connected | Team: $teamId")
                 onConnectedCallback?.invoke()
@@ -85,6 +93,7 @@ class WebSocketManager(private val gson: Gson = Gson()) {
 
             override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                 isConnected = false
+                _connectionState.value = "DISCONNECTED"
                 Log.e(TAG, "❌ WebSocket Failure: ${t.message} | HTTP: ${response?.code}")
                 onErrorCallback?.invoke(t)
                 tryReconnect()
@@ -98,6 +107,7 @@ class WebSocketManager(private val gson: Gson = Gson()) {
 
             override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
                 isConnected = false
+                _connectionState.value = "DISCONNECTED"
                 Log.d(TAG, "WebSocket Closed [$code]: $reason")
                 tryReconnect()
             }
@@ -107,6 +117,7 @@ class WebSocketManager(private val gson: Gson = Gson()) {
     private fun tryReconnect() {
         if (isReconnecting || currentTeamId == null) return
         isReconnecting = true
+        _connectionState.value = "RECONNECTING..."
         Log.d(TAG, "Attempting to reconnect in 3 seconds...")
         reconnectJob?.cancel()
         reconnectJob = scope.launch {
@@ -130,6 +141,7 @@ class WebSocketManager(private val gson: Gson = Gson()) {
     fun disconnect() {
         isConnected = false
         isReconnecting = false
+        _connectionState.value = "DISCONNECTED"
         reconnectJob?.cancel()
         currentTeamId = null
         currentToken = null

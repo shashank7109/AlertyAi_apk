@@ -156,11 +156,17 @@ interface ApiService {
         @Path("invitation_id") invitationId: String
     ): Response<Any>
 
-    @POST("api/teams")
+    @POST("api/teams/")
     suspend fun createTeam(
         @Header("Authorization") bearer: String,
         @Body body: Map<String, @JvmSuppressWildcards Any>
     ): Response<com.alertyai.app.data.model.TeamDetailedResponse>
+
+    @DELETE("api/teams/{teamId}")
+    suspend fun deleteTeam(
+        @Header("Authorization") bearer: String,
+        @Path("teamId") teamId: String
+    ): Response<Unit>
 
     @FormUrlEncoded
     @POST("api/teams/join/code")
@@ -168,6 +174,22 @@ interface ApiService {
         @Header("Authorization") bearer: String,
         @Field("code") code: String
     ): Response<com.alertyai.app.data.model.TeamDetailedResponse>
+
+    @DELETE("api/teams/{teamId}/members/{userId}")
+    suspend fun removeTeamMember(
+        @Header("Authorization") bearer: String,
+        @Path("teamId") teamId: String,
+        @Path("userId") userId: String
+    ): Response<Unit>
+
+    @PATCH("api/teams/{teamId}/members/{userId}/role")
+    suspend fun updateMemberRole(
+        @Header("Authorization") bearer: String,
+        @Path("teamId") teamId: String,
+        @Path("userId") userId: String,
+        @Body body: Map<String, String>
+    ): Response<Map<String, String>>
+
     @GET("api/chat/history/{team_id}")
     suspend fun getTeamChatHistory(
         @Header("Authorization") bearer: String,

@@ -45,7 +45,10 @@ data class TeamChatState(
     // Join code
     val joinCode: String? = null,
     val isFetchingCode: Boolean = false,
-    val showJoinCodeDialog: Boolean = false
+    val showJoinCodeDialog: Boolean = false,
+    
+    // Connection State
+    val connectionState: String = "DISCONNECTED"
 )
 
 @HiltViewModel
@@ -90,6 +93,13 @@ class TeamChatViewModel @Inject constructor(
             }, onError = { t ->
                 _state.value = _state.value.copy(error = t.message)
             })
+            
+            // 5. Collect connection state
+            launch {
+                wsManager.connectionState.collect { state ->
+                    _state.value = _state.value.copy(connectionState = state, error = if (state == "CONNECTED") null else _state.value.error)
+                }
+            }
         }
     }
 

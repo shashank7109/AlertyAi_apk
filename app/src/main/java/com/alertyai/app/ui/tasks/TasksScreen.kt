@@ -42,14 +42,14 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TasksScreen() {
+fun TasksScreen(autoStartVoice: Boolean = false) {
     val context = LocalContext.current
     val vm: TasksViewModel = hiltViewModel()
     val tasks by vm.tasks.collectAsState()
     val aiState by vm.aiState.collectAsState()
     val isLoggedIn = remember { TokenManager.isLoggedIn(context) }
 
-    var showAddSheet by remember { mutableStateOf(false) }
+    var showAddSheet by remember { mutableStateOf(autoStartVoice) }
     var editingTask by remember { mutableStateOf<Task?>(null) }
     var filter by remember { mutableStateOf("all") }
 
@@ -285,6 +285,7 @@ fun TasksScreen() {
         AddTaskSheet(
             isLoggedIn = isLoggedIn,
             isAiLoading = aiState.isAiLoading,
+            autoStartVoice = autoStartVoice,
             onDismiss = { showAddSheet = false },
             onAddTask = { task -> vm.addFullTask(context, task) },
             onUpdateTask = { task -> vm.updateTask(context, task) },

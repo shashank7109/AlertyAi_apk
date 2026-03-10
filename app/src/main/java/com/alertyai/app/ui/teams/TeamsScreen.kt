@@ -242,7 +242,7 @@ fun TeamsScreen(
                     containerColor = MaterialTheme.colorScheme.primary
                 ) { Text("Create", fontWeight = FontWeight.Medium, style = MaterialTheme.typography.labelSmall) }
             },
-            dismissButton = { TextButton(onClick = { showCreateTeamDialog = false }) { Text("CANCEL") } }
+            dismissButton = { TextButton(onClick = { showCreateTeamDialog = false; vm.clearError() }) { Text("CANCEL") } }
         )
     }
     // ── Join Team Dialog ──────────────────────────────────────────────────────

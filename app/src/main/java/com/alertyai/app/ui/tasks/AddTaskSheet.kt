@@ -3,7 +3,7 @@ package com.alertyai.app.ui.tasks
 import android.Manifest
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.media.MediaRecorder
+
 import android.net.Uri
 import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -58,11 +58,12 @@ fun AddTaskSheet(
     onImageSelected: (Uri) -> Unit,
     onVoiceFile: (File) -> Unit,
     existingTask: Task? = null,
-    initialMode: String = "manual"
+    initialMode: String = "manual",
+    autoStartVoice: Boolean = false
 ) {
     val isEditMode = existingTask != null
     val context = LocalContext.current
-    var mode by remember { mutableStateOf(initialMode) }
+    var mode by remember { mutableStateOf(if (autoStartVoice) "voice" else initialMode) }
 
     val gson = remember { Gson() }
     val initialSubtasks = remember {
@@ -95,10 +96,48 @@ fun AddTaskSheet(
 
     var aiText by remember { mutableStateOf("") }
     var isRecording by remember { mutableStateOf(false) }
-    var recorder: MediaRecorder? by remember { mutableStateOf(null) }
-    var audioFile: File? by remember { mutableStateOf(null) }
     var recordingSeconds by remember { mutableStateOf(0) }
-    var tooShortWarning by remember { mutableStateOf(false) }
+    var recognitionError by remember { mutableStateOf<String?>(null) }
+    val speechRecognizer = remember { android.speech.SpeechRecognizer.createSpeechRecognizer(context) }
+    val recognizerIntent = remember {
+        android.content.Intent(android.speech.RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
+            putExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE_MODEL, android.speech.RecognizerIntent.LANGUAGE_MODEL_FREE_FORM)
+            putExtra(android.speech.RecognizerIntent.EXTRA_LANGUAGE, Locale.getDefault())
+        }
+    }
+
+    DisposableEffect(Unit) {
+        val listener = object : android.speech.RecognitionListener {
+            override fun onReadyForSpeech(params: android.os.Bundle?) {}
+            override fun onBeginningOfSpeech() {}
+            override fun onRmsChanged(rmsdB: Float) {}
+            override fun onBufferReceived(buffer: ByteArray?) {}
+            override fun onEndOfSpeech() { isRecording = false }
+            override fun onError(error: Int) {
+                isRecording = false
+                recognitionError = when (error) {
+                    android.speech.SpeechRecognizer.ERROR_NO_MATCH -> "No speech detected."
+                    android.speech.SpeechRecognizer.ERROR_SPEECH_TIMEOUT -> "Listening timed out."
+                    else -> "Recording error ($error)"
+                }
+            }
+            override fun onResults(results: android.os.Bundle?) {
+                isRecording = false
+                val matches = results?.getStringArrayList(android.speech.SpeechRecognizer.RESULTS_RECOGNITION)
+                val text = matches?.firstOrNull()
+                if (!text.isNullOrBlank()) {
+                    onAddFromText(text) // send as text to create task
+                    onDismiss()
+                } else {
+                    recognitionError = "Didn't catch that. Please try again."
+                }
+            }
+            override fun onPartialResults(partialResults: android.os.Bundle?) {}
+            override fun onEvent(eventType: Int, params: android.os.Bundle?) {}
+        }
+        speechRecognizer.setRecognitionListener(listener)
+        onDispose { speechRecognizer.destroy() }
+    }
 
     val dateFormat = remember { SimpleDateFormat("EEE, d MMM yyyy", Locale.getDefault()) }
     val timeFormat = remember { SimpleDateFormat("h:mm a", Locale.getDefault()) }
@@ -135,25 +174,25 @@ fun AddTaskSheet(
     }
     val audioPermission = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { granted ->
         if (granted) {
-            audioFile = File(context.cacheDir, "voice_${System.currentTimeMillis()}.m4a")
-            @Suppress("DEPRECATION")
-            recorder = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) MediaRecorder(context) else MediaRecorder()
-            recorder?.apply {
-                setAudioSource(MediaRecorder.AudioSource.MIC)
-                setOutputFormat(MediaRecorder.OutputFormat.MPEG_4)
-                setAudioEncoder(MediaRecorder.AudioEncoder.AAC)
-                setOutputFile(audioFile?.absolutePath)
-                prepare()
-                start()
-                isRecording = true
-            }
+            recognitionError = null
+            isRecording = true
+            speechRecognizer.startListening(recognizerIntent)
+        } else {
+            recognitionError = "Microphone permission required"
+        }
+    }
+
+    LaunchedEffect(autoStartVoice) {
+        if (autoStartVoice) {
+            // Give a tiny delay for dialog to compose before popping permission
+            delay(300)
+            audioPermission.launch(Manifest.permission.RECORD_AUDIO)
         }
     }
 
     LaunchedEffect(isRecording) {
         if (isRecording) {
             recordingSeconds = 0
-            tooShortWarning = false
             while (isRecording) { delay(1000); recordingSeconds++ }
         }
     }
@@ -575,17 +614,10 @@ fun AddTaskSheet(
                             FloatingActionButton(
                                 onClick = {
                                     if (!isRecording) {
-                                        tooShortWarning = false
                                         audioPermission.launch(Manifest.permission.RECORD_AUDIO)
                                     } else {
-                                        if (recordingSeconds < 2) {
-                                            recorder?.stop(); recorder?.release(); recorder = null
-                                            isRecording = false; tooShortWarning = true
-                                        } else {
-                                            recorder?.stop(); recorder?.release(); recorder = null
-                                            isRecording = false
-                                            audioFile?.let { onVoiceFile(it); onDismiss() }
-                                        }
+                                        speechRecognizer.stopListening()
+                                        isRecording = false
                                     }
                                 },
                                 containerColor = if (isRecording) MaterialTheme.colorScheme.error
@@ -602,13 +634,14 @@ fun AddTaskSheet(
                         }
 
                         if (isRecording) {
-                            Text("TRANSMITTING: ${recordingSeconds}S", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.error)
+                            Text("LISTENING: ${recordingSeconds}S", style = MaterialTheme.typography.labelSmall, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.error)
+                            Text("Will auto-stop when you finish speaking", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.7f))
                         } else {
                             Text("Ready to record", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
 
-                        if (tooShortWarning) {
-                            Text("Recording too short (min 2 seconds)", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
+                        recognitionError?.let { err ->
+                            Text(err, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.error)
                         }
                     }
                 }

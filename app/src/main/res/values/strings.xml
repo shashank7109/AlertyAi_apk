@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">AlertyAI</string>
+    <string name="qs_tile_label">Alerty AI</string>
+    <string name="qs_tile_subtitle">Voice Task</string>
 </resources>

@@ -64,11 +64,11 @@ class TeamsViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             _state.value = _state.value.copy(isLoading = true, error = null)
-            val success = repository.createTeam(context, name, description, purpose, memberEmails, memberPhones)
-            if (success) {
+            val result = repository.createTeam(context, name, description, purpose, memberEmails, memberPhones)
+            if (result.isSuccess) {
                 loadData(context)
             } else {
-                _state.value = _state.value.copy(isLoading = false, error = "Failed to create team")
+                _state.value = _state.value.copy(isLoading = false, error = result.exceptionOrNull()?.message ?: "Failed to create team")
             }
         }
     }

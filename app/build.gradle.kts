@@ -97,6 +97,10 @@ dependencies {
     // Coil
     implementation(libs.coil.compose)
 
+    // Glance (Home Screen Widget)
+    implementation(libs.glance.appwidget)
+    implementation(libs.glance.material3)
+
     debugImplementation(libs.androidx.ui.tooling)
 }
 

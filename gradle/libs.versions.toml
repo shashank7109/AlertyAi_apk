@@ -19,6 +19,7 @@ securityCrypto = "1.0.0"
 credentialManager = "1.2.2"
 googleIdentity = "1.1.1"
 coil = "2.7.0"
+glance = "1.1.0"
 
 
 [libraries]
@@ -71,6 +72,10 @@ google-identity-googleid = { group = "com.google.android.libraries.identity.goog
 
 # Coil
 coil-compose = { group = "io.coil-kt", name = "coil-compose", version.ref = "coil" }
+
+# Glance (App Widget)
+glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glance" }
+glance-material3 = { group = "androidx.glance", name = "glance-material3", version.ref = "glance" }
 
 [plugins]
 

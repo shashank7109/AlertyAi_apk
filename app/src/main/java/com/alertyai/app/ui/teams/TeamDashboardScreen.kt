@@ -58,7 +58,37 @@ fun TeamDashboardScreen(
                 },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.background
-                )
+                ),
+                actions = {
+                    if (state.teamDetails?.isAdmin == true) {
+                        var showDeleteConfirm by remember { mutableStateOf(false) }
+                        IconButton(onClick = { showDeleteConfirm = true }) {
+                            Icon(Icons.Default.Delete, contentDescription = "Delete Team", tint = MaterialTheme.colorScheme.error)
+                        }
+                        if (showDeleteConfirm) {
+                            AlertDialog(
+                                onDismissRequest = { showDeleteConfirm = false },
+                                title = { Text("Delete Team") },
+                                text = { Text("Are you sure you want to delete this team? This action cannot be undone.") },
+                                confirmButton = {
+                                    TextButton(onClick = {
+                                        showDeleteConfirm = false
+                                        viewModel.deleteTeam(context, teamId) {
+                                            onBack()
+                                        }
+                                    }) {
+                                        Text("DELETE", color = MaterialTheme.colorScheme.error)
+                                    }
+                                },
+                                dismissButton = {
+                                    TextButton(onClick = { showDeleteConfirm = false }) {
+                                        Text("CANCEL")
+                                    }
+                                }
+                            )
+                        }
+                    }
+                }
             )
         }
     ) { innerPadding ->
@@ -130,7 +160,13 @@ fun TeamDashboardScreen(
                     Box(modifier = Modifier.weight(1f).padding(16.dp)) {
                         when (activeTab) {
                             1 -> TasksTabContent(team.tasks)
-                            2 -> MembersTabContent(team.members)
+                            2 -> MembersTabContent(
+                                members = team.members,
+                                isAdmin = team.isAdmin,
+                                onMakeAdmin = { userId -> viewModel.updateMemberRole(context, teamId, userId, "admin") },
+                                onMakeMember = { userId -> viewModel.updateMemberRole(context, teamId, userId, "member") },
+                                onRemoveMember = { userId -> viewModel.removeMember(context, teamId, userId) }
+                            )
                             3 -> AnalyticsTabContent()
                         }
                     }
@@ -281,7 +317,13 @@ fun TeamTaskItemCard(task: TeamTask) {
 }
 
 @Composable
-fun MembersTabContent(members: List<com.alertyai.app.data.model.OrgMember>) {
+fun MembersTabContent(
+    members: List<com.alertyai.app.data.model.OrgMember>,
+    isAdmin: Boolean,
+    onMakeAdmin: (String) -> Unit,
+    onMakeMember: (String) -> Unit,
+    onRemoveMember: (String) -> Unit
+) {
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         items(members, key = { it.id }) { member ->
             ClayCard(modifier = Modifier.fillMaxWidth()) {
@@ -297,8 +339,73 @@ fun MembersTabContent(members: List<com.alertyai.app.data.model.OrgMember>) {
                         Text(member.displayName, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
                         Text(member.email, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
-                    if (member.role == "leader") {
-                        Text("LEADER", style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Black)
+                    if (member.role == "leader" || member.role == "admin" || member.role == "co_leader") {
+                        Text(member.role.uppercase(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.primary, fontWeight = FontWeight.Black)
+                    } else if (!isAdmin) {
+                        Text(member.role.uppercase(), style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant, fontWeight = FontWeight.Black)
+                    }
+                    
+                    if (isAdmin) {
+                        var expanded by remember { mutableStateOf(false) }
+                        var showRemoveConfirm by remember { mutableStateOf(false) }
+                        
+                        Box(modifier = Modifier.wrapContentSize(Alignment.TopEnd)) {
+                            IconButton(onClick = { expanded = true }) {
+                                Icon(Icons.Default.MoreVert, contentDescription = "More Options")
+                            }
+                            DropdownMenu(
+                                expanded = expanded,
+                                onDismissRequest = { expanded = false }
+                            ) {
+                                if (member.role != "admin" && member.role != "leader" && member.role != "co_leader") {
+                                    DropdownMenuItem(
+                                        text = { Text("Make Admin") },
+                                        onClick = { 
+                                            expanded = false
+                                            onMakeAdmin(member.userId)
+                                        }
+                                    )
+                                } else if (member.role != "leader") {
+                                    DropdownMenuItem(
+                                        text = { Text("Make Member") },
+                                        onClick = { 
+                                            expanded = false
+                                            onMakeMember(member.userId)
+                                        }
+                                    )
+                                }
+                                if (member.role != "leader") {
+                                    DropdownMenuItem(
+                                        text = { Text("Remove from Team", color = MaterialTheme.colorScheme.error) },
+                                        onClick = { 
+                                            expanded = false
+                                            showRemoveConfirm = true
+                                        }
+                                    )
+                                }
+                            }
+                        }
+                        
+                        if (showRemoveConfirm) {
+                            AlertDialog(
+                                onDismissRequest = { showRemoveConfirm = false },
+                                title = { Text("Remove Member") },
+                                text = { Text("Are you sure you want to remove ${member.displayName} from this team?") },
+                                confirmButton = {
+                                    TextButton(onClick = {
+                                        showRemoveConfirm = false
+                                        onRemoveMember(member.userId)
+                                    }) {
+                                        Text("REMOVE", color = MaterialTheme.colorScheme.error)
+                                    }
+                                },
+                                dismissButton = {
+                                    TextButton(onClick = { showRemoveConfirm = false }) {
+                                        Text("CANCEL")
+                                    }
+                                }
+                            )
+                        }
                     }
                 }
             }
