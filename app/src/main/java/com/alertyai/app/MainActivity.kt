@@ -85,7 +85,12 @@ class MainActivity : ComponentActivity() {
                         autoStartVoice = autoStartVoice,
                         onAddTaskConsumed = { 
                             deepLinkToAddTask = false
-                            autoStartVoice = false 
+                            if (!autoStartVoice) {
+                                _widgetAction.value = null
+                            }
+                        },
+                        onAutoStartVoiceConsumed = {
+                            autoStartVoice = false
                             _widgetAction.value = null
                         },
                         onLogout = {

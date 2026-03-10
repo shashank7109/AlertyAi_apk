@@ -1,0 +1,19 @@
+> Task :updateDaemonJvm FAILED
+
+[Incubating] Problems report is available at: file:///D:/Smaran/alertyai_android/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':updateDaemonJvm'.
+> Error while evaluating property 'toolchainDownloadUrls' of task ':updateDaemonJvm'.
+   > Failed to calculate the value of task ':updateDaemonJvm' property 'toolchainDownloadUrls'.
+      > Invalid task configuration
+          Toolchain download repositories have not been configured.
+
+* Try:
+> Learn more about toolchain repositories at https://docs.gradle.org/9.0.0/userguide/toolchains.html#sub:download_repositories.
+> Run with --scan to generate a Build Scan (Powered by Develocity).
+
+BUILD FAILED in 1s
+1 actionable task: 1 executed

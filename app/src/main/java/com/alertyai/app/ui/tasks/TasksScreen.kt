@@ -42,7 +42,7 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TasksScreen(autoStartVoice: Boolean = false) {
+fun TasksScreen(autoStartVoice: Boolean = false, onAutoStartVoiceConsumed: () -> Unit = {}) {
     val context = LocalContext.current
     val vm: TasksViewModel = hiltViewModel()
     val tasks by vm.tasks.collectAsState()
@@ -55,6 +55,7 @@ fun TasksScreen(autoStartVoice: Boolean = false) {
     LaunchedEffect(autoStartVoice) {
         if (autoStartVoice) {
             showAddSheet = true
+            onAutoStartVoiceConsumed()
         }
     }
     var editingTask by remember { mutableStateOf<Task?>(null) }

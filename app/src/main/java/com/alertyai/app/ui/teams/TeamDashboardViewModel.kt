@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.alertyai.app.data.model.TeamDetailedResponse
+import com.alertyai.app.network.AssignTaskRequest
 import com.alertyai.app.data.repository.OrgRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -77,6 +78,25 @@ class TeamDashboardViewModel @Inject constructor(
                 loadTeamDetails(context, teamId) // Reload to reflect changes
             } else {
                 _state.value = _state.value.copy(actionLoading = false, actionError = result.exceptionOrNull()?.message ?: "Failed to remove member")
+            }
+        }
+    }
+
+    fun assignTask(context: Context, teamId: String, title: String, description: String, priority: String, assignedTo: String) {
+        viewModelScope.launch {
+            _state.value = _state.value.copy(actionLoading = true, actionError = null)
+            val req = AssignTaskRequest(
+                title = title,
+                description = description,
+                priority = priority,
+                assignedTo = assignedTo
+            )
+            val result = repository.assignTask(context, teamId, req)
+            if (result.isSuccess) {
+                _state.value = _state.value.copy(actionLoading = false, actionSuccess = "Task assigned successfully")
+                loadTeamDetails(context, teamId)
+            } else {
+                _state.value = _state.value.copy(actionLoading = false, actionError = result.exceptionOrNull()?.message ?: "Failed to assign task")
             }
         }
     }

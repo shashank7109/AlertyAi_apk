@@ -4,11 +4,9 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
     }
-}
-
 // Foojay resolver - lets Gradle auto-download any required JDK toolchain
 plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "0.8.0"
+    id("org.gradle.toolchains.foojay-resolver-convention") version "0.9.0"
 }
 
 dependencyResolutionManagement {
@@ -20,4 +18,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "AlertyAI"
-include(":app")
+include(":app")}

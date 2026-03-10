@@ -43,7 +43,8 @@ fun AlertyNavGraph(
     onLogout: () -> Unit,
     startOnAddTask: Boolean = false,
     autoStartVoice: Boolean = false,
-    onAddTaskConsumed: () -> Unit = {}
+    onAddTaskConsumed: () -> Unit = {},
+    onAutoStartVoiceConsumed: () -> Unit = {}
 ) {
     val navController = rememberNavController()
     val currentBackStack by navController.currentBackStackEntryAsState()
@@ -145,7 +146,12 @@ fun AlertyNavGraph(
                     onNavigateToProfile = { navController.navigate(Screen.Profile.route) }
                 ) 
             }
-            composable(Screen.Tasks.route)     { TasksScreen(autoStartVoice = autoStartVoice) }
+            composable(Screen.Tasks.route) { 
+                TasksScreen(
+                    autoStartVoice = autoStartVoice,
+                    onAutoStartVoiceConsumed = onAutoStartVoiceConsumed
+                ) 
+            }
             composable(Screen.Reminders.route) { com.alertyai.app.ui.reminders.RemindersScreen() }
             composable(Screen.Teams.route)     {
                 TeamsScreen(

@@ -4,7 +4,7 @@
             "outputFile": "com.alertyai.app-mergeDebugResources-78:/values-v29/values-v29.xml",
             "map": [
                 {
-                    "source": "C:\\Users\\binda\\.gradle\\caches\\9.0.0\\transforms\\d7f188b3c427d089b710a89f18719089\\transformed\\glance-appwidget-1.1.0\\res\\values-v29\\values-v29.xml",
+                    "source": "C:\\Users\\binda\\.gradle\\caches\\8.11.1\\transforms\\8105ffedb80ca4ed21fe672db2587174\\transformed\\glance-appwidget-1.1.0\\res\\values-v29\\values-v29.xml",
                     "from": {
                         "startLines": "2,5,19,22,25,26,27",
                         "startColumns": "4,4,4,4,4,4,4",

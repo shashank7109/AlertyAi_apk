@@ -159,10 +159,18 @@ fun TeamDashboardScreen(
                     // Content Section
                     Box(modifier = Modifier.weight(1f).padding(16.dp)) {
                         when (activeTab) {
-                            1 -> TasksTabContent(team.tasks)
+                            1 -> TasksTabContent(
+                                tasks = team.tasks,
+                                isAdmin = team.isAdmin,
+                                members = team.members,
+                                onAssignTask = { title, desc, priority, assignedTo ->
+                                    viewModel.assignTask(context, teamId, title, desc, priority, assignedTo)
+                                }
+                            )
                             2 -> MembersTabContent(
                                 members = team.members,
                                 isAdmin = team.isAdmin,
+                                joinCode = team.joinCode,
                                 onMakeAdmin = { userId -> viewModel.updateMemberRole(context, teamId, userId, "admin") },
                                 onMakeMember = { userId -> viewModel.updateMemberRole(context, teamId, userId, "member") },
                                 onRemoveMember = { userId -> viewModel.removeMember(context, teamId, userId) }
@@ -254,12 +262,21 @@ fun StatCard(modifier: Modifier = Modifier, label: String, value: String, icon: 
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TasksTabContent(tasks: List<TeamTask>) {
+fun TasksTabContent(
+    tasks: List<TeamTask>,
+    isAdmin: Boolean = false,
+    members: List<com.alertyai.app.data.model.OrgMember> = emptyList(),
+    onAssignTask: (String, String, String, String) -> Unit = { _, _, _, _ -> }
+) {
     var filter by remember { mutableStateOf("all") }
     val filteredTasks = if (filter == "all") tasks else tasks.filter { it.status == filter }
 
-    Column {
+    var showAssignDialog by remember { mutableStateOf(false) }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier.fillMaxSize()) {
         Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.padding(bottom = 16.dp)) {
             listOf("all", "pending", "in_progress", "completed").forEach { f ->
                 val selected = filter == f
@@ -290,7 +307,127 @@ fun TasksTabContent(tasks: List<TeamTask>) {
                     TeamTaskItemCard(task)
                 }
             }
+            }
         }
+        
+        if (isAdmin) {
+            FloatingActionButton(
+                onClick = { showAssignDialog = true },
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(16.dp),
+                containerColor = MaterialTheme.colorScheme.primary
+            ) {
+                Icon(Icons.Default.Add, contentDescription = "Assign Task")
+            }
+        }
+    } // Ends the Box
+
+    if (showAssignDialog) {
+        var newTaskTitle by remember { mutableStateOf("") }
+        var newTaskDesc by remember { mutableStateOf("") }
+        var selectedPriority by remember { mutableStateOf("medium") }
+        var selectedAssignee by remember { mutableStateOf(members.firstOrNull()?.userId ?: "") }
+        var expandedPriority by remember { mutableStateOf(false) }
+        var expandedAssignee by remember { mutableStateOf(false) }
+
+        AlertDialog(
+            onDismissRequest = { showAssignDialog = false },
+            title = { Text("Assign a Task") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = newTaskTitle,
+                        onValueChange = { newTaskTitle = it },
+                        label = { Text("Title") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = newTaskDesc,
+                        onValueChange = { newTaskDesc = it },
+                        label = { Text("Description") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+
+                    // Priority Dropdown
+                    ExposedDropdownMenuBox(
+                        expanded = expandedPriority,
+                        onExpandedChange = { expandedPriority = !expandedPriority },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            value = selectedPriority.uppercase(),
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Priority") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedPriority) },
+                            modifier = Modifier.menuAnchor()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expandedPriority,
+                            onDismissRequest = { expandedPriority = false }
+                        ) {
+                            listOf("low", "medium", "high").forEach { p ->
+                                DropdownMenuItem(
+                                    text = { Text(p.uppercase()) },
+                                    onClick = {
+                                        selectedPriority = p
+                                        expandedPriority = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+
+                    // Assignee Dropdown
+                    ExposedDropdownMenuBox(
+                        expanded = expandedAssignee,
+                        onExpandedChange = { expandedAssignee = !expandedAssignee },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        OutlinedTextField(
+                            value = members.find { it.userId == selectedAssignee }?.displayName ?: "Select Member",
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text("Assign To") },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedAssignee) },
+                            modifier = Modifier.menuAnchor()
+                        )
+                        ExposedDropdownMenu(
+                            expanded = expandedAssignee,
+                            onDismissRequest = { expandedAssignee = false }
+                        ) {
+                            members.forEach { m ->
+                                DropdownMenuItem(
+                                    text = { Text(m.displayName) },
+                                    onClick = {
+                                        selectedAssignee = m.userId
+                                        expandedAssignee = false
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (newTaskTitle.isNotBlank() && selectedAssignee.isNotBlank()) {
+                            onAssignTask(newTaskTitle, newTaskDesc, selectedPriority, selectedAssignee)
+                            showAssignDialog = false
+                        }
+                    }
+                ) {
+                    Text("ASSIGN")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showAssignDialog = false }) {
+                    Text("CANCEL")
+                }
+            }
+        )
     }
 }
 
@@ -320,11 +457,54 @@ fun TeamTaskItemCard(task: TeamTask) {
 fun MembersTabContent(
     members: List<com.alertyai.app.data.model.OrgMember>,
     isAdmin: Boolean,
+    joinCode: String?,
     onMakeAdmin: (String) -> Unit,
     onMakeMember: (String) -> Unit,
     onRemoveMember: (String) -> Unit
 ) {
+    val context = LocalContext.current
+    val clipboardManager = androidx.compose.ui.platform.LocalClipboardManager.current
+    
     LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        if (!joinCode.isNullOrBlank()) {
+            item {
+                ClayCard(modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)) {
+                    Row(
+                        modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text("Team Join Code", style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+                            Text("Share this code to let others join.", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                        Box(
+                            modifier = Modifier
+                                .background(MaterialTheme.colorScheme.primaryContainer, RoundedCornerShape(8.dp))
+                                .padding(horizontal = 12.dp, vertical = 6.dp)
+                                .clickable {
+                                    clipboardManager.setText(androidx.compose.ui.text.AnnotatedString(joinCode))
+                                    android.widget.Toast.makeText(context, "Code copied", android.widget.Toast.LENGTH_SHORT).show()
+                                }
+                        ) {
+                            Text(
+                                joinCode.uppercase(),
+                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                style = MaterialTheme.typography.titleMedium,
+                                fontWeight = FontWeight.Black,
+                                letterSpacing = 2.sp
+                            )
+                        }
+                        IconButton(onClick = {
+                            clipboardManager.setText(androidx.compose.ui.text.AnnotatedString(joinCode))
+                            android.widget.Toast.makeText(context, "Code copied", android.widget.Toast.LENGTH_SHORT).show()
+                        }) {
+                            Icon(Icons.Default.ContentCopy, contentDescription = "Copy Code", tint = MaterialTheme.colorScheme.primary)
+                        }
+                    }
+                }
+            }
+        }
+    
         items(members, key = { it.id }) { member ->
             ClayCard(modifier = Modifier.fillMaxWidth()) {
                 Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
