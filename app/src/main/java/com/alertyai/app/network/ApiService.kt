@@ -175,6 +175,18 @@ interface ApiService {
         @Field("code") code: String
     ): Response<com.alertyai.app.data.model.TeamDetailedResponse>
 
+    @GET("api/teams/{team_id}/join-code")
+    suspend fun getTeamJoinCode(
+        @Header("Authorization") bearer: String,
+        @Path("team_id") teamId: String
+    ): Response<Map<String, Any>>
+
+    @POST("api/teams/{team_id}/join-code/regenerate")
+    suspend fun regenerateTeamJoinCode(
+        @Header("Authorization") bearer: String,
+        @Path("team_id") teamId: String
+    ): Response<Map<String, Any>>
+
     @DELETE("api/teams/{teamId}/members/{userId}")
     suspend fun removeTeamMember(
         @Header("Authorization") bearer: String,

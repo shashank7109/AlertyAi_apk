@@ -191,6 +191,28 @@ class OrgRepository @Inject constructor() {
         }
     }
 
+    suspend fun getTeamJoinCode(context: Context, teamId: String): String? = withContext(Dispatchers.IO) {
+        val token = TokenManager.getToken(context) ?: return@withContext null
+        try {
+            val response = api.getTeamJoinCode("Bearer $token", teamId)
+            if (response.isSuccessful) response.body()?.get("join_code") as? String
+            else null
+        } catch (e: Exception) {
+            null
+        }
+    }
+
+    suspend fun regenerateTeamJoinCode(context: Context, teamId: String): String? = withContext(Dispatchers.IO) {
+        val token = TokenManager.getToken(context) ?: return@withContext null
+        try {
+            val response = api.regenerateTeamJoinCode("Bearer $token", teamId)
+            if (response.isSuccessful) response.body()?.get("join_code") as? String
+            else null
+        } catch (e: Exception) {
+            null
+        }
+    }
+
     suspend fun getPendingInvitations(context: Context): List<PendingInvitation> = withContext(Dispatchers.IO) {
         val token = TokenManager.getToken(context) ?: return@withContext emptyList()
         try {

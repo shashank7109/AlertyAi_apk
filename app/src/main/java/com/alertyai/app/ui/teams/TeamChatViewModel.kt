@@ -242,7 +242,7 @@ class TeamChatViewModel @Inject constructor(
          if (currentTeamId.isEmpty()) return
          viewModelScope.launch {
              _state.value = _state.value.copy(isFetchingCode = true)
-             val code = repository.getJoinCode(context, currentTeamId)
+             val code = repository.getTeamJoinCode(context, currentTeamId)
              _state.value = _state.value.copy(isFetchingCode = false, joinCode = code)
          }
     }
@@ -251,7 +251,7 @@ class TeamChatViewModel @Inject constructor(
         if (currentTeamId.isEmpty()) return
         viewModelScope.launch {
              _state.value = _state.value.copy(isFetchingCode = true)
-             val code = repository.regenerateJoinCode(context, currentTeamId)
+             val code = repository.regenerateTeamJoinCode(context, currentTeamId)
              _state.value = _state.value.copy(isFetchingCode = false, joinCode = code)
         }
     }
