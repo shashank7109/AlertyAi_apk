@@ -172,7 +172,7 @@ fun TeamDashboardScreen(
                                 members = team.members,
                                 isAdmin = team.isAdmin,
                                 joinCode = team.joinCode,
-                                onMakeAdmin = { userId -> viewModel.updateMemberRole(context, teamId, userId, "admin") },
+                                onMakeAdmin = { userId -> viewModel.updateMemberRole(context, teamId, userId, "leader") },
                                 onMakeMember = { userId -> viewModel.updateMemberRole(context, teamId, userId, "member") },
                                 onRemoveMember = { userId -> viewModel.removeMember(context, teamId, userId) }
                             )
