@@ -15,6 +15,7 @@ class TaskWidgetReceiver : GlanceAppWidgetReceiver() {
         /** Intent actions used to communicate from widget buttons → app */
         const val ACTION_ADD_TASK         = "com.alertyai.app.ACTION_ADD_TASK"
         const val ACTION_WIDGET_VOICE     = "com.alertyai.app.ACTION_WIDGET_VOICE"
+        const val ACTION_WIDGET_IMAGE     = "com.alertyai.app.ACTION_WIDGET_IMAGE"
         const val ACTION_TOGGLE_NOTIF     = "com.alertyai.app.ACTION_TOGGLE_NOTIF"
     }
 }

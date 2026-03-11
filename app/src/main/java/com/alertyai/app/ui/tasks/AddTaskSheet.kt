@@ -59,11 +59,12 @@ fun AddTaskSheet(
     onVoiceFile: (File) -> Unit,
     existingTask: Task? = null,
     initialMode: String = "manual",
-    autoStartVoice: Boolean = false
+    autoStartVoice: Boolean = false,
+    autoStartImage: Boolean = false
 ) {
     val isEditMode = existingTask != null
     val context = LocalContext.current
-    var mode by remember { mutableStateOf(if (autoStartVoice) "voice" else initialMode) }
+    var mode by remember { mutableStateOf(if (autoStartVoice) "voice" else if (autoStartImage) "image" else initialMode) }
 
     val gson = remember { Gson() }
     val initialSubtasks = remember {
@@ -187,6 +188,13 @@ fun AddTaskSheet(
             // Give a tiny delay for dialog to compose before popping permission
             delay(300)
             audioPermission.launch(Manifest.permission.RECORD_AUDIO)
+        }
+    }
+
+    LaunchedEffect(autoStartImage) {
+        if (autoStartImage) {
+            delay(300)
+            imagePicker.launch("image/*")
         }
     }
 

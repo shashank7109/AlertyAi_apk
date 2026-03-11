@@ -62,7 +62,7 @@ class TaskWidget : GlanceAppWidget() {
                     iconResId = android.R.drawable.ic_menu_camera,  // Placeholder for scan/camera
                     label = "Scan",
                     onClickIntent = Intent(context, MainActivity::class.java).apply {
-                        action = TaskWidgetReceiver.ACTION_TOGGLE_NOTIF
+                        action = TaskWidgetReceiver.ACTION_WIDGET_IMAGE
                         flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_SINGLE_TOP
                     },
                     isBroadcast = false

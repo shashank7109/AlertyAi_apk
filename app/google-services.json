@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "595205410945",
+    "project_id": "alertyai-daa80",
+    "storage_bucket": "alertyai-daa80.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:595205410945:android:d970e9f2ad249e21347d80",
+        "android_client_info": {
+          "package_name": "com.alertyai.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBFHve8S25mT5-Kpuv56ZEP6S7_mtaWhCQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

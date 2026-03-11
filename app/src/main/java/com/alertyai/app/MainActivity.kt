@@ -68,12 +68,17 @@ class MainActivity : ComponentActivity() {
             var deepLinkToAddTask by remember(currentWidgetAction) { 
                 mutableStateOf(
                     currentWidgetAction == TaskWidgetReceiver.ACTION_ADD_TASK || 
-                    currentWidgetAction == com.alertyai.app.widget.QuickSettingsVoiceTileService.ACTION_QUICK_SETTINGS_VOICE
+                    currentWidgetAction == com.alertyai.app.widget.QuickSettingsVoiceTileService.ACTION_QUICK_SETTINGS_VOICE ||
+                    currentWidgetAction == TaskWidgetReceiver.ACTION_WIDGET_IMAGE
                 ) 
             }
             
             var autoStartVoice by remember(currentWidgetAction) {
                 mutableStateOf(currentWidgetAction == com.alertyai.app.widget.QuickSettingsVoiceTileService.ACTION_QUICK_SETTINGS_VOICE)
+            }
+            
+            var autoStartImage by remember(currentWidgetAction) {
+                mutableStateOf(currentWidgetAction == TaskWidgetReceiver.ACTION_WIDGET_IMAGE)
             }
 
             AlertyAITheme(darkTheme = isDark) {
@@ -83,14 +88,19 @@ class MainActivity : ComponentActivity() {
                         onToggleTheme = { isDark = !isDark },
                         startOnAddTask = deepLinkToAddTask,
                         autoStartVoice = autoStartVoice,
+                        autoStartImage = autoStartImage,
                         onAddTaskConsumed = { 
                             deepLinkToAddTask = false
-                            if (!autoStartVoice) {
+                            if (!autoStartVoice && !autoStartImage) {
                                 _widgetAction.value = null
                             }
                         },
                         onAutoStartVoiceConsumed = {
                             autoStartVoice = false
+                            _widgetAction.value = null
+                        },
+                        onAutoStartImageConsumed = {
+                            autoStartImage = false
                             _widgetAction.value = null
                         },
                         onLogout = {
@@ -116,7 +126,7 @@ class MainActivity : ComponentActivity() {
     private fun handleWidgetIntent(intent: Intent?) {
         when (intent?.action) {
             TaskWidgetReceiver.ACTION_TOGGLE_NOTIF -> requestMicPermission()
-            // ACTION_ADD_TASK and ACTION_QUICK_SETTINGS_VOICE are handled in setContent
+            // ACTION_ADD_TASK, ACTION_WIDGET_IMAGE and ACTION_QUICK_SETTINGS_VOICE are handled in setContent
         }
     }
 }

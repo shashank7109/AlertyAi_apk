@@ -42,20 +42,32 @@ import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun TasksScreen(autoStartVoice: Boolean = false, onAutoStartVoiceConsumed: () -> Unit = {}) {
+fun TasksScreen(
+    autoStartVoice: Boolean = false, 
+    onAutoStartVoiceConsumed: () -> Unit = {},
+    autoStartImage: Boolean = false,
+    onAutoStartImageConsumed: () -> Unit = {}
+) {
     val context = LocalContext.current
     val vm: TasksViewModel = hiltViewModel()
     val tasks by vm.tasks.collectAsState()
     val aiState by vm.aiState.collectAsState()
     val isLoggedIn = remember { TokenManager.isLoggedIn(context) }
 
-    var showAddSheet by remember { mutableStateOf(autoStartVoice) }
+    var showAddSheet by remember { mutableStateOf(autoStartVoice || autoStartImage) }
     
     // React to new intents when screen is already composed
     LaunchedEffect(autoStartVoice) {
         if (autoStartVoice) {
             showAddSheet = true
             onAutoStartVoiceConsumed()
+        }
+    }
+    
+    LaunchedEffect(autoStartImage) {
+        if (autoStartImage) {
+            showAddSheet = true
+            onAutoStartImageConsumed()
         }
     }
     var editingTask by remember { mutableStateOf<Task?>(null) }
@@ -294,6 +306,7 @@ fun TasksScreen(autoStartVoice: Boolean = false, onAutoStartVoiceConsumed: () ->
             isLoggedIn = isLoggedIn,
             isAiLoading = aiState.isAiLoading,
             autoStartVoice = autoStartVoice,
+            autoStartImage = autoStartImage,
             onDismiss = { showAddSheet = false },
             onAddTask = { task -> vm.addFullTask(context, task) },
             onUpdateTask = { task -> vm.updateTask(context, task) },
