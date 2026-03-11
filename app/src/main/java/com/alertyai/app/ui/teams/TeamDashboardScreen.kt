@@ -506,7 +506,7 @@ fun MembersTabContent(
             }
         }
     
-        items(members, key = { it.id }) { member ->
+        items(members, key = { it.userId }) { member ->
             ClayCard(modifier = Modifier.fillMaxWidth()) {
                 Row(modifier = Modifier.padding(16.dp).fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
                     Box(

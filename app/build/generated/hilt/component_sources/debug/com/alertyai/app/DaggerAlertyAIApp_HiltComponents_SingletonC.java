@@ -409,19 +409,31 @@ public final class DaggerAlertyAIApp_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
+      static String com_alertyai_app_ui_chat_ChatViewModel = "com.alertyai.app.ui.chat.ChatViewModel";
+
+      static String com_alertyai_app_ui_teams_OrgMembersViewModel = "com.alertyai.app.ui.teams.OrgMembersViewModel";
+
+      static String com_alertyai_app_ui_teams_TeamChatViewModel = "com.alertyai.app.ui.teams.TeamChatViewModel";
+
+      static String com_alertyai_app_ui_tasks_TasksViewModel = "com.alertyai.app.ui.tasks.TasksViewModel";
+
       static String com_alertyai_app_ui_reminders_RemindersViewModel = "com.alertyai.app.ui.reminders.RemindersViewModel";
 
       static String com_alertyai_app_ui_teams_TeamsViewModel = "com.alertyai.app.ui.teams.TeamsViewModel";
 
-      static String com_alertyai_app_ui_teams_OrgMembersViewModel = "com.alertyai.app.ui.teams.OrgMembersViewModel";
-
       static String com_alertyai_app_ui_teams_TeamDashboardViewModel = "com.alertyai.app.ui.teams.TeamDashboardViewModel";
 
-      static String com_alertyai_app_ui_chat_ChatViewModel = "com.alertyai.app.ui.chat.ChatViewModel";
+      @KeepFieldType
+      ChatViewModel com_alertyai_app_ui_chat_ChatViewModel2;
 
-      static String com_alertyai_app_ui_tasks_TasksViewModel = "com.alertyai.app.ui.tasks.TasksViewModel";
+      @KeepFieldType
+      OrgMembersViewModel com_alertyai_app_ui_teams_OrgMembersViewModel2;
 
-      static String com_alertyai_app_ui_teams_TeamChatViewModel = "com.alertyai.app.ui.teams.TeamChatViewModel";
+      @KeepFieldType
+      TeamChatViewModel com_alertyai_app_ui_teams_TeamChatViewModel2;
+
+      @KeepFieldType
+      TasksViewModel com_alertyai_app_ui_tasks_TasksViewModel2;
 
       @KeepFieldType
       RemindersViewModel com_alertyai_app_ui_reminders_RemindersViewModel2;
@@ -430,19 +442,7 @@ public final class DaggerAlertyAIApp_HiltComponents_SingletonC {
       TeamsViewModel com_alertyai_app_ui_teams_TeamsViewModel2;
 
       @KeepFieldType
-      OrgMembersViewModel com_alertyai_app_ui_teams_OrgMembersViewModel2;
-
-      @KeepFieldType
       TeamDashboardViewModel com_alertyai_app_ui_teams_TeamDashboardViewModel2;
-
-      @KeepFieldType
-      ChatViewModel com_alertyai_app_ui_chat_ChatViewModel2;
-
-      @KeepFieldType
-      TasksViewModel com_alertyai_app_ui_tasks_TasksViewModel2;
-
-      @KeepFieldType
-      TeamChatViewModel com_alertyai_app_ui_teams_TeamChatViewModel2;
     }
   }
 
@@ -501,28 +501,19 @@ public final class DaggerAlertyAIApp_HiltComponents_SingletonC {
 
     @IdentifierNameString
     private static final class LazyClassKeyProvider {
-      static String com_alertyai_app_ui_teams_OrgMembersViewModel = "com.alertyai.app.ui.teams.OrgMembersViewModel";
-
-      static String com_alertyai_app_ui_teams_TeamChatViewModel = "com.alertyai.app.ui.teams.TeamChatViewModel";
-
-      static String com_alertyai_app_ui_reminders_RemindersViewModel = "com.alertyai.app.ui.reminders.RemindersViewModel";
-
       static String com_alertyai_app_ui_teams_TeamDashboardViewModel = "com.alertyai.app.ui.teams.TeamDashboardViewModel";
 
       static String com_alertyai_app_ui_tasks_TasksViewModel = "com.alertyai.app.ui.tasks.TasksViewModel";
 
-      static String com_alertyai_app_ui_chat_ChatViewModel = "com.alertyai.app.ui.chat.ChatViewModel";
+      static String com_alertyai_app_ui_teams_OrgMembersViewModel = "com.alertyai.app.ui.teams.OrgMembersViewModel";
+
+      static String com_alertyai_app_ui_reminders_RemindersViewModel = "com.alertyai.app.ui.reminders.RemindersViewModel";
 
       static String com_alertyai_app_ui_teams_TeamsViewModel = "com.alertyai.app.ui.teams.TeamsViewModel";
 
-      @KeepFieldType
-      OrgMembersViewModel com_alertyai_app_ui_teams_OrgMembersViewModel2;
+      static String com_alertyai_app_ui_chat_ChatViewModel = "com.alertyai.app.ui.chat.ChatViewModel";
 
-      @KeepFieldType
-      TeamChatViewModel com_alertyai_app_ui_teams_TeamChatViewModel2;
-
-      @KeepFieldType
-      RemindersViewModel com_alertyai_app_ui_reminders_RemindersViewModel2;
+      static String com_alertyai_app_ui_teams_TeamChatViewModel = "com.alertyai.app.ui.teams.TeamChatViewModel";
 
       @KeepFieldType
       TeamDashboardViewModel com_alertyai_app_ui_teams_TeamDashboardViewModel2;
@@ -531,10 +522,19 @@ public final class DaggerAlertyAIApp_HiltComponents_SingletonC {
       TasksViewModel com_alertyai_app_ui_tasks_TasksViewModel2;
 
       @KeepFieldType
-      ChatViewModel com_alertyai_app_ui_chat_ChatViewModel2;
+      OrgMembersViewModel com_alertyai_app_ui_teams_OrgMembersViewModel2;
+
+      @KeepFieldType
+      RemindersViewModel com_alertyai_app_ui_reminders_RemindersViewModel2;
 
       @KeepFieldType
       TeamsViewModel com_alertyai_app_ui_teams_TeamsViewModel2;
+
+      @KeepFieldType
+      ChatViewModel com_alertyai_app_ui_chat_ChatViewModel2;
+
+      @KeepFieldType
+      TeamChatViewModel com_alertyai_app_ui_teams_TeamChatViewModel2;
     }
 
     private static final class SwitchingProvider<T> implements Provider<T> {
